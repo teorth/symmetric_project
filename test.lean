@@ -13,10 +13,11 @@ variable {x : Fin n → ℝ}
 
 -- S_0(x) = 1
 example : eval x (real_esymm n 0) = 1 := by 
-  rw [real_esymm]  
-  rw [esymm_zero]
-  rw [<- C_1]
-  rw [eval_C]
+  simp [real_esymm]
+
+-- alternate proof:
+--  rw [real_esymm, esymm_zero, ← C_1, eval_C]
+
 
 
 
