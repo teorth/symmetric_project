@@ -1,3 +1,5 @@
+-- This is not part of the project, but was written in order for to practice manipulation of finite sums in Lean.
+
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Finset.Basic
 import Mathlib.RingTheory.MvPolynomial.Basic

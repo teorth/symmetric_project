@@ -1,30 +1,33 @@
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Finset.Basic
+import Mathlib.Algebra.BigOperators.Basic
+
+-- I have ended up not using the mathlib library for symmetric polynomials due to various technical type casting / functional programming issues .  A future project would be refactor the arguments here using that library.
+
 --import Mathlib.RingTheory.MvPolynomial.Basic
 --import Mathlib.RingTheory.MvPolynomial.Symmetric
-import Mathlib.Algebra.BigOperators.Basic
+--open MvPolynomial
+
+
+-- basic facts about the set "set_binom n k" (or $\binom{[n]}{k}$) of k-element subsets of $[n] = \{0, \dots, n-1\}$.
 
 import SymmetricProject.binomial
 
---open MvPolynomial
 open Finset
 open BigOperators
 
--- real_esymm n k is the k^th elementary symmetric polynomial in n real variables (but it is convenient to define x_i for all i)
-def real_esymm (n : ℕ) (k : ℕ) (x : ℕ → ℝ): ℝ := ∑ A in set_binom n k, (∏ i in A, x i)
+-- "esymm n k" is the k^th elementary symmetric polynomial $S_{n,k}(x)$ in the first n of an infinite number $x_1, x_2, \dots$ of real variables 
 
--- theorem real_esymm_explicit (n : ℕ) (k : ℕ) (x : (Fin n) → ℝ): eval x (real_esymm n k) = ∑ A in set_binom n k, (∏ i in A, x i) := by
---  sorry
+def esymm (n : ℕ) (k : ℕ) (x : ℕ → ℝ): ℝ := ∑ A in set_binom n k, (∏ i in A, x i)
 
---theorem esymm_recursion (n : ℕ) (k : ℕ) (x : Fin (n+1) → ℝ) (x': Fin n → ℝ) (h: ∀ m : Fin n, x m = x' m): eval x (real_esymm (n+1) (k+1)) = eval x' (real_esymm n (k+1)) + (x n) * (eval x' (real_esymm n k))
--- := by
---  rw [real_esymm, esymm_eq_sum_monomial]--
---  sorry
+-- TODO: relate this function to MvPolynomial.esymm
 
+-- TODO: prove the recursive identity
+-- $S_{n+1,k+1}(x) = S_{n,k+1}(x) + x_k S_{n,k}(x)$
 
--- S_0(x) = 1
--- example : eval x (real_esymm n 0) = 1 := by 
---  simp [real_esymm]
+-- TODO: Use this identity and induction on n to prove that
+-- $\prod_{i=1}^n (z - x_i) = \sum_{k+l=n} (-1)^k S_{n,k}(x) z^l$
+
 
 
 
