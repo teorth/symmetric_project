@@ -8,7 +8,7 @@ open Finset
 def set_binom (n : ℕ) (k : ℕ) : Finset (Finset ℕ) :=
   powersetLen k (range n)
 
--- Pascal's identity in set form: $\binom{[n+1]}{k+1}$ is the *disjoint* union of $\binom{[n]}{k+1}$ and the image of $\binom{[n]}{k}$ under the insertion map $A \mapsto A \cup \{n\}$..  First, a proof of disjointness:
+-- Pascal's identity in set form: $\binom{[n+1]}{k+1}$ is the *disjoint* union of $\binom{[n]}{k+1}$ and the image of $\binom{[n]}{k}$ under the insertion map $A \mapsto A \cup \{n\}$.  First, a proof of disjointness:
 
 def set_pascal_disjoint (n : ℕ) (k : ℕ) := disjUnion (set_binom n (k+1)) (image (insert n) (set_binom n k)) (by
   simp [disjoint_iff_ne, set_binom]
