@@ -1,6 +1,7 @@
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Finset.Basic
 import Mathlib.Algebra.BigOperators.Basic
+import Mathlib.Algebra.BigOperators.Ring
 
 -- I have ended up not using the mathlib library for symmetric polynomials due to various technical type casting / functional programming issues .  A future project would be refactor the arguments here using that library.
 
@@ -23,17 +24,45 @@ def esymm (n : ℕ) (k : ℕ) (x : ℕ → ℝ): ℝ := ∑ A in set_binom n k, 
 -- TODO: replace the reals by a more general commutative ring R
 -- TODO: relate this function to MvPolynomial.esymm
 
--- TODO: prove the Pascal identity for esymm:
+-- The Pascal identity for esymm:
 -- $$S_{n+1,k+1}(x) = S_{n,k+1}(x) + x_n S_{n,k}(x)$$
 
 theorem esymm_pascal (n : ℕ) (k : ℕ) (x : ℕ → ℝ): esymm (n+1) (k+1) x = esymm n (k+1) x + x n * esymm n k x := by
-  rw [esymm]
+  let X := esymm (n+1) (k+1) x
+  let Y := esymm n (k+1) x
+  let Z := esymm n k x
+  show X = Y + x n * Z
+  have h : X = esymm (n+1) (k+1) x := by rfl
+  rw [esymm, set_pascal, sum_disjUnion (set_pascal_disjoint n k)] at h
+  let monom := fun (A:Finset ℕ) => (∏ i in A, x i)
+    
+  let W := ∑ A in image (insert n) (set_binom n k), monom A
+
+  have h2: X = Y + W := by 
+    rw [h]
+    simp [esymm]
+  rw [h2]
+  congr
+  clear h h2 X Y 
+
+  have h3 : W = ∑ A in (set_binom n k), monom (insert n A) := by
+    apply sum_image
+    apply insert_binom_inj n k
+
+  rw [h3]
+  dsimp [esymm]
+  rw [mul_comm]
+  rw [sum_mul]
+  clear Z W monom h3
   
-  sorry
+  have h4 : ∀ A ∈ set_binom n k, ∏ i in insert n A, x i = (∏ i in A, x i) * x n := by
+    intro A hA
+    rw [prod_insert (set_binom_no_n n k A hA)]
+    ring
+  rw [sum_congr rfl h4]
+  
 
-
-
--- TODO: Use this identity and induction on n to prove that
+-- TODO: Use Pascal identity and induction on n to prove that
 -- $\prod_{i=1}^n (z - x_i) = \sum_{k+l=n} (-1)^k S_{n,k}(x) z^l$
 
 
