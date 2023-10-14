@@ -4,19 +4,11 @@
  [{"git":
    {"url": "https://github.com/leanprover-community/mathlib4.git",
     "subDir?": null,
-    "rev": "3f4910debcdd03d6ca9f9063b698a36fd2e3c211",
+    "rev": "04245a845816a4f6d44b6e726e349872bd74ac64",
     "opts": {},
     "name": "mathlib",
     "inputRev?": null,
     "inherited": false}},
-  {"git":
-   {"url": "https://github.com/leanprover/std4",
-    "subDir?": null,
-    "rev": "f2df4ab8c0726fce3bafb73a5727336b0c3120ea",
-    "opts": {},
-    "name": "std",
-    "inputRev?": "main",
-    "inherited": true}},
   {"git":
    {"url": "https://github.com/gebner/quote4",
     "subDir?": null,
@@ -48,5 +40,13 @@
     "opts": {},
     "name": "proofwidgets",
     "inputRev?": "v0.0.18",
+    "inherited": true}},
+  {"git":
+   {"url": "https://github.com/leanprover/std4",
+    "subDir?": null,
+    "rev": "a093d7a6ac721071d8ba3774b0318063928cd3e2",
+    "opts": {},
+    "name": "std",
+    "inputRev?": "main",
     "inherited": true}}],
  "name": "symmetric_project"}
