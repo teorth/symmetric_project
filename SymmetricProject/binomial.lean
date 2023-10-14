@@ -56,6 +56,14 @@ example : Finset.map (Finset.mapFinVal n) (set_binom' n k) = set_binom n k := by
       use ⟨m, by simpa using h⟩ 
 
 
+-- set_binom n k is empty when k > n
+lemma set_binom_empty (n : ℕ) (k : ℕ) : (k > n) → set_binom n k = ∅ := by
+  intro h
+  simp [set_binom]
+  apply powersetLen_empty 
+  rw [card_range]
+  assumption
+
 -- Elements of set_binom n k do not contain n.
 lemma set_binom_no_n (n : ℕ) (k : ℕ) (A: Finset ℕ) : A ∈ (set_binom n k) → ¬ n ∈ A := by
   intro h
