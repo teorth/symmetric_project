@@ -7,7 +7,6 @@ import Mathlib.Algebra.BigOperators.Ring
 import Mathlib.Init.Order.Defs
 import Init.Data.Nat.Basic
 
-
 -- basic facts about the expression "esymm n k x" (or $S_{n,k}(x)$) - the k^th elementary symmetric polynomial of the first n variables of an infinite sequence x of real variables
 import SymmetricProject.esymm_basic
 

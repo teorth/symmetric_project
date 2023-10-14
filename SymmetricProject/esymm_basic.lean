@@ -19,15 +19,18 @@ import SymmetricProject.binomial
 open Finset
 open BigOperators
 
--- "esymm n k" is the k^th elementary symmetric polynomial $S_{n,k}(x)$ in the first n of an infinite number $x_1, x_2, \dots$ of real variables.  We define this polynomial directly as a sum of monomials, instead of using MvPolynomial.esymm
+/-- "esymm n k" is the k^th elementary symmetric polynomial $S_{n,k}(x)$ in the first n of an infinite number $x_1, x_2, \dots$ of real variables.  
+
+We define this polynomial directly as a sum of monomials, instead of using MvPolynomial.esymm -/
 def esymm (n : ℕ) (k : ℕ) (x : ℕ → ℝ): ℝ := ∑ A in set_binom n k, (∏ i in A, x i)
 
 -- TODO: replace the reals by a more general commutative ring R
 -- TODO: relate this function to MvPolynomial.esymm
 
--- The Pascal identity for esymm:
--- $$S_{n+1,k+1}(x) = S_{n,k+1}(x) + S_{n,k}(x) x_n$$
+/-- The Pascal identity for esymm:
 
+$$S_{n+1,k+1}(x) = S_{n,k+1}(x) + S_{n,k}(x) x_n$$
+-/
 theorem esymm_pascal (n : ℕ) (k : ℕ) (x : ℕ → ℝ): esymm (n+1) (k+1) x = esymm n (k+1) x + (esymm n k x) * x n := by
   let X := esymm (n+1) (k+1) x
   let Y := esymm n (k+1) x
