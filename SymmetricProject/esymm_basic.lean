@@ -1,7 +1,11 @@
+-- basic facts about the expression "esymm n k x" (or $S_{n,k}(x)$) - the k^th elementary symmetric polynomial of the first n variables of an infinite sequence x of real variables
+
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Finset.Basic
 import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Algebra.BigOperators.Ring
+import Mathlib.Init.Order.Defs
+import Init.Data.Nat.Basic
 
 -- I have ended up not using the mathlib library for symmetric polynomials due to various technical type casting / functional programming issues .  A future project would be refactor the arguments here using that library.
 
@@ -9,29 +13,26 @@ import Mathlib.Algebra.BigOperators.Ring
 --import Mathlib.RingTheory.MvPolynomial.Symmetric
 --open MvPolynomial
 
-
 -- basic facts about the set "set_binom n k" (or $\binom{[n]}{k}$) of k-element subsets of $[n] = \{0, \dots, n-1\}$.
-
 import SymmetricProject.binomial
 
 open Finset
 open BigOperators
 
 -- "esymm n k" is the k^th elementary symmetric polynomial $S_{n,k}(x)$ in the first n of an infinite number $x_1, x_2, \dots$ of real variables.  We define this polynomial directly as a sum of monomials, instead of using MvPolynomial.esymm
-
 def esymm (n : ℕ) (k : ℕ) (x : ℕ → ℝ): ℝ := ∑ A in set_binom n k, (∏ i in A, x i)
 
 -- TODO: replace the reals by a more general commutative ring R
 -- TODO: relate this function to MvPolynomial.esymm
 
 -- The Pascal identity for esymm:
--- $$S_{n+1,k+1}(x) = S_{n,k+1}(x) + x_n S_{n,k}(x)$$
+-- $$S_{n+1,k+1}(x) = S_{n,k+1}(x) + S_{n,k}(x) x_n$$
 
-theorem esymm_pascal (n : ℕ) (k : ℕ) (x : ℕ → ℝ): esymm (n+1) (k+1) x = esymm n (k+1) x + x n * esymm n k x := by
+theorem esymm_pascal (n : ℕ) (k : ℕ) (x : ℕ → ℝ): esymm (n+1) (k+1) x = esymm n (k+1) x + (esymm n k x) * x n := by
   let X := esymm (n+1) (k+1) x
   let Y := esymm n (k+1) x
   let Z := esymm n k x
-  show X = Y + x n * Z
+  show X = Y + Z * x n
   have h : X = esymm (n+1) (k+1) x := by rfl
   rw [esymm, set_pascal, sum_disjUnion (set_pascal_disjoint n k)] at h
   let monom := fun (A:Finset ℕ) => (∏ i in A, x i)
@@ -51,7 +52,6 @@ theorem esymm_pascal (n : ℕ) (k : ℕ) (x : ℕ → ℝ): esymm (n+1) (k+1) x 
 
   rw [h3]
   dsimp [esymm]
-  rw [mul_comm]
   rw [sum_mul]
   clear Z W monom h3
   
@@ -61,12 +61,3 @@ theorem esymm_pascal (n : ℕ) (k : ℕ) (x : ℕ → ℝ): esymm (n+1) (k+1) x 
     ring
   rw [sum_congr rfl h4]
   
-
--- TODO: Use Pascal identity and induction on n to prove that
--- $\prod_{i=1}^n (z - x_i) = \sum_{k+l=n} (-1)^k S_{n,k}(x) z^l$
-
-
-
-
-
-

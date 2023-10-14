@@ -1,2 +1,2 @@
 import SymmetricProject.binomial
-import SymmetricProject.test
+import SymmetricProject.esymm_basic
