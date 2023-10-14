@@ -1,4 +1,8 @@
--- A test file to hold code in progress
+/-- The purpose of this file is to prove the generating function identity
+
+$$\prod_{i=1}^n (z - x_i) = \sum_{k=0}^n (-1)^k S_{n,k}(x) z^{n-k}$$
+
+-/
 
 import Mathlib.Data.Polynomial.Basic
 import Mathlib.Data.Polynomial.Coeff
@@ -13,16 +17,9 @@ import SymmetricProject.esymm_basic
 
 open Finset
 open BigOperators
-
-
-  
 open Polynomial
 
-/-- Now we prove the generating function identity
-
-$$\prod_{i=1}^n (z - x_i) = \sum_{k=0}^n (-1)^k S_{n,k}(x) z^{n-k}$$
-
-We have two lemmas to help with the proof.  The first lemma asserts that
+/-- We have two lemmas to help with the proof.  The first lemma asserts that
 
 $$ \sum_{k=0}^n a_k z^{n-k} = \sum_{k=0}^{n+1} 1_{k > 0} a_{k-1} z^{n+1-k}$$
 
@@ -30,6 +27,7 @@ and the second asserts that
 
 $$ \sum_{k=0}^n a_k z^{n-k+1} = \sum_{k=0}^{n+1} 1_{k \leq n} a_k z^{n+1-k}.$$
 -/
+
 lemma powerseries_inc_n (n : ℕ) (a : ℕ → ℝ) : ∑ k in range (n+1), monomial (n-k) (a k) = ∑ k in range (n+1+1), monomial (n+1-k) (if k > 0 then a (k-1) else 0) := by
   rw [sum_range_succ' _ (n+1)]
   simp
@@ -45,7 +43,9 @@ lemma powerseries_inc_n_mul (n : ℕ) (a : ℕ → ℝ) : ∑ k in range (n+1), 
   congr
   . simp [Nat.sub_add_comm hk']
   simp [hk']
-  
+
+-- Now we can prove the main result, basically by induction on n and using the Pascal identity.  The above lemmas are used to align the series to each other so that we can compare coefficients easily.
+
 theorem esym_genfn (n : ℕ) (x : ℕ → ℝ): ∏ i in (range n), (X - C (x i)) = ∑ k in range (n+1), monomial (n-k) ((-1) ^ ↑k * esymm n k x) := by
   induction' n with n hn
   . simp [esymm, set_binom]
