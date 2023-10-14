@@ -1,18 +1,17 @@
-/-- The purpose of this file is to prove the generating function identity
-
-$$\prod_{i=1}^n (z - x_i) = \sum_{k=0}^n (-1)^k S_{n,k}(x) z^{n-k}$$
-
--/
-
 import Mathlib.Data.Polynomial.Basic
 import Mathlib.Data.Polynomial.Coeff
 import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Algebra.BigOperators.Ring
 import Mathlib.Init.Order.Defs
 import Init.Data.Nat.Basic
+import SymmetricProject.esymm_basic
+/- The purpose of this file is to prove the generating function identity
+
+$$\prod_{i=1}^n (z - x_i) = \sum_{k=0}^n (-1)^k S_{n,k}(x) z^{n-k}$$
+
+-/
 
 -- basic facts about the expression "esymm n k x" (or $S_{n,k}(x)$) - the k^th elementary symmetric polynomial of the first n variables of an infinite sequence x of real variables
-import SymmetricProject.esymm_basic
 
 
 open Finset
