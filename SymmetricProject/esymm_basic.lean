@@ -1,20 +1,19 @@
--- basic facts about the expression "esymm n k x" (or $S_{n,k}(x)$) - the k^th elementary symmetric polynomial of the first n variables of an infinite sequence x of real variables
-
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Finset.Basic
 import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Algebra.BigOperators.Ring
 import Mathlib.Init.Order.Defs
 import Init.Data.Nat.Basic
+import SymmetricProject.binomial
+
+-- basic facts about the expression "esymm n k x" (or $S_{n,k}(x)$) - the k^th elementary symmetric polynomial of the first n variables of an infinite sequence x of real variables
+
 
 -- I have ended up not using the mathlib library for symmetric polynomials due to various technical type casting / functional programming issues .  A future project would be refactor the arguments here using that library.
 
 --import Mathlib.RingTheory.MvPolynomial.Basic
 --import Mathlib.RingTheory.MvPolynomial.Symmetric
 --open MvPolynomial
-
--- basic facts about the set "set_binom n k" (or $\binom{[n]}{k}$) of k-element subsets of $[n] = \{0, \dots, n-1\}$.
-import SymmetricProject.binomial
 
 open Finset
 open BigOperators
