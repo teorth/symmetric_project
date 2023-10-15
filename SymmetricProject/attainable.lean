@@ -5,7 +5,7 @@ import Mathlib.Algebra.BigOperators.Ring
 import SymmetricProject.esymm_basic
 import SymmetricProject.esymm_generating
 
--- this file sets up the concept of an attainable sequence - a tuple of real numbers that can be attained as elementary symmetric means.
+-- this file sets up the concept of an attainable sequence - a tuple of real numbers that can be attained as elementary symmetric means.  It also establishes [Lemma 2.1 of the paper], which is a key tool in what follows.
 
 open Finset
 open BigOperators
@@ -59,7 +59,4 @@ lemma attainable_reflect (n : ℕ) (s : ℕ → ℝ) : attainable n s → s n �
   assumption
 
     
-
-
--- lemma esymm_reflect (n : ℕ) (k : ℕ) (x : ℕ → ℝ) (h : esymm n n x ≠ 0) (hkn : k ≤ n) : esymm n k (fun i => 1 / x i) = esymm n (n-k) x / esymm n n 
 
