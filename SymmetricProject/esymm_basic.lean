@@ -28,23 +28,32 @@ def esymm (n : ℕ) (k : ℕ) (x : ℕ → ℝ): ℝ := ∑ A in set_binom n k, 
 -- TODO: relate this function to MvPolynomial.esymm
 
 -- S_{n,0}(x)=1
-theorem esymm_zero_eq_one (n : ℕ) (x : ℕ → ℝ) : esymm n 0 x = 1 := by
+lemma esymm_zero_eq_one (n : ℕ) (x : ℕ → ℝ) : esymm n 0 x = 1 := by
   simp [esymm, set_binom]
 
 -- S_{n,k}(x)=0 if k>n
-theorem esymm_eq_zero (n : ℕ) (k : ℕ) (x : ℕ → ℝ) : (k > n) → esymm n k x = 0 := by
+lemma esymm_eq_zero (n : ℕ) (k : ℕ) (x : ℕ → ℝ) : (k > n) → esymm n k x = 0 := by
   intro h
   simp [esymm]
   rw [set_binom_empty]
   simp
   exact h
 
+-- S_{n,n}(x) = \prod_{i=0}^{n-1} x_i
+lemma esymm_prod (n : ℕ) (x: ℕ → ℝ): esymm n n x = (∏ i in range n, x i) := by
+  simp [esymm, set_binom]
+  have h : powersetLen n (range n) = { range n } := by
+    rw [<- powersetLen_self]
+    congr
+    exact (card_range n).symm
+  rw [h]
+  apply sum_singleton 
+  
 -- S_{n,k}(ax) = a^k S_{n,k}(x)
-theorem esymm_mul (n : ℕ) (k : ℕ) (x : ℕ → ℝ) (a : ℝ) : esymm n k (fun i => a * x i) = a^k * esymm n k x := by
+lemma esymm_mul (n : ℕ) (k : ℕ) (x : ℕ → ℝ) (a : ℝ) : esymm n k (fun i => a * x i) = a^k * esymm n k x := by
   simp [esymm]
   rw [mul_sum]
-  apply sum_congr
-  . rfl
+  apply sum_congr rfl
   intro A hA
   rw [prod_mul_distrib]
   congr
@@ -53,6 +62,44 @@ theorem esymm_mul (n : ℕ) (k : ℕ) (x : ℕ → ℝ) (a : ℝ) : esymm n k (f
   simp [set_binom, mem_powersetLen] at hA
   tauto
 
+/-- If S_{n,n}(x) is non-zero, then
+$$ S_{n,k}(1/x) = S_{n,n-k}(x) / S_{n,n}(x) $$ 
+for all 0 ≤ k ≤ n
+-/
+
+lemma esymm_reflect (n : ℕ) (k : ℕ) (x : ℕ → ℝ) (h : esymm n n x ≠ 0) (hkn : k ≤ n) : esymm n k (fun i => 1 / x i) = esymm n (n-k) x / esymm n n x := by
+  have hi : ∀ i : ℕ, i < n → x i ≠ 0 := by
+    rw [esymm_prod, prod_ne_zero_iff] at h
+    intro i hi
+    apply h i
+    simp
+    assumption
+  rw [eq_div_iff h, esymm_prod, esymm, esymm, sum_mul]
+  clear h
+  rw [<- sdiff_binom_image n k hkn]
+  rw [sum_image (sdiff_binom_inj n k)]
+  apply sum_congr rfl
+  intro A hA
+  simp [set_binom, mem_powersetLen] at hA
+  rcases hA with ⟨ hAn, cardA ⟩
+  clear k cardA hkn
+  rw [<- prod_sdiff hAn, mul_comm, mul_assoc]
+  nth_rewrite 2 [<- mul_one (∏ i in range n \ A, x i)]
+  congr
+  rw [<- prod_mul_distrib]
+  calc 
+    ∏ i in A, x i * (1 / x i) = ∏ i in A, 1 := by 
+      apply prod_congr rfl
+      intro i hia
+      have hi' : i < n := by
+        rw [<- mem_range]
+        exact hAn hia
+      exact mul_one_div_cancel (hi i hi')
+    _ = 1 := by 
+      exact prod_const_one
+
+  
+  
 /-- The Pascal identity for esymm:
 
 $$S_{n+1,k+1}(x) = S_{n,k+1}(x) + S_{n,k}(x) x_n$$

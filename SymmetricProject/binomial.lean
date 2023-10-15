@@ -1,9 +1,9 @@
 import Mathlib.Data.Finset.Basic
 import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Data.Finset.Fin
+import Init.Data.Nat.Basic
 
 -- basic facts about the set "set_binom n k" (or $\binom{[n]}{k}$) of k-element subsets of $[n] = \{0, \dots, n-1\}$.
-
 
 open Finset
 
@@ -94,7 +94,59 @@ theorem set_pascal (n : ℕ) (k : ℕ) : set_binom (n+1) (k+1) = disjUnion (set_
 
 
 -- To use this, also need the image (insert n) map to be injective on set_binom n k
-theorem insert_binom_inj (n : ℕ) (k : ℕ) : (∀ (A : Finset ℕ), A ∈ (set_binom n k) → ∀ (B : Finset ℕ), B ∈ (set_binom n k) → (insert n A = insert n B) → A = B) := by
+lemma insert_binom_inj (n : ℕ) (k : ℕ) : (∀ (A : Finset ℕ), A ∈ (set_binom n k) → ∀ (B : Finset ℕ), B ∈ (set_binom n k) → (insert n A = insert n B) → A = B) := by
   intro A hA B hB hAB
   rw [<-erase_insert (set_binom_no_n n k A hA), <-erase_insert (set_binom_no_n n k B hB), hAB]
+
+
+-- complement (in range n) is injective on set_binom n k
+lemma sdiff_binom_inj (n : ℕ) (k : ℕ) : (∀ (A : Finset ℕ), A ∈ (set_binom n k) → ∀ (B : Finset ℕ), B ∈ (set_binom n k) → (sdiff (range n) A = sdiff (range n) B) → A = B) := by
+  intro A hA B hB hAB
+  have hAn : range n \ (range n \ A) = A := by
+    simp [set_binom, mem_powersetLen] at hA
+    apply Finset.sdiff_sdiff_eq_self hA.1
+  have hBn : range n \ (range n \ B) = B := by
+    simp [set_binom, mem_powersetLen] at hB
+    apply Finset.sdiff_sdiff_eq_self hB.1
+  rw [<- hAn, <- hBn]
+  congr
+
+-- complement (in range n) maps set_binom n k to set_binom n (n-k) if k ≤ n
+lemma sdiff_binom_image (n : ℕ) (k : ℕ) (h : k ≤ n) : image (sdiff (range n)) (set_binom n k) = set_binom n (n-k) := by
+  ext A
+  simp [set_binom, mem_powersetLen]
+  constructor
+  . intro h1
+    rcases h1 with ⟨ B, hB ⟩
+    rcases hB with ⟨ ⟨ hBn, cardB ⟩, sdiffB ⟩
+    rw [<- sdiffB]
+    constructor
+    . apply sdiff_subset
+    rw [card_sdiff hBn, card_range]
+    congr 
+  intro h1
+  rcases h1 with ⟨ hA, cardA ⟩
+  let B := sdiff (range n) A
+  use B
+  constructor
+  . constructor
+    .  apply sdiff_subset
+    rw [card_sdiff, card_range, cardA]
+    have h' : n = n - k + k := by
+      rw [Nat.sub_add_cancel h]
+    nth_rewrite 1 [h']
+    apply Nat.add_sub_cancel_left
+    have hBn : range n \ (range n \ B) = B := by
+      have hB : B ⊆ range n := by 
+        apply Finset.sdiff_subset
+      apply Finset.sdiff_sdiff_eq_self hB
+    assumption
+  have hAn : range n \ (range n \ A) = A := by
+    apply Finset.sdiff_sdiff_eq_self hA
+  assumption
+  
+
+
+
+
 

@@ -38,7 +38,7 @@ lemma attainable_scaling (n : ℕ) (s : ℕ → ℝ) (a : ℝ) : attainable n s 
   rw [esymm_mul]
   simp [hx k hk]
   ring
-
+  
 
 
 
