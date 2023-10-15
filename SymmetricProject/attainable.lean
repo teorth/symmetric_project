@@ -18,7 +18,7 @@ for all $0 \leq k \leq n$.
 -/
 def attainable (n : ℕ) (s : ℕ → ℝ) : Prop := ∃ (x : ℕ → ℝ), ∀ k : ℕ, k ≤ n → esymm n k x = (s k) * (choose n k)
 
-/-- Any attainable sequence starts at zero. -/
+/-- Any attainable sequence starts at one. -/
 lemma attainable_zero_eq_one (n : ℕ) (s : ℕ → ℝ) : attainable n s → s 0 = 1 := by
   intro h
   rcases h with ⟨ x, hx ⟩
@@ -28,8 +28,7 @@ lemma attainable_zero_eq_one (n : ℕ) (s : ℕ → ℝ) : attainable n s → s 
   symm
   assumption
 
-/-- An attainable sequence can be scaled. -/
-
+/-- An attainable sequence can be scaled. [Lemma 2.1(i) in the paper]-/
 lemma attainable_scaling (n : ℕ) (s : ℕ → ℝ) (a : ℝ) : attainable n s → attainable n (fun k => (a ^ k) * (s k) ) := by
   intro h
   rcases h with ⟨ x, hx ⟩
@@ -37,8 +36,8 @@ lemma attainable_scaling (n : ℕ) (s : ℕ → ℝ) (a : ℝ) : attainable n s 
   intro k hk
   simp
   rw [esymm_mul]
-
-  sorry
+  simp [hx k hk]
+  ring
 
 
 

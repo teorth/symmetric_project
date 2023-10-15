@@ -9,6 +9,7 @@ import SymmetricProject.esymm_basic
 
 $$\prod_{i=1}^n (z - x_i) = \sum_{k=0}^n (-1)^k S_{n,k}(x) z^{n-k}$$
 
+(equation (1.1) in the paper)
 -/
 
 -- basic facts about the expression "esymm n k x" (or $S_{n,k}(x)$) - the k^th elementary symmetric polynomial of the first n variables of an infinite sequence x of real variables
