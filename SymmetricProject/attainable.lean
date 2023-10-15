@@ -39,6 +39,27 @@ lemma attainable_scaling (n : ℕ) (s : ℕ → ℝ) (a : ℝ) : attainable n s 
   simp [hx k hk]
   ring
   
+/-- An attainable sequence can be reflected if its final entry is non-zero. [Lemma 2.1(ii) in the paper]-/
+lemma attainable_reflect (n : ℕ) (s : ℕ → ℝ) : attainable n s → s n ≠ 0 → attainable n (fun k => s (n - k) / (s n)) := by
+  intro h hn
+  rcases h with ⟨ x, hx ⟩
+  use fun k => 1 / (x k)
+  intro k hk
+  rw [esymm_reflect]
+  have hnk : n-k ≤ n := by apply sub_le
+  have hnn : n ≤ n := by linarith
+  rw [hx (n-k) hnk, hx n hnn] 
+  simp [choose_symm hk]
+  ring
+  . contrapose! hn
+    have hnn : n ≤ n := by linarith
+    rw [hx n hnn] at hn
+    simp at hn
+    assumption
+  assumption
+
+    
 
 
+-- lemma esymm_reflect (n : ℕ) (k : ℕ) (x : ℕ → ℝ) (h : esymm n n x ≠ 0) (hkn : k ≤ n) : esymm n k (fun i => 1 / x i) = esymm n (n-k) x / esymm n n 
 
