@@ -5,6 +5,7 @@ import Mathlib.Algebra.BigOperators.Ring
 import Mathlib.Data.Polynomial.Basic
 import Mathlib.Data.Polynomial.Coeff
 import Mathlib.Data.Polynomial.Derivative
+import Mathlib.Data.Polynomial.Eval
 import Mathlib.Data.Complex.Basic
 import Mathlib.Analysis.Complex.Polynomial
 import Mathlib.Order.WithBot
@@ -63,6 +64,11 @@ theorem real_roots_deriv (n : ℕ) (x : ℕ → ℝ) : ∃ (y : ℕ → ℝ), de
 
   let P := ∏ k in range (m+1), (X - C (x k))
   let P' := derivative P
+
+  have hP' : P' = derivative P := by rfl
+  rw [<- hP']
+  clear hP'
+
   have degP : P.degree = m+1 := by
     rw [degree_prod]
     simp [degree_X_sub_C]
@@ -117,18 +123,41 @@ theorem real_roots_deriv (n : ℕ) (x : ℕ → ℝ) : ∃ (y : ℕ → ℝ), de
   
   -- we have factored P' into a product of linear factors, now we need to show that the roots are real
 
-  have realRoots : ∃ (y : ℕ → ℝ), ∀ (k : ℕ), (k ∈ range m) → z k = y k := by
+  have eachRootReal : ∀ (k : ℕ), (k ∈ range m) → (z k).im = 0 := by
+    intro k hk
     sorry
+
+  have realRoots : ∃ (y : ℕ → ℝ), ∀ (k : ℕ), (k ∈ range m) → z k = y k := by
+    let y : ℕ → ℝ := fun k => if (k ∈ range m) then (z k).re else 0
+    use y
+    intro k hk
+    apply Complex.ext
+    . simp at hk
+      simp [hk]
+    apply eachRootReal
+    exact hk
+  clear eachRootReal
 
   rcases realRoots with ⟨y, hy⟩
   use y
+  
+  clear degP monicP Pne0 ndegP coeffP' mne P'ne0 ndegP' degP' leadP' splitsP'
+  
+  have pmapInj : Function.Injective (Polynomial.map Complex.ofReal) := by
+    apply Polynomial.map_injective
+    exact Complex.ofReal_injective
 
-  have tmp : ∏ k in range m, (X - C (z k)) = (∏ k in range m, (X - C (y k)) : Polynomial ℂ) := by
-    apply prod_congr rfl
-    intro k hk
-    rw [hy k hk]
-    sorry
+  apply pmapInj
 
-  sorry
+  have hPC : P'_C = map Complex.ofReal P' := rfl
+  rw [<- hPC, hz]
+  simp
+  left
+  clear x P P' P'_C hz pmapInj hPC
+  rw [Polynomial.map_prod]
+  apply prod_congr rfl
+  intro k hk
+  rw [hy k hk]
+  simp
 
 
