@@ -67,7 +67,7 @@ theorem esym_genfn (n : ℕ) (x : ℕ → ℝ): ∏ i in (range n), (X - C (x i)
     rcases em (k + 1 ≤ n) with hkn | hkn
     . simp [hkn]
     simp [hkn]
-    apply esymm_zero
+    apply esymm_eq_zero
     linarith 
   rw [h]
   clear h

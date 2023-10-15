@@ -27,13 +27,31 @@ def esymm (n : ℕ) (k : ℕ) (x : ℕ → ℝ): ℝ := ∑ A in set_binom n k, 
 -- TODO: replace the reals by a more general commutative ring R
 -- TODO: relate this function to MvPolynomial.esymm
 
--- S_{n,k}=0 if k>n
-theorem esymm_zero (n : ℕ) (k : ℕ) (x : ℕ → ℝ) : (k > n) → esymm n k x = 0 := by
+-- S_{n,0}(x)=1
+theorem esymm_zero_eq_one (n : ℕ) (x : ℕ → ℝ) : esymm n 0 x = 1 := by
+  simp [esymm, set_binom]
+
+-- S_{n,k}(x)=0 if k>n
+theorem esymm_eq_zero (n : ℕ) (k : ℕ) (x : ℕ → ℝ) : (k > n) → esymm n k x = 0 := by
   intro h
   simp [esymm]
   rw [set_binom_empty]
   simp
   exact h
+
+-- S_{n,k}(ax) = a^k S_{n,k}(x)
+theorem esymm_mul (n : ℕ) (k : ℕ) (x : ℕ → ℝ) (a : ℝ) : esymm n k (fun i => a * x i) = a^k * esymm n k x := by
+  simp [esymm]
+  rw [mul_sum]
+  apply sum_congr
+  . rfl
+  intro A hA
+  rw [prod_mul_distrib]
+  congr
+  simp
+  congr
+  simp [set_binom, mem_powersetLen] at hA
+  tauto
 
 /-- The Pascal identity for esymm:
 
