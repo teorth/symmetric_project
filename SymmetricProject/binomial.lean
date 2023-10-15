@@ -1,6 +1,7 @@
 import Mathlib.Data.Finset.Basic
 import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Data.Finset.Fin
+import Mathlib.Data.Fintype.Fin
 import Init.Data.Nat.Basic
 
 -- basic facts about the set "set_binom n k" (or $\binom{[n]}{k}$) of k-element subsets of $[n] = \{0, \dots, n-1\}$.
@@ -26,6 +27,7 @@ theorem Finset.mem_mapEmbedding : x ∈ Finset.mapEmbedding f s ↔ ∃ y ∈ s,
 
 abbrev Finset.mapFinVal (n : ℕ) : Finset (Fin n) ↪ Finset ℕ := (Finset.mapEmbedding Fin.valEmbedding).toEmbedding
 
+-- code here provided by Scott Morrison
 example : Finset.map (Finset.mapFinVal n) (set_binom' n k) = set_binom n k := by
   -- This feels more complicated than it ought to be!
   simp only [set_binom, set_binom']
@@ -56,6 +58,9 @@ example : Finset.map (Finset.mapFinVal n) (set_binom' n k) = set_binom n k := by
       specialize h mem
       use ⟨m, by simpa using h⟩ 
 
+-- shorter proof provided by Arend Mellendiijk
+example : Finset.map (Finset.mapFinVal n) (set_binom' n k) = set_binom n k := by
+  rw[set_binom, set_binom', ←Finset.powersetLen_map,Fin.map_valEmbedding_univ, Nat.Iio_eq_range]
 
 -- set_binom n k is empty when k > n
 lemma set_binom_empty (n : ℕ) (k : ℕ) : (k > n) → set_binom n k = ∅ := by
@@ -136,15 +141,11 @@ lemma sdiff_binom_image (n : ℕ) (k : ℕ) (h : k ≤ n) : image (sdiff (range 
       rw [Nat.sub_add_cancel h]
     nth_rewrite 1 [h']
     apply Nat.add_sub_cancel_left
-    have hBn : range n \ (range n \ B) = B := by
-      have hB : B ⊆ range n := by 
-        apply Finset.sdiff_subset
-      apply Finset.sdiff_sdiff_eq_self hB
     assumption
   have hAn : range n \ (range n \ A) = A := by
     apply Finset.sdiff_sdiff_eq_self hA
   assumption
-  
+
 
 
 
