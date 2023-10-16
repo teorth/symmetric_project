@@ -52,7 +52,7 @@ theorem real_roots_deriv (n : ℕ) (x : ℕ → ℝ) : ∃ (y : ℕ → ℝ), de
     simp [degree_X_sub_C]
   have monicP : Monic P := by
     apply monic_prod_of_monic
-    intro k hk
+    intro k _
     simp [monic_X_sub_C]
   have Pne0 : P ≠ 0 := by 
     contrapose! monicP
@@ -90,9 +90,10 @@ theorem real_roots_deriv (n : ℕ) (x : ℕ → ℝ) : ∃ (y : ℕ → ℝ), de
   have leadP' : leadingCoeff P' = m+1 := by
     rw [<-coeff_natDegree, <- ndegP', coeffP']
 
-  have splitP : Splits (RingHom.id ℝ) P := by
+  let id := RingHom.id ℝ
+  have splitP : Splits id P := by
     apply splits_prod
-    intro k hk
+    intro k _
     apply splits_X_sub_C
   
   rw [splits_iff_card_roots, ndegP] at splitP
@@ -115,14 +116,19 @@ theorem real_roots_deriv (n : ℕ) (x : ℕ → ℝ) : ∃ (y : ℕ → ℝ), de
 
   have splitP' : Multiset.card RootsP' = m := numRoots
 
-  rw [ndegP', <-splits_iff_card_roots, splits_iff_exists_multiset] at splitP'
+  rw [ndegP', <-splits_iff_card_roots] at splitP'
   
-  rcases splitP' with ⟨ R , hR⟩
-  simp [leadP'] at hR
+  have h: Polynomial.map id P' = C (id P'.leadingCoeff) * Multiset.prod (Multiset.map (fun a => X - C a) (Polynomial.roots (Polynomial.map id P'))) := by
+    apply eq_prod_roots_of_splits splitP'
+  
+  rw [leadP', map_id] at h
 
-  have h : ∃ (y : ℕ → ℝ), Multiset.prod (Multiset.map (fun x => X - C x) R) = Finset.prod (Finset.range (Multiset.card R)) (fun i => X - C (y i)) := by
+  have h2 : ∃ (y : ℕ → ℝ), Multiset.prod (Multiset.map (fun x => X - C x) RootsP') = Finset.prod (Finset.range (Multiset.card RootsP')) (fun i => X - C (y i)) := by
     apply multiset_prod_to_finset
 
--- Multiset.prod (Multiset.map (fun x => X - ↑C x) R)
+  rcases h2 with ⟨y, hy⟩
+  use y
+  rw [hy, numRoots] at h
+  simp at h
+  rw [<- h]
 
-  sorry
