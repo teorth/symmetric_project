@@ -6,9 +6,9 @@ import Mathlib.Data.Polynomial.Basic
 import Mathlib.Data.Polynomial.Coeff
 import Mathlib.Data.Polynomial.Derivative
 import Mathlib.Data.Polynomial.Eval
-import Mathlib.Data.Complex.Basic
-import Mathlib.Analysis.Complex.Polynomial
+import Mathlib.Data.Polynomial.Splits
 import Mathlib.Order.WithBot
+import Mathlib.Analysis.Calculus.LocalExtr.Polynomial
 
 -- The purpose of this file is to establish that the derivative of a real-rooted polynomial is also real-rooted. 
 
@@ -32,28 +32,6 @@ lemma multiset_prod_to_finset {β : Type u} {α : Type v}[CommMonoid β] [Ring �
     apply h _ _ _
     refine Finset.prod_congr rfl fun x hx ↦ ?_
     rw [Function.update_noteq (Finset.mem_range.1 hx).ne]
-
--- Fundamental theorem of algebra in finset form
-lemma finset_ftoa (P : Polynomial ℝ) : ∃ (z : ℕ → ℂ ), map Complex.ofReal P = C (P.leadingCoeff : ℂ) * ∏ k in range P.natDegree, (X - C (z k)) := by
-  let n := P.natDegree
-  let f := fun (a : ℂ) => X - C a
-  let P_C := map Complex.ofReal P
-  let Roots := roots P_C
-  have splitsP : Splits Complex.ofReal P := by
-    apply IsAlgClosed.splits_codomain
-  have cardRoots : Multiset.card Roots = n := by
-    rw [<- natDegree_eq_card_roots splitsP]  
-  have h : P_C = Polynomial.map Complex.ofReal P := rfl
-  rw [<- h]
-  rw [eq_prod_roots_of_splits splitsP] at h
-  have tmp : ∃ (a : ℕ → ℂ), Multiset.prod (Multiset.map f Roots) = Finset.prod (Finset.range (Multiset.card Roots)) (fun k => f (a k)) := by
-    apply multiset_prod_to_finset
-  rcases tmp with ⟨ z, hz⟩ 
-  rw [hz, cardRoots] at h
-  use z
-  rw [h]
-  simp
-
 
 
 theorem real_roots_deriv (n : ℕ) (x : ℕ → ℝ) : ∃ (y : ℕ → ℝ), derivative (∏ k in range n, (X - C (x k))) = (C (n:ℝ)) * (∏ k in range (n-1), (X - C (y k))) := by
@@ -111,53 +89,40 @@ theorem real_roots_deriv (n : ℕ) (x : ℕ → ℝ) : ∃ (y : ℕ → ℝ), de
   rw [degP', Nat.cast_inj] at ndegP'
   have leadP' : leadingCoeff P' = m+1 := by
     rw [<-coeff_natDegree, <- ndegP', coeffP']
-  have splitsP' : Splits Complex.ofReal P' := by
-    apply IsAlgClosed.splits_codomain
-  let P'_C := map Complex.ofReal P'
 
-  have ftoa : ∃ (z : ℕ → ℂ ), P'_C = C (P'.leadingCoeff : ℂ) * ∏ k in range P'.natDegree, (X - C (z k)) := by
-    apply finset_ftoa
-  
-  rcases ftoa with ⟨z, hz⟩
-  rw [leadP', <- ndegP'] at hz
-  
-  -- we have factored P' into a product of linear factors, now we need to show that the roots are real
-
-  have eachRootReal : ∀ (k : ℕ), (k ∈ range m) → (z k).im = 0 := by
+  have splitP : Splits (RingHom.id ℝ) P := by
+    apply splits_prod
     intro k hk
-    sorry
-
-  have realRoots : ∃ (y : ℕ → ℝ), ∀ (k : ℕ), (k ∈ range m) → z k = y k := by
-    let y : ℕ → ℝ := fun k => if (k ∈ range m) then (z k).re else 0
-    use y
-    intro k hk
-    apply Complex.ext
-    . simp at hk
-      simp [hk]
-    apply eachRootReal
-    exact hk
-  clear eachRootReal
-
-  rcases realRoots with ⟨y, hy⟩
-  use y
+    apply splits_X_sub_C
   
-  clear degP monicP Pne0 ndegP coeffP' mne P'ne0 ndegP' degP' leadP' splitsP'
+  rw [splits_iff_card_roots, ndegP] at splitP
+
+  let RootsP' := roots P'
+
+  have manyRoots : m+1 ≤ Multiset.card RootsP' + 1 := by
+    rw [<- splitP]
+    apply card_roots_le_derivative
   
-  have pmapInj : Function.Injective (Polynomial.map Complex.ofReal) := by
-    apply Polynomial.map_injective
-    exact Complex.ofReal_injective
+  simp at manyRoots
 
-  apply pmapInj
+  have numRoots : Multiset.card RootsP' = m := by
+    apply le_antisymm
+    . rw [ndegP']
+      apply card_roots'
+    apply manyRoots
+    
+  clear degP monicP Pne0 ndegP splitP manyRoots
 
-  have hPC : P'_C = map Complex.ofReal P' := rfl
-  rw [<- hPC, hz]
-  simp
-  left
-  clear x P P' P'_C hz pmapInj hPC
-  rw [Polynomial.map_prod]
-  apply prod_congr rfl
-  intro k hk
-  rw [hy k hk]
-  simp
+  have splitP' : Multiset.card RootsP' = m := numRoots
 
+  rw [ndegP', <-splits_iff_card_roots, splits_iff_exists_multiset] at splitP'
+  
+  rcases splitP' with ⟨ R , hR⟩
+  simp [leadP'] at hR
 
+  have h : ∃ (y : ℕ → ℝ), Multiset.prod (Multiset.map (fun x => X - C x) R) = Finset.prod (Finset.range (Multiset.card R)) (fun i => X - C (y i)) := by
+    apply multiset_prod_to_finset
+
+-- Multiset.prod (Multiset.map (fun x => X - ↑C x) R)
+
+  sorry
