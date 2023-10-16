@@ -13,4 +13,3 @@ example (A : Multiset ℕ) (P : ℕ → Polynomial ℝ ) (P' : ℕ → Polynomia
   congr
   funext i
   congr!
-  sorry

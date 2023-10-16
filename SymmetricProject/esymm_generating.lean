@@ -47,7 +47,7 @@ lemma powerseries_inc_n_mul (n : ℕ) (a : ℕ → ℝ) : ∑ k in range (n+1), 
 -- Now we can prove the main result, basically by induction on n and using the Pascal identity.  The above lemmas are used to align the series to each other so that we can compare coefficients easily.
 
 -- TODO: refactor this using Polynomial.coeff_eq_esymm_roots_of_card 
-theorem esym_genfn (n : ℕ) (x : ℕ → ℝ): ∏ i in (range n), (X - C (x i)) = ∑ k in range (n+1), monomial (n-k) ((-1) ^ ↑k * esymm n k x) := by
+theorem esymm_genfn (n : ℕ) (x : ℕ → ℝ): ∏ i in (range n), (X - C (x i)) = ∑ k in range (n+1), monomial (n-k) ((-1) ^ ↑k * esymm n k x) := by
   induction' n with n hn
   . simp [esymm, set_binom]
   rw [Nat.succ_eq_add_one, prod_range_succ, hn, mul_sub, sum_mul, sum_mul]

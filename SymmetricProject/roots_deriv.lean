@@ -33,6 +33,8 @@ lemma multiset_prod_to_finset {β : Type u} {α : Type v}[CommMonoid β] [Ring �
     refine Finset.prod_congr rfl fun x hx ↦ ?_
     rw [Function.update_noteq (Finset.mem_range.1 hx).ne]
 
+-- TODO: refactor this as the statement that if a polynomial splits over the reals, then so does its derivative. (One can also refactor attainability as the property of the generating function splitting over the reals.)
+
 
 theorem real_roots_deriv (n : ℕ) (x : ℕ → ℝ) : ∃ (y : ℕ → ℝ), derivative (∏ k in range n, (X - C (x k))) = (C (n:ℝ)) * (∏ k in range (n-1), (X - C (y k))) := by
   rcases n with _ | m
