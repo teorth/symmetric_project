@@ -10,6 +10,8 @@ open Polynomial
 
 example (A : Multiset ℕ) (P : ℕ → Polynomial ℝ ) (P' : ℕ → Polynomial ℝ ) (Q : Polynomial ℝ) (h : Q = Multiset.prod (Multiset.map P A)) (k : ∀ i : ℕ, derivative (P i) = P'_i) : derivative Q = Multiset.sum (Multiset.map (fun i => Multiset.prod (Multiset.map P (Multiset.erase A i)) * (P' i)) A) := by
   rw [h, derivative_prod]
+  have ha : 3 = 3 := by
+  rw [(show 3=2+1 by norm_num)] at ha 
   congr
   funext i
   congr!

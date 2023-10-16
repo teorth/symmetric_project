@@ -118,8 +118,8 @@ lemma attainable_truncate (n : ℕ) (l : ℕ) (s : ℕ → ℝ) (hln : l ≤ n) 
     rw [succ_eq_add_one, mul_sum] at hy
     simp at hy
     rw [Finset.sum_range_succ] at hy
-    have tmp : (↑n + 1 - ↑(n + 1)) * (-1) ^ (n + 1) * s (n + 1) * ↑(Nat.choose (n + 1) (n + 1)) = 0 := by
-      sorry
+    have tmp : ((n:ℝ) + 1 - ↑(n + 1)) = 0 := by
+      simp
     rw [tmp] at hy
     simp at hy
     rw [<-sub_eq_zero, <-sum_sub_distrib] at hy
@@ -129,7 +129,10 @@ lemma attainable_truncate (n : ℕ) (l : ℕ) (s : ℕ → ℝ) (hln : l ≤ n) 
       apply sum_congr rfl
       intro b hb
       have tmp : n + 1 - b - 1 = n - b := by
-        sorry
+        simp at hb
+        have hb' : b ≤ n := by linarith
+        rw [Nat.sub_add_comm hb']
+        simp
       rw [tmp]
       simp
       rw [mul_assoc, <-C_mul_monomial]
@@ -144,16 +147,37 @@ lemma attainable_truncate (n : ℕ) (l : ℕ) (s : ℕ → ℝ) (hln : l ≤ n) 
     rw [sub_eq_zero] at h'
 
     have h'' : (-1)^k * ((↑n + 1 - ↑k) * ↑(Nat.choose (n + 1) k) * s k) = (-1)^k * ((↑n + 1) * esymm n k y) := by 
-      sorry
+      have : (-1) ^ k * ((↑n + 1) * esymm n k y) = (↑n + 1) * (-1) ^ k * esymm n k y := by ring
+      rw [this, <- h']
+      ring
+      
     clear h h'
     
     have h3: (-1:ℝ)^k ≠ 0 := by
-      sorry
+      have : (-1:ℝ) ≠ 0 := by norm_num
+      exact pow_ne_zero k this 
     have h4 := mul_left_cancel₀ h3 h''
     clear h3 h''
     
     have h5 : ((n:ℝ) + 1 - (k:ℝ)) * (Nat.choose (n + 1) k) = (n + 1) * (Nat.choose n k) := by
-      sorry
+      let m := n + 1 - k
+      have : ((n:ℝ) + 1 - k) = m :=  by
+        rw [sub_eq_iff_eq_add]
+        have : n + 1 = m + k := by
+          simp
+          have : k ≤ n+1 := by linarith
+          rw [Nat.sub_add_cancel this] 
+        rw [this]
+      rw [this]
+      let u := m * (Nat.choose (n+1) k)
+      have : (m:ℝ) * (Nat.choose (n+1) k) = u := by simp
+      rw [this]
+      have : u = (n+1) * (Nat.choose n k) := by
+        rw [mul_comm, Nat.choose_mul_succ_eq]
+        simp
+        ring
+      rw [this]
+      ring
 
     rw [h5, mul_assoc] at h4
     have h6 : ((n:ℝ) + 1) ≠ 0 := by
