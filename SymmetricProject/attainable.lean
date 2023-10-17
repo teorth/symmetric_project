@@ -61,8 +61,40 @@ lemma attainable_reflect (n : ℕ) (s : ℕ → ℝ) : attainable n s → s n �
   assumption
 
 
+
 lemma compare_coeff (n : ℕ) (a: ℕ → ℝ) (h: ∑ k in range (n + 1), monomial (n - k) (a k) = 0) : ∀ k : ℕ, k ≤ n → a k = 0 := by
-  sorry
+  intro m hm
+  have h' := by congrm(coeff $h (n-m))
+  clear h
+  rw [finset_sum_coeff, coeff_zero] at h'
+  let f : ℕ → ℝ := fun k => if k = m then a m else 0
+  have h'' : ∑ b in range (n+1), f b = 0 := by
+    rw [<- h']
+    apply sum_congr rfl
+    intro b hb
+    rw [coeff_monomial]
+    simp
+    have iff : b = m ↔ n-b = n-m := by
+      constructor
+      . intro bm
+        simp [bm]
+      intro nbm
+      have hb' : b ≤ n := by simp at hb; linarith
+      have hm' := Nat.sub_add_cancel hm
+      have hb'' := Nat.sub_add_cancel hb'
+      linarith [nbm, hm', hb'']
+
+    rcases em (b=m) with bm | bm 
+    . have nbm : n-b = n-m := by rw [<-iff]; assumption
+      simp [bm, nbm]
+    have nbm : n-b ≠ n-m := by contrapose! bm; rw [iff]; assumption
+    simp [bm, nbm]
+  have h''': m ∈ range (n+1) := by
+    simp
+    linarith
+  rw [<- add_sum_erase _ _ h'''] at h''
+  simp at h''
+  assumption
 
 /-- the hardest part (iii) of [Lemma 2.1 of the paper]: if a sequence is attainable, then so is its truncation.-/
 lemma attainable_truncate (n : ℕ) (l : ℕ) (s : ℕ → ℝ) (hln : l ≤ n) : attainable n s → attainable l s := by
@@ -163,11 +195,16 @@ lemma attainable_truncate (n : ℕ) (l : ℕ) (s : ℕ → ℝ) (hln : l ≤ n) 
       let m := n + 1 - k
       have : ((n:ℝ) + 1 - k) = m :=  by
         rw [sub_eq_iff_eq_add]
-        have : n + 1 = m + k := by
+        let r := m+k
+        have : n + 1 = r := by
           simp
           have : k ≤ n+1 := by linarith
           rw [Nat.sub_add_cancel this] 
+        have : (n:ℝ) + 1 = r := by 
+          rw [<- this]
+          simp
         rw [this]
+        simp
       rw [this]
       let u := m * (Nat.choose (n+1) k)
       have : (m:ℝ) * (Nat.choose (n+1) k) = u := by simp
@@ -178,17 +215,21 @@ lemma attainable_truncate (n : ℕ) (l : ℕ) (s : ℕ → ℝ) (hln : l ≤ n) 
         ring
       rw [this]
       ring
-
+      simp
     rw [h5, mul_assoc] at h4
     have h6 : ((n:ℝ) + 1) ≠ 0 := by
-      sorry
+      have : n + 1 ≥ 1 := by linarith
+      by_contra hn
+      have : (n:ℝ) + 1 ≥ 1 := by 
+        simp [this]
+      linarith
     have h7 := mul_left_cancel₀ h6 h4
     clear h4 h5 h6
     rw [<- h7]
     ring
 
   have hln'' : l = succ n := by 
-    have tmp : l ≤ n ∨ l = succ n := of_le_succ hln
+    have : l ≤ n ∨ l = succ n := of_le_succ hln
     linarith
   rw [hln'']
   tauto

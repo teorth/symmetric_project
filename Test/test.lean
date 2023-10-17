@@ -1,17 +1,41 @@
-import Mathlib.Data.Real.Basic
-import Mathlib.Data.Fintype.Basic
-import Mathlib.Algebra.BigOperators.Basic
-import Mathlib.Data.Multiset.Basic
-import Mathlib.Data.List.FinRange
-import Mathlib.Data.Polynomial.Basic
-import Mathlib.Data.Polynomial.Derivative
+import Mathlib
 
-open Polynomial
 
-example (A : Multiset ℕ) (P : ℕ → Polynomial ℝ ) (P' : ℕ → Polynomial ℝ ) (Q : Polynomial ℝ) (h : Q = Multiset.prod (Multiset.map P A)) (k : ∀ i : ℕ, derivative (P i) = P'_i) : derivative Q = Multiset.sum (Multiset.map (fun i => Multiset.prod (Multiset.map P (Multiset.erase A i)) * (P' i)) A) := by
-  rw [h, derivative_prod]
-  have ha : 3 = 3 := by
-  rw [(show 3=2+1 by norm_num)] at ha 
-  congr
-  funext i
-  congr!
+
+
+
+
+example (a b c: ℕ) (ha: a ≤ c) (hb: b ≤ c) (h:c-a=c-b) : a = b := by
+  linarith [Nat.sub_add_cancel ha, Nat.sub_add_cancel hb]
+
+example (n m : ℕ) : (n-m:ℕ) = if m ≤ n then (n:ℤ)-(m:ℤ) else (0:ℤ) := by
+  split 
+  . have h : m ≤ n := by assumption
+    symm; rw [sub_eq_iff_eq_add]
+    suffices : n = (n-m) + m 
+    . nth_rewrite 1 [this]
+      simp
+    rw [Nat.sub_add_cancel h]
+    rfl
+  
+  suffices : (n - m) = 0
+  . zify at this; assumption
+  rw [Nat.sub_eq_zero_iff_le]
+  linarith
+  
+  
+example (X complicated_expression_1 complicated_expression_2 complicated_expression_3 bound_1 bound_2 bound_3: ℕ)
+    (h: X ≤ complicated_expression_1 + complicated_expression_2 + complicated_expression_3)
+    (b1 : complicated_expression_1 ≤ bound_1)
+    (b2 : complicated_expression_2 ≤ bound_2)
+    (b3 : complicated_expression_3 ≤ bound_3) :
+    X ≤ bound_1 + bound_2 + bound_3 :=
+  calc X ≤ _ := h
+    _ ≤ bound_1 + bound_2 + bound_3 := by gcongr
+
+
+example (complicated_expression_1 complicated_expression_2 : Nat) (f : Nat → Nat)
+    (h : complicated_expression_1 = complicated_expression_2) :
+    f complicated_expression_1 = f complicated_expression_2 := by
+  have h' := by congrm(f $h)
+  exact h'
