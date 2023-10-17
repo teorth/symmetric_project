@@ -14,9 +14,6 @@ $$ s_{n,k}(x) s_{n,k+2}(x) ≤ s_{n,k+1}(x)^2.$$
 This turns out to be straightforward with the tools from the attainable file. 
 -/
 
-lemma cancel (a b c : ℝ) (h : a > 0) (k: b ≤ c) : a * b ≤ a * c := by
-  nlinarith
-
 theorem newton_identity (n k : ℕ) (h: k+2 ≤ n) : ∀ s : ℕ → ℝ, attainable n s → s k * s (k+2) ≤ s (k+1)^2 := by
   intro s ha
 
@@ -39,27 +36,12 @@ theorem newton_identity (n k : ℕ) (h: k+2 ≤ n) : ∀ s : ℕ → ℝ, attain
       intro m
       rfl
     rw [hs' 0, hs' 1, hs' 2] at h3
-    contrapose! h3
-    field_simp
-    contrapose! h3
-    have h4 : s (k+2)^2 > 0 := by 
-      have h5 : s (k+2)^2 = (s (k+2)) * (s (k+2)) := by ring
-      rw [h5]
-      replace non_vanish : (s (k+2) ≠ 0) := by apply non_vanish 
-      rw [<- mul_self_pos] at non_vanish
-      assumption
-
-    have h5 : s (k + 2) ^ 2 * (s k / s (k+2)) ≤ s (k+2)^2 * (s (k+1)^2 / s (k+2)^2) := by
-      apply cancel _ _ _ h4 h3
-    contrapose! h5
-    have h6 : s (k+2)^2 * (s (k+1)^2 / s (k+2)^2) = s (k+1)^2 := by 
-      field_simp [h4]
-      ring
-    have h7 : s (k + 2) ^ 2 * (s k / s (k + 2)) = s k * s (k+2) := by 
-      field_simp [h4]
-      ring
-    rw [h6, h7] 
-    assumption
+    field_simp at h3
+    calc s k * s (k + 2) = (s k / s (k + 2)) * s (k + 2) ^ 2 := by
+          field_simp
+          ring
+      _ ≤ (s (k + 1) ^ 2 / s (k + 2) ^ 2) * s (k + 2) ^ 2 := by gcongr
+      _ = s (k + 1) ^ 2 := by field_simp
 
   -- third step: reduce to (n,k)=(2,0)
   clear s h1
