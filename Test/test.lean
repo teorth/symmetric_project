@@ -8,8 +8,26 @@ import Mathlib.Tactic
 
 
 
+  example : Finset.range 2 = {0,1} := by
+    ext a
+    simp
+    constructor
+    . intro ha
+      have ha' : a ≤ 1 := by linarith [ha]
+      rcases a with a | a 
+      . norm_num
+      rw [Nat.succ_eq_add_one] 
+      rw [Nat.succ_eq_add_one] at ha'
+      have ha'' : a = 0 := by linarith
+      right
+      rw [ha'']
+    intro ha
+    rcases ha with h | h
+    . norm_num [h]
+    norm_num [h]
 
-
+example : Finset.range 2 = {0,1} := by
+  simp
 
 
 

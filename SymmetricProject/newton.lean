@@ -81,23 +81,7 @@ theorem newton_identity (n k : ℕ) (h: k+2 ≤ n) : ∀ s : ℕ → ℝ, attain
   simp at h0
   simp at h1
   simp at h2
-  have r : Finset.range 2 = {0,1} := by
-    ext a
-    simp
-    constructor
-    . intro ha
-      have ha' : a ≤ 1 := by linarith [ha]
-      rcases a with a | a 
-      . norm_num
-      rw [Nat.succ_eq_add_one] 
-      rw [Nat.succ_eq_add_one] at ha'
-      have ha'' : a = 0 := by linarith
-      right
-      rw [ha'']
-    intro ha
-    rcases ha with h | h
-    . norm_num [h]
-    norm_num [h]
+  have r : Finset.range 2 = {0,1} := by rfl
   rw [r, Finset.sum_pair] at h1
   rw [r, Finset.prod_pair] at h2
   rw [<- h0, <- h2]
