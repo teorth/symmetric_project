@@ -1,9 +1,21 @@
 import Mathlib
+import Mathlib.Tactic
 
 
 
 
 
+
+
+
+
+
+
+
+
+example (a : ℝ) : 0 ≤ a^2 := by
+  simp
+  positivity
 
 example (a b c: ℕ) (ha: a ≤ c) (hb: b ≤ c) (h:c-a=c-b) : a = b := by
   linarith [Nat.sub_add_cancel ha, Nat.sub_add_cancel hb]

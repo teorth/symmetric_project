@@ -38,6 +38,7 @@ lemma esymm_eq_zero (n : ℕ) (k : ℕ) (x : ℕ → ℝ) : (k > n) → esymm n 
   simp
   exact h
 
+
 -- S_{n,n}(x) = \prod_{i=0}^{n-1} x_i
 lemma esymm_prod (n : ℕ) (x: ℕ → ℝ): esymm n n x = (∏ i in range n, x i) := by
   simp [esymm, set_binom]
@@ -135,4 +136,12 @@ theorem esymm_pascal (n : ℕ) (k : ℕ) (x : ℕ → ℝ): esymm (n+1) (k+1) x 
     rw [prod_insert (set_binom_no_n n k A hA)]
     ring
   rw [sum_congr rfl h4]
+  
+
+-- S_{n,1}(x) = \sum_{i=0}^{n-1} x_i
+lemma esymm_sum (n : ℕ) (x: ℕ → ℝ): esymm n 1 x = (∑ i in range n, x i) := by
+  induction' n with m ih
+  . apply esymm_eq_zero 0 1 x (show 1 > 0 by norm_num)
+  rw [(show 1 = 0+1 by norm_num), Nat.succ_eq_add_one, esymm_pascal m 0]
+  rw [(show 0+1=1 by norm_num), ih, esymm_zero_eq_one m x, one_mul, sum_range_succ]
   
