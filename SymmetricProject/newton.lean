@@ -36,6 +36,7 @@ theorem newton_identity (n k : ℕ) (h: k+2 ≤ n) : ∀ s : ℕ → ℝ, attain
       intro m
       rfl
     rw [hs' 0, hs' 1, hs' 2] at h3
+    -- thanks to Heather Macbeth for simplifications to the field calculations below.
     field_simp at h3
     calc s k * s (k + 2) = (s k / s (k + 2)) * s (k + 2) ^ 2 := by
           field_simp
