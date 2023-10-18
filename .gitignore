@@ -1,3 +1,11 @@
 /build
 /lake-packages/*
 /lakefile.olean
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.synctex.gz

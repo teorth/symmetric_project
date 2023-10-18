@@ -14,6 +14,6 @@ open Finset
 /- The purpose of this project is to formalize the results in https://arxiv.org/abs/2310.05328 , hereafter referred to as "the paper".  In particular, to prove the following result: -/
 
 
-theorem main_theorem : ∃ C : ℝ, (C > 0) ∧ ∀ n : ℕ, ∀ s : ℕ → ℝ, attainable n s → ∀ l ∈ range (n+1), ∀ k ∈ range l, k ≥ 1 →  (s l)^((1:ℝ)/l) ≤ C * ((l:ℝ)/k)^((1:ℝ)/2) * (((s k)^((1:ℝ)/k)) + ((s (k+1))^((1:ℝ)/(k+1))) ) := by
+theorem main_theorem : ∃ C : ℝ, (C > 0) ∧ ∀ n : ℕ, ∀ s : ℕ → ℝ, attainable n s → ∀ l ∈ range (n+1), ∀ k ∈ range l, k ≥ 1 →  (s l)^((1:ℝ)/l) ≤ C * ((l:ℝ)/k)^((1:ℝ)/2) * (max ((s k)^((1:ℝ)/k)) ((s (k+1))^((1:ℝ)/(k+1))) ) := by
   sorry
 
