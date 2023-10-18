@@ -739,4 +739,100 @@ File: ls1stix.fd 2015/04/17 v1.1.2-latex STIX LS1 font definitions
 )
 LaTeX Font Info:    ... okay on input line 62.
 LaTeX Font Info:    Checking defaults for LS2/stix/m/n on input line 62.
-LaTeX Font Info
+LaTeX Font Info:    Trying to load font information for LS2+stix on input line 62.
+ (c:/texlive/2023/texmf-dist/tex/latex/stix/ls2stix.fd
+File: ls2stix.fd 2015/04/17 v1.1.2-latex STIX LS2 font definitions
+)
+LaTeX Font Info:    ... okay on input line 62.
+LaTeX Font Info:    Trying to load font information for LS1+stixscr on input line 62.
+ (c:/texlive/2023/texmf-dist/tex/latex/stix/ls1stixscr.fd
+File: ls1stixscr.fd 2015/04/17 v1.1.2-latex STIX script LS1 font definitions
+)
+LaTeX Font Info:    Trying to load font information for LS2+stixex on input line 62.
+ (c:/texlive/2023/texmf-dist/tex/latex/stix/ls2stixex.fd
+File: ls2stixex.fd 2015/04/17 v1.1.2-latex STIX extentions LS2 font definitions
+)
+LaTeX Font Info:    Trying to load font information for U+msa on input line 62.
+ (c:/texlive/2023/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 62.
+ (c:/texlive/2023/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+LaTeX Font Info:    Trying to load font information for LS1+stixfrak on input line 62.
+ (c:/texlive/2023/texmf-dist/tex/latex/stix/ls1stixfrak.fd
+File: ls1stixfrak.fd 2015/04/17 v1.1.2-latex STIX fraktur LS1 font definitions
+)
+LaTeX Font Info:    Trying to load font information for LS1+stixbb on input line 62.
+
+(c:/texlive/2023/texmf-dist/tex/latex/stix/ls1stixbb.fd
+File: ls1stixbb.fd 2015/04/17 v1.1.2-latex STIX blackboard LS1 font definitions
+)
+LaTeX Font Info:    Trying to load font information for LS2+stixcal on input line 62.
+ (c:/texlive/2023/texmf-dist/tex/latex/stix/ls2stixcal.fd
+File: ls2stixcal.fd 2015/04/17 v1.1.2-latex STIX calligraphic LS2 font definitions
+)
+LaTeX Font Info:    Trying to load font information for LS1+stixsf on input line 62.
+ (c:/texlive/2023/texmf-dist/tex/latex/stix/ls1stixsf.fd
+File: ls1stixsf.fd 2015/04/17 v1.1.2-latex STIX sans-serif LS1 font definitions
+)
+LaTeX Font Info:    Trying to load font information for LS2+stixtt on input line 62.
+ (c:/texlive/2023/texmf-dist/tex/latex/stix/ls2stixtt.fd
+File: ls2stixtt.fd 2015/04/17 v1.1.2-latex STIX typewriter LS2 font definitions
+)
+LaTeX Info: Command `\dddot' is already robust on input line 62.
+LaTeX Info: Command `\ddddot' is already robust on input line 62.
+Package hyperref Info: Link coloring OFF on input line 62.
+ (./symmetric.out) (./symmetric.out)
+\@outlinefile=\write4
+\openout4 = `symmetric.out'.
+
+ (c:/texlive/2023/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count331
+\scratchdimen=\dimen311
+\scratchbox=\box77
+\nofMPsegments=\count332
+\nofMParguments=\count333
+\everyMPshowfont=\toks46
+\MPscratchCnt=\count334
+\MPscratchDim=\dimen312
+\MPnumerator=\count335
+\makeMPintoPDFobject=\count336
+\everyMPtoPDFconversion=\toks47
+) (c:/texlive/2023/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
+ (c:/texlive/2023/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
+)) (c:/texlive/2023/texmf-dist/tex/latex/translations/translations-basic-dictionary-english.trsl
+File: translations-basic-dictionary-english.trsl (english translation file `translations-basic-dictionary')
+)
+Package translations Info: loading dictionary `translations-basic-dictionary' for `english'. on input line 62.
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: End \AtBeginDocument code.
+ [1{c:/texlive/2023/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/texlive/2023/texmf-dist/fonts/enc/dvips/stix/stix-t1.enc}] [2] (./symmetric.aux)
+ ***********
+LaTeX2e <2023-06-01> patch level 1
+L3 programming layer <2023-08-29>
+ ***********
+Package rerunfilecheck Info: File `symmetric.out' has not changed.
+(rerunfilecheck)             Checksum: 2D42D47007FC61244585F494104D8115;121.
+ ) 
+Here is how much of TeX's memory you used:
+ 32733 strings out of 474934
+ 659040 string characters out of 5763815
+ 1933801 words of memory out of 5000000
+ 53664 multiletter control sequences out of 15000+600000
+ 619017 words of font info for 121 fonts, out of 8000000 for 9000
+ 1302 hyphenation exceptions out of 8191
+ 98i,6n,103p,518b,971s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<c:/texlive/2023/texmf-dist/fonts/type1/public/stix/STIXGeneral-Bold.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/stix/STIXGeneral-Italic.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/stix/STIXGeneral-Regular.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/stix/stix-mathbb.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/stix/stix-mathcal.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/stix/stix-mathex.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/stix/stix-mathit.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/stix/stix-mathrm.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/stix/stix-mathscr.pfb>
+Output written on symmetric.pdf (2 pages, 163152 bytes).
+PDF statistics:
+ 78 PDF objects out of 1000 (max. 8388607)
+ 53 compressed objects within 1 object stream
+ 6 named destinations out of 1000 (max. 500000)
+ 21 words of extra memory for PDF output out of 10000 (max. 10000000)
+
