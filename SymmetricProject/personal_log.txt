@@ -1,0 +1,8 @@
+5:44 pm. started writing a pen-and-paper sketch of proof.
+5:49 pm. I thought I had a reduction (using the admissibility symmetries already proven) to the AM-GM inequality, which would presumably already be in the mathlib.
+5:50 pm. Opened a LaTeX file to write up a proof sketch.
+5:52 pm. Realized that one would need to modify the admissibility lemma to restrict to the non-negative case, which would be a lot of work.  In particular, Rolle's theorem becomes relevant again. Returned to pen and paper to look for a different approach.
+6:00 pm. Found another proof based on log-convexity, avoiding the use of the admissibility lemma, or Rolle's theorem.  Started writing up a lean skeleton.
+6:33 pm. Competed the proof of lean skeleton, with about ten sorries.  Took a break.
+
+

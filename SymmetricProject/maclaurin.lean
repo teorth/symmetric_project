@@ -36,6 +36,8 @@ theorem maclaurin (n l : ℕ) (s : ℕ → ℝ) (h1 : attainable n s) (h2 : ∀ 
 
     -- conclude
 
+  -- look to see if there is existing tools on convexity / log convexity / monotonicity esp in discrete settings
+
   def d i := s (i+1) / s i
 
   have hd_pos : ∀ i ∈ range k+1, d i > 0 := by
@@ -54,3 +56,4 @@ theorem maclaurin (n l : ℕ) (s : ℕ → ℝ) (h1 : attainable n s) (h2 : ∀ 
     sorry
 
   -- conclude with real power laws  
+  sorry
