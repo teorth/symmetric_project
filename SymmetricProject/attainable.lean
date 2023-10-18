@@ -14,9 +14,9 @@ open BigOperators
 open Polynomial
 open Nat
 
-/- attainable n s holds if there exists a sequence of real numbers x such that 
+/-- attainable n s holds if there exists a sequence of real numbers x such that
 $$ S_k(x) = s_k \binom{n}{k}$$
-for all $0 \leq k \leq n$. 
+for all $0 \leq k \leq n$.
 -/
 def attainable (n : ℕ) (s : ℕ → ℝ) : Prop := ∃ (x : ℕ → ℝ), ∀ k : ℕ, k ≤ n → esymm n k x = (s k) * (choose n k)
 
@@ -40,24 +40,20 @@ lemma attainable_scaling (n : ℕ) (s : ℕ → ℝ) (a : ℝ) : attainable n s 
   rw [esymm_mul]
   simp [hx k hk]
   ring
-  
-/- An attainable sequence can be reflected if its final entry is non-zero. [Lemma 2.1(ii) in the paper] -/
-lemma attainable_reflect (n : ℕ) (s : ℕ → ℝ) : attainable n s → s n ≠ 0 → attainable n (fun k => s (n - k) / (s n)) := by
+
+/-- An attainable sequence can be reflected if its final entry is non-zero. [Lemma 2.1(ii) in the paper]-/
+lemma attainable_reflect (n : ℕ) (s : ℕ → ℝ) : attainable n s → s n ≠ 0 → attainable n fun k ↦ s (n - k) / s n := by
   intro h hn
   rcases h with ⟨ x, hx ⟩
-  use fun k => 1 / (x k)
+  use 1/x
   intro k hk
   rw [esymm_reflect]
-  have hnk : n-k ≤ n := by apply sub_le
-  have hnn : n ≤ n := by linarith
-  rw [hx (n-k) hnk, hx n hnn] 
+  have hnk : n-k ≤ n := sub_le ..
+  rw [hx (n-k) hnk, hx n le_rfl]
   simp [choose_symm hk]
   ring
   . contrapose! hn
-    have hnn : n ≤ n := by linarith
-    rw [hx n hnn] at hn
-    simp at hn
-    assumption
+    simpa [hx n le_rfl] using hn
   assumption
 
 
@@ -85,7 +81,7 @@ lemma compare_coeff (n : ℕ) (a: ℕ → ℝ) (h: ∑ k in range (n + 1), monom
       have hb'' := Nat.sub_add_cancel hb'
       linarith [nbm, hm', hb'']
 
-    rcases em (b=m) with bm | bm 
+    rcases em (b=m) with bm | bm
     . have nbm : n-b = n-m := by rw [<-iff]; assumption
       simp [bm, nbm]
     have nbm : n-b ≠ n-m := by contrapose! bm; rw [iff]; assumption
@@ -115,11 +111,11 @@ lemma attainable_truncate (n : ℕ) (l : ℕ) (s : ℕ → ℝ) (hln : l ≤ n) 
     intro h
     rcases h with ⟨ x, hx ⟩
 
-    let P : Polynomial ℝ := ∏ i in (range (succ n)), (X - C (x i)) 
+    let P : Polynomial ℝ := ∏ i in (range (succ n)), (X - C (x i))
 
-    have hP : P = ∑ k in range ((succ n)+1), monomial ((succ n)-k) ((-1) ^ ↑k * esymm (succ n) k x) := by 
+    have hP : P = ∑ k in range ((succ n)+1), monomial ((succ n)-k) ((-1) ^ ↑k * esymm (succ n) k x) := by
       apply esymm_genfn
-    have hy : ∃ (y : ℕ → ℝ), derivative P = (C ((succ n):ℝ)) * (∏ k in range ((succ n)-1), (X - C (y k))) := by 
+    have hy : ∃ (y : ℕ → ℝ), derivative P = (C ((succ n):ℝ)) * (∏ k in range ((succ n)-1), (X - C (y k))) := by
       apply real_roots_deriv
 
     rcases hy with ⟨ y, hy ⟩
@@ -139,11 +135,11 @@ lemma attainable_truncate (n : ℕ) (l : ℕ) (s : ℕ → ℝ) (hln : l ≤ n) 
       congr
       symm
       rw [sub_eq_iff_eq_add]
-      suffices : n+1 = n + 1 - b + b 
+      suffices : n+1 = n + 1 - b + b
       . nth_rewrite 1 [this]
         simp
       symm
-      apply Nat.sub_add_cancel 
+      apply Nat.sub_add_cancel
       rw [succ_eq_add_one] at hb
       exact hb
     rw [h] at hy
@@ -179,19 +175,19 @@ lemma attainable_truncate (n : ℕ) (l : ℕ) (s : ℕ → ℝ) (hln : l ≤ n) 
     have h' := h k hk
     rw [sub_eq_zero] at h'
 
-    have h'' : (-1)^k * ((↑n + 1 - ↑k) * ↑(Nat.choose (n + 1) k) * s k) = (-1)^k * ((↑n + 1) * esymm n k y) := by 
+    have h'' : (-1)^k * ((↑n + 1 - ↑k) * ↑(Nat.choose (n + 1) k) * s k) = (-1)^k * ((↑n + 1) * esymm n k y) := by
       have : (-1) ^ k * ((↑n + 1) * esymm n k y) = (↑n + 1) * (-1) ^ k * esymm n k y := by ring
       rw [this, <- h']
       ring
-      
+
     clear h h'
-    
+
     have h3: (-1:ℝ)^k ≠ 0 := by
       have : (-1:ℝ) ≠ 0 := by norm_num
-      exact pow_ne_zero k this 
+      exact pow_ne_zero k this
     have h4 := mul_left_cancel₀ h3 h''
     clear h3 h''
-    
+
     have h5 : ((n:ℝ) + 1 - (k:ℝ)) * (Nat.choose (n + 1) k) = (n + 1) * (Nat.choose n k) := by
       let m := n + 1 - k
       have : ((n:ℝ) + 1 - k) = m :=  by
@@ -200,8 +196,8 @@ lemma attainable_truncate (n : ℕ) (l : ℕ) (s : ℕ → ℝ) (hln : l ≤ n) 
         have : n + 1 = r := by
           simp
           have : k ≤ n+1 := by linarith
-          rw [Nat.sub_add_cancel this] 
-        have : (n:ℝ) + 1 = r := by 
+          rw [Nat.sub_add_cancel this]
+        have : (n:ℝ) + 1 = r := by
           rw [<- this]
           simp
         rw [this]
@@ -215,13 +211,12 @@ lemma attainable_truncate (n : ℕ) (l : ℕ) (s : ℕ → ℝ) (hln : l ≤ n) 
         simp
         ring
       rw [this]
-      ring
       simp
     rw [h5, mul_assoc] at h4
     have h6 : ((n:ℝ) + 1) ≠ 0 := by
       have : n + 1 ≥ 1 := by linarith
       by_contra hn
-      have : (n:ℝ) + 1 ≥ 1 := by 
+      have : (n:ℝ) + 1 ≥ 1 := by
         simp [this]
       linarith
     have h7 := mul_left_cancel₀ h6 h4
@@ -229,7 +224,7 @@ lemma attainable_truncate (n : ℕ) (l : ℕ) (s : ℕ → ℝ) (hln : l ≤ n) 
     rw [<- h7]
     ring
 
-  have hln'' : l = succ n := by 
+  have hln'' : l = succ n := by
     have : l ≤ n ∨ l = succ n := of_le_succ hln
     linarith
   rw [hln'']
