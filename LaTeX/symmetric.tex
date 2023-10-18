@@ -79,24 +79,34 @@
 Given $n$ real numbers $y = (y_1,\dots,y_n) \in \R^n$ and $0 \leq k \leq n$, let $s_k(y)$ denote the elementary symmetric means
 $$ s_k(y) \coloneqq \frac{1}{\binom{n}{k}} \sum_{1 \leq i_1 < \dots < i_k \leq n} y_{i_1} \dots y_{i_k}$$
 (thus for instance $s_0(y)=1$).  
+We call a $n+1$-tuple $(s_0,\dots,s_n)$ of real numbers \emph{attainable} if it is of the form $(s_0(y),\dots,s_n(y))$ for some $y$, or equivalently if the polynomial $\sum_{k=0}^n (-1)^k \binom{n}{k} s_k z^{n-k}$ is monic with all roots real.  We have previously proven
 
-\begin{lemma}[Symmetries of attainable tuples]\label{syms}  Let $(s_0,\dots,s_n)$ be an attainable tuple.
-    \begin{itemize}
-        \item[(i)] (Scaling)  For any real $\lambda$, $(s_0, \lambda s_1, \dots, \lambda^n s_n)$ is attainable.
-        \item[(ii)] (Reflection)  If $s_n \neq 0$, then $(1, s_{n-1}/s_n, \dots, s_0/s_n)$ is attainable. (In particular, if $|s_n|=1$, then $\pm (s_n,\dots,s_0)$ is attainable with $\pm$ the sign of $s_n$.)
-        \item[(iii)] (Truncation) If $1 \leq \ell \leq n$, then $(s_0,\dots,s_\ell)$ is attainable.
-    \end{itemize}
-    \end{lemma}
 
-    \begin{proof}  We can write $s_k = s_k(y_1,\dots,y_n)$ for some real $y_1,\dots,y_n$. The claims (i), (ii) are immediate from the homogeneity identity
-        $$ s_k(\lambda y_1,\dots,\lambda y_n) = \lambda^k s_k(y_1,\dots,y_n)$$
-        and the reflection identity
-    $$ s_k(1/y_1,\dots,1/y_n) = s_{n-k}(y_1,\dots,y_n) / s_n(y_1,\dots,y_n)$$
-    respectively for all $0 \leq k \leq n$ (note that the non-vanishing of $s_n(y_1,\dots,y_n)$ implies that all the $y_1,\dots,y_n$ are non-zero).  To prove (iii), observe from $n-\ell$ applications of Rolle's theorem that the degree $\ell$ polynomial
-    $$ \frac{\ell!}{n!} \frac{d^{n-\ell}}{dx^{n-\ell}} \prod_{i=1}^n (z-y_i) = \sum_{k=0}^\ell (-1)^k \binom{\ell}{k} s_k(y_1,\dots,y_n) z^{\ell-k}$$
-    is monic with all roots real, and hence the tuple $(s_0(y_1,\dots,y_n),\dots,s_\ell(y_1,\dots,y_n))$ is attainable.
+
+\begin{proposition}[Newton's inequality]\label{prop-newton} If $(s_0,\dots,s_n)$ is attainable, then $s_k s_{k+2} \leq s_{k+1}^2$ for all $0 \leq k \leq n$.
+\end{proposition}
+
+We now prove
+
+\begin{theorem}[Maclaurin inequality]\label{thm-maclaurin}  Suppose that $(s_0,\dots,s_n)$ is an attainable tuple with all $s_i$ non-negative.  Then $s_\ell^{1/\ell} \leq s_k^{1/k}$ for all $1 \leq k \leq \ell \leq n$.
+\end{theorem}
+
+\begin{proof}  By induction on $\ell$ it suffices to verify the case $\ell=k+1$.
+
+Suppose that $s_i=0$ for some $1 \leq i \leq k$.  From the Newton inequality $s_{i-1} s_{i+1} \leq s_i^2$ and non-negativity we conclude that $s_{i+1}=0$.  By induction we conclude that $s_{k+1}=0$ and the claim is true in this case.  Thus we may assume that $s_i \neq 0$ for all $0 \leq i \leq k+1$ (the case $i=0$ is easy since $s_0=1$).
+
+Now write $d_i = s_i / s_{i-1}$ for $1 \leq i \leq k+1$, then the $d_i$ are positive.  The Newton inequality can then be rewritten as
+$$ d_{i+1} \leq d_i$$
+for all $1 \leq i \leq k$, while the Maclaurin inequality
+$$ s_{k+1}^{\frac{1}{k+1}} \leq s_k^{\frac{1}{k}}$$
+is equivalent to
+$$ s_{k+1}^k \leq s_k^{k+1}$$
+which expands to
+$$ (d_1 \dots d_{k+1})^k \leq (d_1 \dots d_k)^{k+1}$$
+which simplifies to
+$$ d_{k+1}^k \leq d_1 \dots d_k$$
+so it suffices to show that $d_{k+1} \leq d_i$ for all $1 \leq i \leq k$.  But this follows from the monotone decreasing nature of the $d_i$.
 \end{proof}
-
 
 
 \end{document}
