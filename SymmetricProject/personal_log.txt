@@ -9,4 +9,4 @@ Tuesday Oct 17
 7:19 pm.  Resume, with mathlib search on monotone functions.
 7:52 pm: Filled in the first sorry.  Taking break.
 8:35 pm: Resume
-11:16 pm: Done!
+11:16	 pm: Done!
