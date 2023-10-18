@@ -4,10 +4,10 @@ import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Init.Data.Nat.Basic
 import SymmetricProject.attainable
 
--- hack to avoid the real powers bug
+/- hack to avoid the real powers bug -/
 local macro_rules | `($x ^ $y)   => `(HPow.hPow $x $y)
 
-/-- The purpose of this file is to prove the Newton identity
+/- The purpose of this file is to prove the Newton identity
 
 $$ s_{n,k}(x) s_{n,k+2}(x) ≤ s_{n,k+1}(x)^2.$$
 

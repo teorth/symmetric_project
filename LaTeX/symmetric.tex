@@ -1,0 +1,102 @@
+\documentclass[12pt,a4paper,reqno]{amsart}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{amssymb}
+\usepackage{verbatim}
+\usepackage{amscd}
+\usepackage{enumerate}
+\usepackage{graphicx}
+%\usepackage{showkeys}
+\usepackage{siunitx}
+\usepackage{tikz-cd}
+\usepackage{stix}
+\usepackage{bm}
+\usepackage{mathtools}
+\usepackage[tableposition=top]{caption}
+\usepackage{booktabs,dcolumn}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+
+\numberwithin{equation}{section}
+
+\addtolength{\textwidth}{3 truecm}
+\addtolength{\textheight}{1 truecm}
+\setlength{\voffset}{-.6 truecm}
+\setlength{\hoffset}{-1.3 truecm}
+
+\theoremstyle{plain}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{heuristic}[theorem]{Heuristic}
+\newtheorem{principle}[theorem]{Principle}
+\newtheorem{question}[theorem]{Question}
+\newtheorem{claim}[theorem]{Claim}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{remarks}[theorem]{Remarks}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{examples}[theorem]{Examples}
+
+\renewcommand\P{\mathbf{P}}
+\newcommand\E{\mathbf{E}}
+\newcommand\Var{\mathbf{Var}}
+\newcommand\R{\mathbb{R}}
+\newcommand\Z{\mathbb{Z}}
+\newcommand\N{\mathbb{N}}
+\newcommand\C{\mathbb{C}}
+\newcommand\Q{\mathbb{Q}}
+\renewcommand\Re{{\operatorname{Re}}}
+\renewcommand\Im{{\operatorname{Im}}}
+\newcommand\eps{\varepsilon}
+
+\parindent 0mm
+\parskip   5mm
+
+
+\begin{document}
+
+\title{Proof of Maclaurin inequality}
+
+\author{} %Terence Tao}
+\address{}%UCLA Department of Mathematics, Los Angeles, CA 90095-1555.}
+\email{}%tao@math.ucla.edu}
+
+\subjclass[2020]{26D15}
+
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+Given $n$ real numbers $y = (y_1,\dots,y_n) \in \R^n$ and $0 \leq k \leq n$, let $s_k(y)$ denote the elementary symmetric means
+$$ s_k(y) \coloneqq \frac{1}{\binom{n}{k}} \sum_{1 \leq i_1 < \dots < i_k \leq n} y_{i_1} \dots y_{i_k}$$
+(thus for instance $s_0(y)=1$).  
+
+\begin{lemma}[Symmetries of attainable tuples]\label{syms}  Let $(s_0,\dots,s_n)$ be an attainable tuple.
+    \begin{itemize}
+        \item[(i)] (Scaling)  For any real $\lambda$, $(s_0, \lambda s_1, \dots, \lambda^n s_n)$ is attainable.
+        \item[(ii)] (Reflection)  If $s_n \neq 0$, then $(1, s_{n-1}/s_n, \dots, s_0/s_n)$ is attainable. (In particular, if $|s_n|=1$, then $\pm (s_n,\dots,s_0)$ is attainable with $\pm$ the sign of $s_n$.)
+        \item[(iii)] (Truncation) If $1 \leq \ell \leq n$, then $(s_0,\dots,s_\ell)$ is attainable.
+    \end{itemize}
+    \end{lemma}
+
+    \begin{proof}  We can write $s_k = s_k(y_1,\dots,y_n)$ for some real $y_1,\dots,y_n$. The claims (i), (ii) are immediate from the homogeneity identity
+        $$ s_k(\lambda y_1,\dots,\lambda y_n) = \lambda^k s_k(y_1,\dots,y_n)$$
+        and the reflection identity
+    $$ s_k(1/y_1,\dots,1/y_n) = s_{n-k}(y_1,\dots,y_n) / s_n(y_1,\dots,y_n)$$
+    respectively for all $0 \leq k \leq n$ (note that the non-vanishing of $s_n(y_1,\dots,y_n)$ implies that all the $y_1,\dots,y_n$ are non-zero).  To prove (iii), observe from $n-\ell$ applications of Rolle's theorem that the degree $\ell$ polynomial
+    $$ \frac{\ell!}{n!} \frac{d^{n-\ell}}{dx^{n-\ell}} \prod_{i=1}^n (z-y_i) = \sum_{k=0}^\ell (-1)^k \binom{\ell}{k} s_k(y_1,\dots,y_n) z^{\ell-k}$$
+    is monic with all roots real, and hence the tuple $(s_0(y_1,\dots,y_n),\dots,s_\ell(y_1,\dots,y_n))$ is attainable.
+\end{proof}
+
+
+
+\end{document}

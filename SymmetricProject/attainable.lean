@@ -7,20 +7,20 @@ import SymmetricProject.esymm_basic
 import SymmetricProject.esymm_generating
 import SymmetricProject.roots_deriv
 
--- this file sets up the concept of an attainable sequence - a tuple of real numbers that can be attained as elementary symmetric means.  It also establishes [Lemma 2.1 of the paper], which is a key tool in what follows.
+/-! this file sets up the concept of an attainable sequence - a tuple of real numbers that can be attained as elementary symmetric means.  It also establishes [Lemma 2.1 of the paper], which is a key tool in what follows. -/
 
 open Finset
 open BigOperators
 open Polynomial
 open Nat
 
-/-- attainable n s holds if there exists a sequence of real numbers x such that 
+/- attainable n s holds if there exists a sequence of real numbers x such that 
 $$ S_k(x) = s_k \binom{n}{k}$$
 for all $0 \leq k \leq n$. 
 -/
 def attainable (n : ℕ) (s : ℕ → ℝ) : Prop := ∃ (x : ℕ → ℝ), ∀ k : ℕ, k ≤ n → esymm n k x = (s k) * (choose n k)
 
-/-- Any attainable sequence starts at one. -/
+/- Any attainable sequence starts at one. -/
 lemma attainable_zero_eq_one (n : ℕ) (s : ℕ → ℝ) : attainable n s → s 0 = 1 := by
   intro h
   rcases h with ⟨ x, hx ⟩
@@ -30,7 +30,7 @@ lemma attainable_zero_eq_one (n : ℕ) (s : ℕ → ℝ) : attainable n s → s 
   symm
   assumption
 
-/-- An attainable sequence can be scaled. [Lemma 2.1(i) in the paper]-/
+/- An attainable sequence can be scaled. [Lemma 2.1(i) in the paper] -/
 lemma attainable_scaling (n : ℕ) (s : ℕ → ℝ) (a : ℝ) : attainable n s → attainable n (fun k => (a ^ k) * (s k) ) := by
   intro h
   rcases h with ⟨ x, hx ⟩
@@ -41,7 +41,7 @@ lemma attainable_scaling (n : ℕ) (s : ℕ → ℝ) (a : ℝ) : attainable n s 
   simp [hx k hk]
   ring
   
-/-- An attainable sequence can be reflected if its final entry is non-zero. [Lemma 2.1(ii) in the paper]-/
+/- An attainable sequence can be reflected if its final entry is non-zero. [Lemma 2.1(ii) in the paper] -/
 lemma attainable_reflect (n : ℕ) (s : ℕ → ℝ) : attainable n s → s n ≠ 0 → attainable n (fun k => s (n - k) / (s n)) := by
   intro h hn
   rcases h with ⟨ x, hx ⟩
@@ -61,7 +61,8 @@ lemma attainable_reflect (n : ℕ) (s : ℕ → ℝ) : attainable n s → s n �
   assumption
 
 
-
+/- If a polynomial $\sum_{k=0}^n a_k z^{n-k}$ vanishes, then all its coefficients vanish.
+-/
 lemma compare_coeff (n : ℕ) (a: ℕ → ℝ) (h: ∑ k in range (n + 1), monomial (n - k) (a k) = 0) : ∀ k : ℕ, k ≤ n → a k = 0 := by
   intro m hm
   have h' := by congrm(coeff $h (n-m))
@@ -96,7 +97,7 @@ lemma compare_coeff (n : ℕ) (a: ℕ → ℝ) (h: ∑ k in range (n + 1), monom
   simp at h''
   assumption
 
-/-- the hardest part (iii) of [Lemma 2.1 of the paper]: if a sequence is attainable, then so is its truncation.-/
+/- the hardest part (iii) of [Lemma 2.1 of the paper]: if a sequence is attainable, then so is its truncation.-/
 lemma attainable_truncate (n : ℕ) (l : ℕ) (s : ℕ → ℝ) (hln : l ≤ n) : attainable n s → attainable l s := by
 -- first use induction to reduce to the case where l = n+1
   revert hln l
