@@ -5,7 +5,10 @@ import Mathlib.Data.Fintype.Fin
 import SymmetricProject.newton
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
-/-! Proof of the Maclaurin inequality - monotone decreasing nature of s_k^{1/k} when the s_k are non-negative. -/
+/-! Proof of the Maclaurin inequality - monotone decreasing nature of s_k^{1/k} when the s_k are non-negative. 
+
+Proof follows the sketch in LaTeX/symmetric.tex
+-/
 
 open Finset
 open BigOperators
@@ -178,6 +181,6 @@ theorem maclaurin (n k l : ℕ) (s : ℕ → ℝ) (h1 : attainable n s) (h2 : �
   assumption
 
 
-
+-- TODO: extend Maclaurin's inequality to non-negative variables (right now the above version will only handle positive variables)
 
 
