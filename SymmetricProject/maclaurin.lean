@@ -132,14 +132,21 @@ theorem maclaurin (n k l : ℕ) (s : ℕ → ℝ) (h1 : attainable n s) (h2 : �
   have h2k := h2 k
   have h2k' := h2 (k+1)
   clear hk h0 newton hd_pos hd_mono hd_mono' 
-  have kkk : (0:ℝ) < k * (k+(1:ℝ)) := 
-    sorry
+  have kkk : (0:ℝ) < k * (k+(1:ℝ)) := by
+    have hk'': (k:ℝ) ≥ 1 := by
+      exact Nat.one_le_cast.mpr hk'
+    apply mul_pos
+    linarith [hk'']
+    linarith [hk'']
+    
   by_contra hs
   simp at hs
   have ht : 0 ≤ s k := by linarith
   have ht' : 0 ≤  s (k+1) := by linarith
-  have hu : 0 ≤ (s k)^((1:ℝ) / k) := by sorry
-  have hu' : 0 ≤ (s (k+1))^((1:ℝ) /(k+1)) := by sorry
+  have hu : 0 ≤ (s k)^((1:ℝ) / k) := by 
+    apply Real.rpow_nonneg_of_nonneg ht
+  have hu' : 0 ≤ (s (k+1))^((1:ℝ) /(k+1)) := by   
+    apply Real.rpow_nonneg_of_nonneg ht'
   simp at hu
   simp at hu'
   have hs' := Real.rpow_lt_rpow hu hs kkk 
@@ -152,11 +159,18 @@ theorem maclaurin (n k l : ℕ) (s : ℕ → ℝ) (h1 : attainable n s) (h2 : �
     field_simp
   rw [h, h'] 
   simp 
-  have hs'' : s k^((k:ℝ)+1) = s k^(k+1) := by sorry
+  have hs'' : s k^((k:ℝ)+1) = s k^(k+1) := by 
+    let m := k+1
+    have hm : k+1 = m := by rfl
+    have hm' : (k:ℝ)+1 = m := by simp
+    rw [hm, hm']
+    exact Real.rpow_nat_cast (s k) m
+    
   have hw : k ∈ range (k+2) := by simp
   have hw' : k+1 ∈ range (k+2) := by simp
   rw [hs'', hds k hw, hds (k+1) hw', prod_range_succ, mul_pow, pow_succ, <- hds k hw]
-  have hx : (s k)^k > 0 := by sorry
+  have hx : (s k)^k > 0 := by 
+    exact pow_pos (h2 k) k
   suffices : d k^k ≤ s k
   . rw [mul_comm (s k)]
     exact (mul_le_mul_left hx).mpr this
