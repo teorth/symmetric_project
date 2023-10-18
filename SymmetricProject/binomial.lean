@@ -67,10 +67,22 @@ example : Finset.map (Finset.mapFinVal n) (set_binom' n k) = set_binom n k := by
 example : Finset.map (Finset.mapFinVal n) (set_binom' n k) = set_binom n k := by
   rw[set_binom, set_binom', ←Finset.powersetLen_map,Fin.map_valEmbedding_univ, Nat.Iio_eq_range]
 
+@[simp] lemma set_binom_card {n k : ℕ} {A} (h : A ∈ set_binom n k) : card A = k := by
+  rw [set_binom, mem_powersetLen] at h
+  exact h.2
+
+@[simp] lemma set_binom_subset {n k : ℕ} {A} (h : A ∈ set_binom n k) : A ⊆ range n := by
+  rw [set_binom, mem_powersetLen] at h
+  exact h.1
+
+
 /-- set_binom n k is empty when k > n -/
 lemma set_binom_empty {n k : ℕ} (h : n < k) : set_binom n k = ∅ := by
   apply powersetLen_empty
   rwa [card_range]
+
+@[simp] lemma set_binom_self (n : ℕ) : set_binom n n = {range n} := by
+  rw [set_binom, ← powersetLen_self, card_range]
 
 /-- Elements of set_binom n k do not contain n. -/
 lemma set_binom_no_n {n k : ℕ} {A : Finset ℕ} (h : A ∈ set_binom n k) : ¬ n ∈ A := by
