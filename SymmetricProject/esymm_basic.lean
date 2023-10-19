@@ -94,7 +94,7 @@ lemma esymm_sum (n : ℕ) (x: ℕ → ℝ): esymm n 1 x = ∑ i in range n, x i 
   . exact esymm_eq_zero x (show 1 > 0 by norm_num)
   · simp [ih, esymm_pascal, sum_range_succ]
 
-/-- If n > 0 and the x_i are positive, then S_{n,k}(x) is positive for k <= n. -/
+/-- If the x_i are positive, then S_{n,k}(x) is positive for k <= n. -/
 lemma esymm_pos (n k : ℕ) (x: ℕ → ℝ) (h1: k ≤ n) (h2: ∀ i ∈ range n, 0 < x i ) : 0 < esymm n k x := by
   unfold esymm
   apply sum_pos
