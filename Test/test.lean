@@ -50,7 +50,6 @@ example (n m : ℕ) : (n-m:ℕ) = if m ≤ n then (n:ℤ)-(m:ℤ) else (0:ℤ) :
     . nth_rewrite 1 [this]
       simp
     rw [Nat.sub_add_cancel h]
-    rfl
 
   suffices : (n - m) = 0
   . zify at this; assumption

@@ -2,14 +2,18 @@ import Mathlib.Data.Real.Basic
 import Mathlib.Data.Finset.Basic
 import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Algebra.BigOperators.Ring
+import Mathlib.Algebra.BigOperators.Order
 import Mathlib.Init.Order.Defs
 import Init.Data.Nat.Basic
 import SymmetricProject.binomial
 
--- basic facts about the expression "esymm n k x" (or $S_{n,k}(x)$) - the k^th elementary symmetric polynomial of the first n variables of an infinite sequence x of real variables
+/-!
+Basic facts about the expression "esymm n k x" (or $S_{n,k}(x)$) - the k^th elementary symmetric polynomial of the first n variables of an infinite sequence x of real variables
 
+I have ended up not using the mathlib library for symmetric polynomials due to various technical type casting / functional programming issues .  A future project would be refactor the arguments here using that library.
 
--- I have ended up not using the mathlib library for symmetric polynomials due to various technical type casting / functional programming issues .  A future project would be refactor the arguments here using that library.
+Thanks to Patrick Massot for optimizations and suggestions.
+-/
 
 --import Mathlib.RingTheory.MvPolynomial.Basic
 --import Mathlib.RingTheory.MvPolynomial.Symmetric
@@ -89,3 +93,14 @@ lemma esymm_sum (n : ℕ) (x: ℕ → ℝ): esymm n 1 x = ∑ i in range n, x i 
   induction' n with m ih
   . exact esymm_eq_zero x (show 1 > 0 by norm_num)
   · simp [ih, esymm_pascal, sum_range_succ]
+
+/-- If n > 0 and the x_i are positive, then S_{n,k}(x) is positive for k <= n. -/
+lemma esymm_pos (n k : ℕ) (x: ℕ → ℝ) (h1: k ≤ n) (h2: ∀ i ∈ range n, 0 < x i ) : 0 < esymm n k x := by
+  unfold esymm
+  apply sum_pos
+  . intros A hA
+    apply prod_pos
+    . intro i hi
+      exact h2 i (set_binom_subset hA hi)
+  use range k
+  simpa [set_binom, mem_powersetLen]
