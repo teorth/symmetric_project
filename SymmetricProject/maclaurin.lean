@@ -6,6 +6,7 @@ import SymmetricProject.newton
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Topology.ContinuousOn
 import Mathlib.Topology.Order.Basic
+import Mathlib.Analysis.SpecialFunctions.Pow.Continuity
 
 /-! Proof of the Maclaurin inequality - monotone decreasing nature of s_k^{1/k} when the s_k are non-negative.
 
@@ -182,6 +183,7 @@ open Topology
 
 def Rplus := {x : ℝ | x > 0}
 
+
 lemma lim_of_le {f g : ℝ → ℝ} (hf : ContinuousWithinAt f Rplus 0) (hg : ContinuousWithinAt g Rplus 0) (h : ∀ x ∈ Rplus, f x ≤ g x) : f 0 ≤ g 0 := by
   apply ContinuousWithinAt.closure_le _ hf hg h
   . -- proving that 0 is in the closure of Rplus.  Presumably this is already in MathLib?
@@ -196,6 +198,7 @@ lemma lim_of_le {f g : ℝ → ℝ} (hf : ContinuousWithinAt f Rplus 0) (hg : Co
     constructor
     . linarith
     linarith
+
 
 theorem maclaurin' (n k l : ℕ) (x : ℕ → ℝ) (h1 : ∀ i ∈ range n, x i ≥ 0) (h2 : l ∈ range (n+1)) (h3 : k ∈ range (l+1)) (h4 : k > 0): (esymm n l x / Nat.choose n l)^((1:ℝ)/l) ≤ (esymm n k x / Nat.choose n k)^((1:ℝ)/k) := by
   set x_eps := fun (ε : ℝ) (k : ℕ) ↦ x k + ε with hx_eps
@@ -265,22 +268,20 @@ theorem maclaurin' (n k l : ℕ) (x : ℕ → ℝ) (h1 : ∀ i ∈ range n, x i 
   clear h1 h0 h3 hs1
 
   have cts : ∀ m ∈ range (n+1), m>0 → ContinuousWithinAt (fun (ε : ℝ) ↦ (s_eps ε m)^((1:ℝ)/m) ) Rplus 0 := by
-    intro m hm hm2
-    let F := fun (y:ℝ) ↦ y^((1:ℝ)/m)
-    let G := fun (ε : ℝ) ↦ s_eps ε m
-    have hF : (fun (ε : ℝ) ↦ (s_eps ε m)^((1:ℝ)/m)) = F ∘ G := by
-      ext ε
-      congr
-    rw [hF]
-
-    have hmap : Set.MapsTo G Rplus Rplus := by
-      intro ε hε
-      exact hs2 ε hε m hm
-
-    apply ContinuousWithinAt.comp _ _ hmap
-    . rw [(show G 0 = 0 by simp)]
-      sorry
-    sorry
+    intro m _ hm2
+    apply ContinuousWithinAt.rpow_const
+    . apply Continuous.continuousWithinAt
+      dsimp [hs_eps, esymm]
+      apply Continuous.div_const
+      apply continuous_finset_sum
+      intro A _
+      apply continuous_finset_prod
+      intro k _
+      apply Continuous.add
+      . apply continuous_const
+      apply continuous_id
+    right
+    positivity
 
   apply lim_of_le _ _ hmac
   . exact cts l h2 h5
