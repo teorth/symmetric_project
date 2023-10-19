@@ -98,7 +98,7 @@ lemma esymm_sum (n : ℕ) (x: ℕ → ℝ): esymm n 1 x = ∑ i in range n, x i 
 lemma esymm_pos (n k : ℕ) (x: ℕ → ℝ) (h1: k ≤ n) (h2: ∀ i ∈ range n, 0 < x i ) : 0 < esymm n k x := by
   unfold esymm
   apply sum_pos
-  . intros A hA
+  . intro A hA
     apply prod_pos
     . intro i hi
       exact h2 i (set_binom_subset hA hi)

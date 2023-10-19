@@ -1,10 +1,27 @@
 import Mathlib
 import Mathlib.Tactic
+import Mathlib.Topology.ContinuousOn
 
 
 
+open Topology
 
+def Rplus := {x : ℝ | x > 0}
 
+lemma lim_of_le (f g : ℝ → ℕ) (hf : ContinuousWithinAt f Rplus 0) (hg : ContinuousWithinAt g Rplus 0) (h : ∀ x ∈ Rplus, f x ≤ g x) : f 0 ≤ g 0 := by
+  apply ContinuousWithinAt.closure_le _ hf hg h
+  . -- proving that 0 is in the closure of Rplus.  Presumably this is already in MathLib?
+    rw [Real.mem_closure_iff]
+    intro ε hε
+    use ε/2
+    constructor
+    . simp [Rplus]
+      positivity
+    simp
+    rw [abs_lt]
+    constructor
+    . linarith
+    linarith
 
 
 example (a b c : ℝ) (h : a/c = b/c) (h' : c ≠ 0) : a = b := by
