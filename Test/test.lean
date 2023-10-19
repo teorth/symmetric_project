@@ -8,7 +8,11 @@ open Topology
 
 def Rplus := {x : ℝ | x > 0}
 
-lemma lim_of_le (f g : ℝ → ℝ) (hf : ContinuousWithinAt f Rplus 0) (hg : ContinuousWithinAt g Rplus 0) (h : ∀ x ∈ Rplus, f x ≤ g x) : f 0 ≤ g 0 := by
+lemma lim_of_le (f g : ℝ → ℝ) (hf : ContinuousWithinAt f Rplus 0) (hg :  ContinuousWithinAt g Rplus 0) (h : ∀ x ∈ Rplus, f x ≤ g x) : f 0 ≤ g 0 := by
+
+  have cts : ∀ m ∈ ℕ, m > 0 → ContinuousWithinAt f Rplus 0 := by
+    sorry
+
   apply ContinuousWithinAt.closure_le _ hf hg h
   . -- proving that 0 is in the closure of Rplus.  Presumably this is already in MathLib?
     rw [Real.mem_closure_iff]

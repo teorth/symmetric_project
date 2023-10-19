@@ -182,7 +182,7 @@ open Topology
 
 def Rplus := {x : ℝ | x > 0}
 
-lemma lim_of_le (f g : ℝ → ℝ) (hf : ContinuousWithinAt f Rplus 0) (hg : ContinuousWithinAt g Rplus 0) (h : ∀ x ∈ Rplus, f x ≤ g x) : f 0 ≤ g 0 := by
+lemma lim_of_le {f g : ℝ → ℝ} (hf : ContinuousWithinAt f Rplus 0) (hg : ContinuousWithinAt g Rplus 0) (h : ∀ x ∈ Rplus, f x ≤ g x) : f 0 ≤ g 0 := by
   apply ContinuousWithinAt.closure_le _ hf hg h
   . -- proving that 0 is in the closure of Rplus.  Presumably this is already in MathLib?
     rw [Real.mem_closure_iff]
@@ -197,7 +197,7 @@ lemma lim_of_le (f g : ℝ → ℝ) (hf : ContinuousWithinAt f Rplus 0) (hg : Co
     . linarith
     linarith
 
-theorem maclaurin' (n k l : ℕ) (x : ℕ → ℝ) (h1 : ∀ i ∈ range (n+1), x i ≥ 0) (h2 : l ∈ range (n+1)) (h3 : k ∈ range (l+1)) (h4 : k > 0): (esymm n l x / Nat.choose n l)^((1:ℝ)/l) ≤ (esymm n k x / Nat.choose n k)^((1:ℝ)/k) := by
+theorem maclaurin' (n k l : ℕ) (x : ℕ → ℝ) (h1 : ∀ i ∈ range n, x i ≥ 0) (h2 : l ∈ range (n+1)) (h3 : k ∈ range (l+1)) (h4 : k > 0): (esymm n l x / Nat.choose n l)^((1:ℝ)/l) ≤ (esymm n k x / Nat.choose n k)^((1:ℝ)/k) := by
   set x_eps := fun (ε : ℝ) (k : ℕ) ↦ x k + ε with hx_eps
   set s_eps := fun (ε : ℝ) (k : ℕ) ↦ esymm n k (x_eps ε) / Nat.choose n k with hs_eps
 
@@ -213,6 +213,75 @@ theorem maclaurin' (n k l : ℕ) (x : ℕ → ℝ) (h1 : ∀ i ∈ range (n+1), 
       linarith
     field_simp
 
-  have hs2: ∀ ε ∈ Rplus,
+  have hs2: ∀ ε ∈ Rplus, ∀ i ∈ range (n+1), 0 < s_eps ε i := by
+    intro ε hε i hi
+    simp at hi
+    simp [Rplus] at hε
+    simp [hs_eps]
+    have nkp : (Nat.choose n i:ℝ) > 0 := by
+      norm_cast
+      apply Nat.choose_pos
+      linarith
+    suffices : 0 < esymm n i (x_eps ε)
+    . show 0 < (esymm n i (x_eps ε)) / (Nat.choose n i)
+      positivity
+    apply esymm_pos
+    . linarith
+    intro i hi
+    dsimp
+    linarith [h1 i hi]
 
-  sorry
+  have hmac : ∀ ε ∈ Rplus, (s_eps ε l)^((1:ℝ)/l) ≤ (s_eps ε k)^((1:ℝ)/k) := by
+    intro ε hε
+    apply maclaurin _ _ _ _ (hs1 ε hε) (hs2 ε hε) h2 h3 h4
+
+  have h0 : ∀ k : ℕ, s_eps 0 k = esymm n k x / (Nat.choose n k) := by
+    intro k
+    simp [hs_eps]
+
+  rw [<- h0 l, <- h0 k]
+
+  have h5 : l>0 := by simp at h3; linarith
+
+  set f := fun (ε : ℝ) => (s_eps ε l)^((1:ℝ)/l) with hf
+  set g := fun (ε : ℝ) => (s_eps ε k)^((1:ℝ)/k) with hg
+
+  replace hmac : ∀ ε ∈ Rplus, f ε ≤ g ε := by
+    intro ε hε
+    rw [hf, hg]
+    apply hmac
+    assumption
+
+  suffices : f 0 ≤ g 0
+  . rw [hf, hg] at this
+    assumption
+
+  have h6 : k ∈ range (n+1) := by
+    simp
+    simp at h2
+    simp at h3
+    linarith
+
+  clear h1 h0 h3 hs1
+
+  have cts : ∀ m ∈ range (n+1), m>0 → ContinuousWithinAt (fun (ε : ℝ) ↦ (s_eps ε m)^((1:ℝ)/m) ) Rplus 0 := by
+    intro m hm hm2
+    let F := fun (y:ℝ) ↦ y^((1:ℝ)/m)
+    let G := fun (ε : ℝ) ↦ s_eps ε m
+    have hF : (fun (ε : ℝ) ↦ (s_eps ε m)^((1:ℝ)/m)) = F ∘ G := by
+      ext ε
+      congr
+    rw [hF]
+
+    have hmap : Set.MapsTo G Rplus Rplus := by
+      intro ε hε
+      exact hs2 ε hε m hm
+
+    apply ContinuousWithinAt.comp _ _ hmap
+    . rw [(show G 0 = 0 by simp)]
+      sorry
+    sorry
+
+  apply lim_of_le _ _ hmac
+  . exact cts l h2 h5
+  exact cts k h6 h4
