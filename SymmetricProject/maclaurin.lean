@@ -92,15 +92,12 @@ theorem maclaurin (n k l : ℕ) (s : ℕ → ℝ) (h1 : attainable n s) (h2 : �
     rw [(show i+1+1 = i+2 by ring)]
     have h3 := h2 i
     have h4 := h2 (i+1)
-    have h5 : 0 < (s i) * (s (i+1)) := by 
-      apply Real.mul_pos h3 h4
     calc s (i+2) / s (i+1) = (s i * s (i+2)) / (s i * (s (i+1))) := by 
-          field_simp [h3,h4]
+          field_simp
           ring
-      _ ≤ s (i+1)^2 / (s i * (s (i+1))) := by 
-          exact (div_le_div_right h5).mpr sss
+      _ ≤ s (i+1)^2 / (s i * (s (i+1))) := by gcongr
       _ = s (i+1) / s i := by 
-        field_simp [h3, h4]
+        field_simp
         ring
  
   have hd_mono' : ∀ i ∈ range (k+1), ∀ j ∈ range (i+1), d i ≤ d j := by
@@ -115,43 +112,31 @@ theorem maclaurin (n k l : ℕ) (s : ℕ → ℝ) (h1 : attainable n s) (h2 : �
     rw [prod_range_succ, <- hm hi2, Nat.succ_eq_add_one]
     dsimp
     have h2m := h2 m
-    field_simp [h2m]
+    field_simp
     ring
 
   have hdd : d k^k ≤ ∏ j in range k, d j := by
     rw [pow_eq_prod_const]
     have hk'' : k ∈ range (k+1) := by simp
-    have h0 : ∀ j ∈ range k, 0 ≤ d k := by
-      intro j _
+    gcongr with j hj
+    · intro j _
       have dk := hd_pos k hk''
       linarith
-    have h1 : ∀ j ∈ range k, d k ≤ d j := by
-      intro j hj
-      have hj' : j ∈ range (k+1) := by 
+    · have hj' : j ∈ range (k+1) := by 
         simp; simp at hj; linarith
       exact hd_mono' k hk'' j hj'
-    exact prod_le_prod h0 h1
 
   have h2k := h2 k
   have h2k' := h2 (k+1)
   clear hk h0 newton hd_pos hd_mono hd_mono' 
-  have kkk : (0:ℝ) < k * (k+(1:ℝ)) := by
-    have hk'': (k:ℝ) ≥ 1 := by
-      exact Nat.one_le_cast.mpr hk'
-    apply mul_pos
-    linarith [hk'']
-    linarith [hk'']
+  have kkk : (0:ℝ) < k * (k+(1:ℝ)) := by positivity
     
   by_contra hs
   simp at hs
   have ht : 0 ≤ s k := by linarith
   have ht' : 0 ≤  s (k+1) := by linarith
-  have hu : 0 ≤ (s k)^((1:ℝ) / k) := by 
-    apply Real.rpow_nonneg_of_nonneg ht
-  have hu' : 0 ≤ (s (k+1))^((1:ℝ) /(k+1)) := by   
-    apply Real.rpow_nonneg_of_nonneg ht'
+  have hu : 0 ≤ (s k)^((1:ℝ) / k) := by positivity
   simp at hu
-  simp at hu'
   have hs' := Real.rpow_lt_rpow hu hs kkk 
   rw [<- Real.rpow_mul ht, <- Real.rpow_mul ht'] at hs'
   contrapose! hs'
@@ -162,21 +147,13 @@ theorem maclaurin (n k l : ℕ) (s : ℕ → ℝ) (h1 : attainable n s) (h2 : �
     field_simp
   rw [h, h'] 
   simp 
-  have hs'' : s k^((k:ℝ)+1) = s k^(k+1) := by 
-    let m := k+1
-    have hm : k+1 = m := by rfl
-    have hm' : (k:ℝ)+1 = m := by simp
-    rw [hm, hm']
-    exact Real.rpow_nat_cast (s k) m
+  have hs'' : s k^((k:ℝ)+1) = s k^(k+1) := by norm_cast
     
   have hw : k ∈ range (k+2) := by simp
   have hw' : k+1 ∈ range (k+2) := by simp
   rw [hs'', hds k hw, hds (k+1) hw', prod_range_succ, mul_pow, pow_succ, <- hds k hw]
-  have hx : (s k)^k > 0 := by 
-    exact pow_pos (h2 k) k
-  suffices : d k^k ≤ s k
-  . rw [mul_comm (s k)]
-    exact (mul_le_mul_left hx).mpr this
+  rw [mul_comm (s k)]
+  gcongr
   rw [hds k hw]
   assumption
 
