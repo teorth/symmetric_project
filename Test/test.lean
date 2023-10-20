@@ -10,7 +10,8 @@ open Finset
 open BigOperators
 open Real
 
-example {n : ℕ} {a : ℝ} {x : ℕ → ℝ} {h_1 : 0 < n} {h_2: 0 < a}  : ∑ i in range n, ((1:ℝ)/n) * log (exp (x i) + a) ≥ log (exp (∑ i in range n, ((1:ℝ)/n) * x i) + a) := by
+/- A Jensen inequality for the function x -> log(exp x + a) for any positive a. -/
+lemma logexp_jensen {n : ℕ} {a : ℝ} {x : ℕ → ℝ} {h_1 : 0 < n} {h_2: 0 < a}  : ∑ i in range n, ((1:ℝ)/n) * log (exp (x i) + a) ≥ log (exp (∑ i in range n, ((1:ℝ)/n) * x i) + a) := by
   let g := fun (x:ℝ) ↦ exp x + a
   let f := fun (x:ℝ) ↦ log (g x)
   show ∑ i in range n, ((1:ℝ)/n) * f ( x i ) ≥ f (∑ i in range n, ((1:ℝ)/n) * x i)
@@ -58,7 +59,7 @@ example {n : ℕ} {a : ℝ} {x : ℕ → ℝ} {h_1 : 0 < n} {h_2: 0 < a}  : ∑ 
   have hf'' : deriv (deriv f) = (fun x ↦ a * (exp x) / (g x)^2) := by
     ext x
     rw [hf', deriv_const_sub]
-    have hc : DifferentiableAt ℝ (fun (x:ℝ) ↦ a) x := by
+    have hc : DifferentiableAt ℝ (fun (_:ℝ) ↦ a) x := by
       apply Differentiable.differentiableAt
       apply differentiable_const
     rw [deriv_div hc (g_diff_at x) (hg_nonzero x), hg', deriv_const]
@@ -70,8 +71,10 @@ example {n : ℕ} {a : ℝ} {x : ℕ → ℝ} {h_1 : 0 < n} {h_2: 0 < a}  : ∑ 
     . apply Continuous.continuousOn
       apply Differentiable.continuous f_diff
     . apply Differentiable.differentiableOn f_diff
-    . sorry
-    sorry
+    . apply Differentiable.differentiableOn f'_diff
+    intro x _
+    simp [hf'']
+    positivity
   apply ConvexOn.map_sum_le convex
   . intro _ _
     apply div_nonneg
