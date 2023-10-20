@@ -7,8 +7,8 @@ open Finset
 open BigOperators
 open Complex
 
-example (n : ℕ) (z : ℕ → ℂ) : abs ∑ i in range n, z i ≤ ∑ i in range n, abs (z i) := by
-  sorry
+example (n : ℕ) (z : ℕ → ℂ) : abs (∑ i in range n, z i) ≤ ∑ i in range n, abs (z i) := by
+  exact AbsoluteValue.sum_le Complex.abs (range n) fun i => z i
 
 
 example (f : ℕ → ℕ → ℕ) (a b c : ℕ) (h: a = b) : f c a = f c b := by

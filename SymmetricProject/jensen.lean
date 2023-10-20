@@ -86,7 +86,7 @@ lemma logexp_jensen {n : ℕ} {a : ℝ} {x : ℕ → ℝ} {h_1 : 0 < n} {h_2: 0 
   intro i _
   simp
 
-theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n s) (h2 : l ≤ n) (h3: l ≥ 1) (h4: r > 0) : ∑ m in range (l+1), (Nat.choose l m) * abs (s m) * r^(l-m) ≥ (( abs (s l) )^(2 / l) + r^2)^(l / 2) := by
+theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n s) (h2 : l ≤ n) (h3: l ≥ 1) (h4: r > 0) : ∑ m in range (l+1), (Nat.choose l m) * abs (s m) * r^(l-m : ℕ) ≥ (( abs (s l) )^(2 / l) + r^2)^(l / 2) := by
 
 -- first reduce to the l=n case
 
@@ -114,14 +114,14 @@ theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n
   have h7 : abs (s l) > 0 := by positivity
   rcases h5 with ⟨x, h5⟩
 
+  have h7a := esymm_prod l x
+  have h7b : l ≤ l := by linarith
+  simp [h5 l h7b] at h7a
+
   have h8 : ∀ i ∈ range l, x i ≠ 0 := by
     contrapose! h6
     rcases h6 with ⟨ i, ⟨ hi, hx ⟩⟩
-    have h7 : l ≤ l := by linarith
-    have h8 := h5 l h7
-    rw [esymm_prod l x] at h8
-    simp at h8
-    rw [<- h8]
+    rw [h7a]
     apply prod_eq_zero hi hx
 
   have h9 : ∏ i in (range l), (X - C (x i)) = ∑ k in range (l+1), monomial (l-k) ((-1) ^ ↑k * (Nat.choose l k) * (s k)) := by
@@ -138,11 +138,35 @@ theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n
   let ir := Complex.I * (r:ℂ)
 
   have h10 := by congrm (eval₂ Complex.ofReal ir $h9)
-  clear h6 h9 h5
+  clear h6 h9 h5 h7b
   simp [eval₂_finset_prod, eval₂_finset_sum] at h10
+  have h11 : |r| = r := by
+    rw [abs_of_pos h4]
+  have h12 := AbsoluteValue.sum_le Complex.abs (range (l+1)) (fun k ↦ (-1) ^ k * (Nat.choose l k) * (s k) * ir ^ (l - k : ℕ))
+  simp [<-h10, h11] at h12
+  clear h10 h11
+  suffices : ∏ k in range l, Complex.abs (ir - x k) ≥ (|s l| ^ (2 / l) + r ^ 2) ^ (l / 2)
+  . simp at this
+    simp
+    linarith
 
+  have h13 : ∀ k ∈ range l, Complex.abs (ir - x k) > 0 := by
+    intro k hk
+    apply AbsoluteValue.pos
+    by_contra h13
+    have h14 := by congrm Complex.im $h13
+    simp at h14
+    linarith
 
-  sorry
+  rw [ge_iff_le, <- Real.log_le_log, Real.log_rpow, Real.log_prod]
+  . clear h12 h13
+    sorry
+  . intro k hk
+    linarith [h13 k hk]
+  . positivity
+  . positivity
+  apply prod_pos
+  exact h13
 
 
 -- theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n s) (h2 : l ∈ range (n+1)) (h3: l ≥ 1) : ∑ m in range (l+1), (Nat.choose l m) * abs (s m) * r^(l-m) ≥ (( abs (s l) )^((2:ℝ) / l) + r^2)^(l / (2:ℝ)) := by
