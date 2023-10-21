@@ -108,7 +108,7 @@ theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n
     simp at h8
     simp [Real.zero_rpow h7, attainable_zero_eq_one l s h5, h8]
     apply sum_nonneg
-    intro i hi
+    intro i _
     positivity
 
   have h7 : abs (s l) > 0 := by positivity
@@ -151,7 +151,7 @@ theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n
     linarith
 
   have h13 : ∀ k ∈ range l, 0 < Complex.abs (ir - x k) := by
-    intro k hk
+    intro k _
     apply AbsoluteValue.pos
     by_contra h13
     have h14 := by congrm Complex.im $h13
@@ -183,7 +183,6 @@ theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n
 
     suffices : ∑ i in range l, (1:ℝ)/l * log (exp (y i) + r ^ 2) ≥ log (|s l| ^ ((2:ℝ) / l) + r ^ 2)
     . have h9 : l > 0 := by linarith
-      have h9' : l ≠ 0 := by linarith
       rw [<- mul_le_mul_left (show 0 < (2:ℝ)/l by positivity)]
       calc (2:ℝ) / l * (l / 2 * log (|s l| ^ ((2:ℝ) / l) + r ^ 2)) = log (|s l| ^ ((2:ℝ) / l) + r ^ 2) := by field_simp; ring
         _ ≤ ∑ i in range l, 1 / ↑l * log (exp (y i) + r ^ 2) := by linarith
@@ -210,7 +209,6 @@ theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n
       _ = exp (∑ i in range l, ((1:ℝ)/l) * y i) := by
         rw [<- exp_sum, abs_of_pos, <-exp_mul, <-mul_sum]
         . congr 1
-          have h9 : l ≠ 0 := by linarith
           field_simp
         apply exp_pos
     rw [h17]
