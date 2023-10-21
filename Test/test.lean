@@ -1,14 +1,38 @@
 import Mathlib
 import Mathlib.Tactic
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Analysis.SpecialFunctions.ExpDeriv
 
-import Mathlib.Data.Complex.Basic
+example (a: ℝ) : Differentiable ℝ (fun (x:ℝ) ↦ (Real.exp x + a)) := by
+    simp
+    apply Differentiable.exp
+    simp
 
-open Finset
-open BigOperators
-open Complex
+example (a b c : ℝ) (h: c * a ≤ c * b) (h2 : c > 0): a ≤ b := by
+  exact (mul_le_mul_left h2).mp h
 
-example (n : ℕ) (z : ℕ → ℂ) : abs (∑ i in range n, z i) ≤ ∑ i in range n, abs (z i) := by
-  exact AbsoluteValue.sum_le Complex.abs (range n) fun i => z i
+
+example (a b c d : ℝ) (h1 : a / (c^2 + d^2) = b / (c^2 + d^2)) (h2: c ≠ 0) (h3 : d ≠ 0) : a = b := by
+  have h4 : c^2+d^2 ≠ 0 := by
+    have h5 : 0 < c^2 := by norm_cast; rw [sq_pos_iff c]; assumption
+    have h6 : 0 < d^2 := by norm_cast; rw [sq_pos_iff d]; assumption
+    linarith
+  rw [div_left_inj' h4] at h1
+  exact h1
+
+example (a b c d : ℝ) (h1 : a*(c-d) = b*(c-d)) (h2 : c ≠ d): a = b := by
+  have h3 : c-d ≠ 0 := by contrapose! h2; linarith
+  field_simp [h3] at h1
+  assumption
+
+
+example (a b c d : ℝ) (h1 : a/(c-d) = b/(c-d)) (h2 : c ≠ d): a = b := by
+  have h3 : c-d ≠ 0 := by contrapose! h2; linarith
+  field_simp at h1
+  assumption
+
+
+
 
 
 example (f : ℕ → ℕ → ℕ) (a b c : ℕ) (h: a = b) : f c a = f c b := by

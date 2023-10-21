@@ -33,10 +33,10 @@ lemma logexp_jensen {n : ℕ} {a : ℝ} {x : ℕ → ℝ} {h_1 : 0 < n} {h_2: 0 
   show ∑ i in range n, ((1:ℝ)/n) * f ( x i ) ≥ f (∑ i in range n, ((1:ℝ)/n) * x i)
 
   have g_diff : Differentiable ℝ g := by
-    apply Differentiable.add
-    . apply Differentiable.exp
-      apply differentiable_id
-    apply differentiable_const
+    simp
+    apply Differentiable.exp
+    simp
+
 
   have g_diff_at (x : ℝ): DifferentiableAt ℝ g x := by
       apply Differentiable.differentiableAt g_diff
@@ -150,7 +150,7 @@ theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n
     simp
     linarith
 
-  have h13 : ∀ k ∈ range l, Complex.abs (ir - x k) > 0 := by
+  have h13 : ∀ k ∈ range l, 0 < Complex.abs (ir - x k) := by
     intro k hk
     apply AbsoluteValue.pos
     by_contra h13
@@ -159,18 +159,70 @@ theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n
     linarith
 
   rw [ge_iff_le, <- Real.log_le_log, Real.log_rpow, Real.log_prod]
-  . clear h12 h13
-    sorry
+  . clear h12
+    have h15 : ∑ i in range l, log (Complex.abs (ir - (x i))) = (1:ℝ)/2 * ∑ i in range l, log (r^2 + (x i)^2) := by
+      rw [mul_sum]
+      apply sum_congr rfl
+      intro i hi
+      field_simp
+      rw [mul_comm, <-log_rpow (h13 i hi)]
+      congr
+      norm_cast
+      rw [<-Complex.normSq_eq_abs, (show ir - x i = (-x i:ℝ) + r * Complex.I by simp; ring), Complex.normSq_add_mul_I]
+      ring
+    rw [h15]
+    clear h13 h15 ir
+
+    let y := (fun (i: ℕ) ↦ log (x i^2))
+    have h16 : ∀ i ∈ range l, x i^2 = exp (y i) := by
+      intro i hi
+      rw [exp_log]
+      have h8a : x i ≠ 0 := h8 i hi
+      norm_cast
+      positivity
+
+    suffices : ∑ i in range l, (1:ℝ)/l * log (exp (y i) + r ^ 2) ≥ log (|s l| ^ ((2:ℝ) / l) + r ^ 2)
+    . have h9 : l > 0 := by linarith
+      have h9' : l ≠ 0 := by linarith
+      rw [<- mul_le_mul_left (show 0 < (2:ℝ)/l by positivity)]
+      calc (2:ℝ) / l * (l / 2 * log (|s l| ^ ((2:ℝ) / l) + r ^ 2)) = log (|s l| ^ ((2:ℝ) / l) + r ^ 2) := by field_simp; ring
+        _ ≤ ∑ i in range l, 1 / ↑l * log (exp (y i) + r ^ 2) := by linarith
+        _ = ∑ i in range l, 1 / ↑l * log (r ^ 2 + x i ^ 2) := by apply sum_congr rfl; intro i hi; rw [h16 i hi]; rw [add_comm]
+        _ = (2:ℝ) / l * (1 / 2 * ∑ i in range l, log (r ^ 2 + x i ^ 2)) := by rw [<- mul_sum]; field_simp; ring
+
+    have h17 : |s l|^((2:ℝ)/l) = exp (∑ i in range l, ((1:ℝ)/l) * y i) := calc
+      |s l|^((2:ℝ)/l) = |s l^2|^((1:ℝ)/l) := by
+        rw [(show (2:ℝ)/l = 2 * ((1:ℝ)/l) by ring), rpow_mul]
+        . congr
+          norm_cast
+          rw [abs_pow]
+        positivity
+      _ = |∏ i in range l, x i^2|^((1:ℝ)/l) := by
+        congr 2
+        rw [h7a]
+        norm_cast
+        rw [prod_pow]
+      _ = |∏ i in range l, exp (y i)|^((1:ℝ)/l) := by
+        congr 2
+        apply prod_congr rfl
+        intro i hi
+        rw [h16 i hi]
+      _ = exp (∑ i in range l, ((1:ℝ)/l) * y i) := by
+        rw [<- exp_sum, abs_of_pos, <-exp_mul, <-mul_sum]
+        . congr 1
+          have h9 : l ≠ 0 := by linarith
+          field_simp
+        apply exp_pos
+    rw [h17]
+    apply logexp_jensen
+    . linarith
+    positivity
   . intro k hk
     linarith [h13 k hk]
   . positivity
   . positivity
   apply prod_pos
   exact h13
-
-
--- theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n s) (h2 : l ∈ range (n+1)) (h3: l ≥ 1) : ∑ m in range (l+1), (Nat.choose l m) * abs (s m) * r^(l-m) ≥ (( abs (s l) )^((2:ℝ) / l) + r^2)^(l / (2:ℝ)) := by
---  sorry
 
 --theorem new_inequality' (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n s) (h2 : l ∈ range (n+1)) (h3: l ≥ 1) : ∑ m in range (l+1), (Nat.choose l m) * abs (s m) * r^m ≥ (1 + abs (s l)^((2:ℝ)/l) * r^2)^(l/(2:ℝ)) := by
 --  sorry
