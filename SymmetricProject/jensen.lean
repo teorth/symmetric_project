@@ -14,10 +14,7 @@ import SymmetricProject.esymm_generating
 import SymmetricProject.attainable
 
 
-/-! The purpose of this file is to establish [Theorem 1.3 of the paper].  Namely, if $(s_0,\dots s_n)$ is attainable, r>0, and 1 ≤ l ≤ n, then
-$$ ∑_{m=0}^l \binom{l}{m} |s_m| r^m ≥ (1 + |s_l|^{2/l} r^2)^{l/2}$$
-and
-$$ ∑_{m=0}^l \binom{l}{m} |s_m| r^{l-m} ≥ (|s_l|^{2/l} + r^2)^{l/2}. $$
+/-! The purpose of this file is to establish [Theorem 1.3 of the paper].
 -/
 
 
@@ -86,6 +83,10 @@ lemma logexp_jensen {n : ℕ} {a : ℝ} {x : ℕ → ℝ} {h_1 : 0 < n} {h_2: 0 
   intro i _
   simp
 
+/--
+If $(s_0,\dots s_n)$ is attainable, r>0, and 1 ≤ l ≤ n, then
+$$ ∑_{m=0}^l \binom{l}{m} |s_m| r^m ≥ (1 + |s_l|^{2/l} r^2)^{l/2}$$
+-/
 theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n s) (h2 : l ≤ n) (h3: l ≥ 1) (h4: r > 0) : ∑ m in range (l+1), (Nat.choose l m) * abs (s m) * r^(l-m : ℕ) ≥ (( abs (s l) )^(2 / l) + r^2)^(l / 2) := by
 
 -- first reduce to the l=n case
@@ -93,7 +94,7 @@ theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n
   have h5: attainable l s := attainable_truncate n l s h2 h1
   clear h1 h2 n
 
-  rcases em (s l = 0) with h6 | h6
+  by_cases h6 :s l = 0
   . rw [h6]
     have h7 : (2:ℝ)/l ≠ 0 := by positivity
     rw [Finset.sum_range_succ']
@@ -182,8 +183,7 @@ theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n
       positivity
 
     suffices : ∑ i in range l, (1:ℝ)/l * log (exp (y i) + r ^ 2) ≥ log (|s l| ^ ((2:ℝ) / l) + r ^ 2)
-    . have h9 : l > 0 := by linarith
-      rw [<- mul_le_mul_left (show 0 < (2:ℝ)/l by positivity)]
+    . rw [<- mul_le_mul_left (show 0 < (2:ℝ)/l by positivity)]
       calc (2:ℝ) / l * (l / 2 * log (|s l| ^ ((2:ℝ) / l) + r ^ 2)) = log (|s l| ^ ((2:ℝ) / l) + r ^ 2) := by field_simp; ring
         _ ≤ ∑ i in range l, 1 / ↑l * log (exp (y i) + r ^ 2) := by linarith
         _ = ∑ i in range l, 1 / ↑l * log (r ^ 2 + x i ^ 2) := by apply sum_congr rfl; intro i hi; rw [h16 i hi]; rw [add_comm]
@@ -222,8 +222,37 @@ theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n
   apply prod_pos
   exact h13
 
---theorem new_inequality' (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n s) (h2 : l ∈ range (n+1)) (h3: l ≥ 1) : ∑ m in range (l+1), (Nat.choose l m) * abs (s m) * r^m ≥ (1 + abs (s l)^((2:ℝ)/l) * r^2)^(l/(2:ℝ)) := by
---  sorry
-
-
--- $$ ∑_{m=0}^l \binom{l}{m} |s_m| r^{l-m} ≥ (|s_l|^{2/l} + r^2)^{l/2}. $$
+/--
+If $(s_0,\dots s_n)$ is attainable, r>0, and 1 ≤ l ≤ n, then
+$$ ∑_{m=0}^l \binom{l}{m} |s_m| r^{l-m} ≥ (|s_l|^{2/l} + r^2)^{l/2}. $$
+-/
+theorem new_inequality' (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n s) (h2 : l ≤ n) (h3: l ≥ 1) (h4 : r > 0) : ∑ m in range (l+1), (Nat.choose l m) * abs (s m) * r^m ≥ (1 + abs (s l)^((2:ℝ)/l) * r^2)^(l/(2:ℝ)) := calc
+  ∑ m in range (l+1), (Nat.choose l m) * abs (s m) * r^m = r^l * ∑ m in range (l+1), (Nat.choose l m) * abs (s m) * (1/r)^(l-m : ℕ) := by
+    rw [mul_sum]
+    apply sum_congr rfl
+    intro m hm
+    rw [mul_comm (r^(l:ℝ)) _, mul_assoc _ _ (r^(l:ℝ))]
+    congr
+    field_simp
+    rw [<-pow_add]
+    congr
+    rw [add_comm, Nat.sub_add_cancel]
+    simp at hm; linarith
+  _ ≥ r^l * (( abs (s l) )^(2 / l) + (1/r)^2)^(l / 2) := by
+    rw [ge_iff_le, mul_le_mul_left, <-ge_iff_le]
+    . apply new_inequality n l s (1/r) h1 h2 h3
+      . positivity
+    positivity
+  _ = (1 + abs (s l)^((2:ℝ)/l) * r^2)^(l/(2:ℝ)) := by
+    have h5 : r^l = (r^2)^(l/2) := by
+      rw [<- rpow_mul]
+      . congr
+        field_simp
+        ring
+      linarith
+    rw [h5, <- mul_rpow]
+    . congr
+      field_simp
+      ring
+    . positivity
+    positivity

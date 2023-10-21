@@ -2,6 +2,32 @@ import Mathlib
 import Mathlib.Tactic
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Analysis.SpecialFunctions.ExpDeriv
+import Mathlib.Algebra.BigOperators.Basic
+import Mathlib.Algebra.BigOperators.Ring
+
+open Finset
+open BigOperators
+
+
+
+example (a b : ℕ) : a + b = b + a := by
+  generalize h : a + b = x
+  set c := b + a
+  rw [<- h]
+  observe k : a = a
+  observe l : a ≤ a
+  observe m : a ≤ a + 1
+  wlog h : a < 0
+  . rw [Nat.add_comm]
+  rw [Nat.add_comm]
+
+example (n : ℕ ) (f g : ℕ → ℕ) (h : ∀ x ∈ range n, f x = g x) : ∀ x ∈ range n, 1 + f x = 1 + g x := by
+  have hc (x : ℕ) (hx : x ∈ range n): ?Q := by
+    let h0 := h x hx
+    have h1 := by congrm (1 + $h0)
+    exact h1
+  assumption
+
 
 example (a: ℝ) : Differentiable ℝ (fun (x:ℝ) ↦ (Real.exp x + a)) := by
     simp
