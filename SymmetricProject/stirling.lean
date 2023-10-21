@@ -1,5 +1,6 @@
 import Mathlib.Data.Finset.Basic
 import Mathlib.Algebra.BigOperators.Basic
+import Mathlib.Data.Nat.Factorial.BigOperators
 import Init.Data.Nat.Basic
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
@@ -49,6 +50,30 @@ lemma factorial_ge {n : ℕ} : n ! ≥ n^n / exp n := by
   rw [monotone_iff_forall_lt]
   intro a b hab
   gcongr
+
+lemma choose_eq {n : ℕ} {k : ℕ} (h : k ≤ n) : choose n k = (∏ j in range k, (1 - (j:ℝ)/n)) * n^k / k ! := by
+  have : choose n k = (descFactorial n k : ℝ) / k ! := by
+    rw [choose_eq_descFactorial_div_factorial]
+    norm_cast
+  rw [this]
+  congr
+  have : n ^ k = ∏ j in range k, (n:ℝ) := by
+    rw [prod_const, card_range]
+    norm_cast
+  rw [this, <- prod_mul_distrib, descFactorial_eq_prod_range]
+  rw [(show ∏ i in range k, (n-i) = ∏ i in range k, ((n - i : ℕ) : ℝ) by norm_cast)]
+  apply prod_congr rfl
+  intro j hj
+  simp at hj
+  have hn : n ≠ 0 := by linarith
+  field_simp
+  symm
+  rw [sub_eq_iff_eq_add]
+  norm_cast
+  rw [Nat.sub_add_cancel]
+  linarith
+
+
 
 lemma choose_le {n : ℕ} {k : ℕ} (h : k ≤ n) : choose n k ≤ n^k / k ! := by
   sorry
