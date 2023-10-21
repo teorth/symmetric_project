@@ -26,25 +26,21 @@ open Polynomial
 /- A Jensen inequality for the function x -> log(exp x + a) for any positive a. -/
 lemma logexp_jensen {n : ℕ} {a : ℝ} {x : ℕ → ℝ} {h_1 : 0 < n} {h_2: 0 < a}  : ∑ i in range n, ((1:ℝ)/n) * log (exp (x i) + a) ≥ log (exp (∑ i in range n, ((1:ℝ)/n) * x i) + a) := by
   let g := fun x ↦ rexp x + a
-  let f := fun x ↦ log (g x)
-  show ∑ i in range n, ((1:ℝ)/n) * f ( x i ) ≥ f (∑ i in range n, ((1:ℝ)/n) * x i)
 
   have g_diff : Differentiable ℝ g := by simp; apply Differentiable.exp; simp
 
   have hg_nonzero (x : ℝ): g x ≠ 0 := by dsimp; linarith [exp_pos x]
 
-  have hf' : deriv f = fun x ↦ 1 - a / (g x) := by
+  have hf' : deriv (fun x ↦ log (g x)) = fun x ↦ 1 - a / (g x) := by
     ext x
     rw [deriv.log (Differentiable.differentiableAt g_diff) (hg_nonzero x)]
     field_simp [hg_nonzero x]
 
-  have convex : ConvexOn ℝ Set.univ f := by
-    apply MonotoneOn.convexOn_of_deriv convex_univ (Continuous.continuousOn (Differentiable.continuous (Differentiable.log g_diff hg_nonzero))) (Differentiable.differentiableOn (Differentiable.log g_diff hg_nonzero))
+  apply ConvexOn.map_sum_le
+  . apply MonotoneOn.convexOn_of_deriv convex_univ (Continuous.continuousOn (Differentiable.continuous (Differentiable.log g_diff hg_nonzero))) (Differentiable.differentiableOn (Differentiable.log g_diff hg_nonzero))
     apply Monotone.monotoneOn
     rw [hf', monotone_iff_forall_lt]
     intro x y hxy; dsimp; gcongr
-
-  apply ConvexOn.map_sum_le convex
   . intro _ _; positivity
   . rw [sum_const]; simp; field_simp
   intro i _; simp
@@ -82,8 +78,7 @@ theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n
   rcases h5 with ⟨x, h5⟩
 
   have h7a := esymm_prod l x
-  have h7b : l ≤ l := by linarith
-  simp [h5 l h7b] at h7a
+  simp [h5 l (by observe : l ≤ l)] at h7a
 
   have h8 : ∀ i ∈ range l, x i ≠ 0 := by
     contrapose! h6
@@ -105,7 +100,7 @@ theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n
   let ir := Complex.I * (r:ℂ)
 
   have h10 := by congrm (eval₂ Complex.ofReal ir $h9)
-  clear h6 h9 h5 h7b
+  clear h6 h9 h5
   simp [eval₂_finset_prod, eval₂_finset_sum] at h10
   have h11 : |r| = r := by
     rw [abs_of_pos h4]
