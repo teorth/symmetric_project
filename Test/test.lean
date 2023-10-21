@@ -7,16 +7,44 @@ import Mathlib.Algebra.BigOperators.Ring
 
 open Finset
 open BigOperators
+open Real
 
+example (a : ℝ) (h : a > 0) : ConvexOn ℝ Set.univ fun x ↦ log (exp x + a) := by
+  let g := fun x ↦ rexp x + a
+
+  have g_diff : Differentiable ℝ g := by simp; apply Differentiable.exp; simp
+
+  have hg_nonzero (x : ℝ): g x ≠ 0 := by dsimp; linarith [exp_pos x]
+
+  have hf' : deriv (fun x ↦ log (g x)) = fun x ↦ 1 - a / (g x) := by
+    ext x
+    rw [deriv.log (Differentiable.differentiableAt g_diff) (hg_nonzero x)]
+    field_simp [hg_nonzero x]
+
+  apply MonotoneOn.convexOn_of_deriv convex_univ (Continuous.continuousOn (Differentiable.continuous (Differentiable.log g_diff hg_nonzero))) (Differentiable.differentiableOn (Differentiable.log g_diff hg_nonzero))
+  apply Monotone.monotoneOn
+  rw [hf', monotone_iff_forall_lt]
+  intro x y hxy
+  dsimp; gcongr
+
+
+attribute [local field_simps] div_le_div_iff div_lt_div_iff div_le_iff'
 
 example (x y z w : ℝ) (h: x ≠ 0) (h2: y ≠ 0) (h3: x * z / (x * y) ≤ w ) : z / y ≤ w := by
-  field_simp [h, h2] at h3
+  convert h3 using 1
+  field_simp
   ring
+
+example (x y z w : ℝ) (h: x ≠ 0) (h2: y ≠ 0) (h3: x * z / (x * y) = w ) : z / y = w := by
+  field_simp at h3 ⊢
+  apply mul_left_cancel₀ h
+  linarith
 
 example (a b c : ℕ) : a + b + c = c + b + a := by
   have h := calc
     a + b = b + a := by rw [Nat.add_comm]
     _ = a+b := by rw [Nat.add_comm]
+  rw [h]
   ring
 
 

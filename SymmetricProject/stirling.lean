@@ -53,8 +53,8 @@ lemma factorial_ge {n : ℕ} : n ! ≥ n^n / exp n := by
 
 lemma choose_eq {n : ℕ} {k : ℕ} (h : k ≤ n) : choose n k = (∏ j in range k, (1 - (j:ℝ)/n)) * n^k / k ! := by
   have : choose n k = (descFactorial n k : ℝ) / k ! := by
-    rw [choose_eq_descFactorial_div_factorial]
-    norm_cast
+    rw [descFactorial_eq_factorial_mul_choose]
+    field_simp [(observe : k! ≠ 0)]
   rw [this]
   congr
   have : n ^ k = ∏ j in range k, (n:ℝ) := by
