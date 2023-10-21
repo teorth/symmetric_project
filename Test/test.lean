@@ -9,6 +9,16 @@ open Finset
 open BigOperators
 
 
+example (x y z w : ℝ) (h: x ≠ 0) (h2: y ≠ 0) (h3: x * z / (x * y) ≤ w ) : z / y ≤ w := by
+  field_simp [h, h2] at h3
+  ring
+
+example (a b c : ℕ) : a + b + c = c + b + a := by
+  have h := calc
+    a + b = b + a := by rw [Nat.add_comm]
+    _ = a+b := by rw [Nat.add_comm]
+  ring
+
 
 example (a b : ℕ) : a + b = b + a := by
   generalize h : a + b = x
