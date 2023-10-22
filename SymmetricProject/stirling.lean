@@ -133,4 +133,4 @@ lemma choose_ge' {n : ℕ} {k : ℕ} (h : k ≤ n) (h2 : 0 < k) : (choose n k : 
   . simp
     rw [<-ge_iff_le]
     apply choose_ge
-  all_goals {positivity}
+  all_goals {positivity}  

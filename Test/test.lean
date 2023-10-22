@@ -10,8 +10,9 @@ open BigOperators
 open Real
 open Nat
 
-example (n : ℕ) : ∏ j in range n, (n-j+j) = ∏ j in range n, n := by
-  gcongr
+example (n : ℕ) : ∏ j in range n, j ≤ ∏ j in range n, n := by
+  congr! with j hj
+
 
 
 

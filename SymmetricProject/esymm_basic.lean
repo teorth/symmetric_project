@@ -36,11 +36,13 @@ lemma esymm_zero_eq_one (n : ℕ) (x : ℕ → ℝ) : esymm n 0 x = 1 := by
   simp [esymm, set_binom]
 
 /-- S_{n,k}(x)=0 if k>n -/
+@[simp]
 lemma esymm_eq_zero {n k : ℕ} (x : ℕ → ℝ) (h : n < k) : esymm n k x = 0 := by
   simp [esymm, set_binom_empty h]
 
 
 /-- S_{n,n}(x) = \prod_{i=0}^{n-1} x_i -/
+@[simp]
 lemma esymm_prod (n : ℕ) (x: ℕ → ℝ): esymm n n x = ∏ i in range n, x i := by
   simp [esymm]
   -- Note how this proof benefits from the added simp lemma `set_binom_self`
@@ -61,13 +63,14 @@ $$ S_{n,k}(1/x) = S_{n,n-k}(x) / S_{n,n}(x) $$
 for all 0 ≤ k ≤ n
 -/
 lemma esymm_reflect (n : ℕ) (k : ℕ) (x : ℕ → ℝ) (h : esymm n n x ≠ 0) (hkn : k ≤ n) : esymm n k (1 / x) = esymm n (n-k) x / esymm n n x := by
-  field_simp
-  rw [esymm_prod, esymm, esymm, sum_mul, ← sdiff_binom_image n k hkn, sum_image (sdiff_binom_inj n k)]
+  simp at h; field_simp
+  rw [esymm, esymm, sum_mul, ← sdiff_binom_image n k hkn, sum_image (sdiff_binom_inj n k)]
   apply sum_congr rfl
   intro A hA
   have hAn := set_binom_subset hA
   replace hA : ∀ i ∈ A, x i ≠ 0 := by
-    rw [esymm_prod, prod_ne_zero_iff] at h
+    contrapose! h
+    rw [prod_eq_zero_iff]
     tauto
   calc (∏ i in A, (1 / x) i) * (∏ i in range n, x i)
     = (∏ i in A, (1 / x) i) * ((∏ i in range n \ A, x i) * ∏ i in A,  x i) := by rw [prod_sdiff hAn]
@@ -89,7 +92,8 @@ theorem esymm_pascal (n : ℕ) (k : ℕ) (x : ℕ → ℝ) :
   ring
 
 /-- S_{n,1}(x) = \sum_{i=0}^{n-1} x_i -/
-lemma esymm_sum (n : ℕ) (x: ℕ → ℝ): esymm n 1 x = ∑ i in range n, x i := by
+@[simp]
+lemma esymm_sum {n : ℕ} {x: ℕ → ℝ}: esymm n 1 x = ∑ i in range n, x i := by
   induction' n with m ih
   . exact esymm_eq_zero x (show 1 > 0 by norm_num)
   · simp [ih, esymm_pascal, sum_range_succ]
@@ -104,3 +108,13 @@ lemma esymm_pos (n k : ℕ) (x: ℕ → ℝ) (h1: k ≤ n) (h2: ∀ i ∈ range 
       exact h2 i (set_binom_subset hA hi)
   use range k
   simpa [set_binom, mem_powersetLen]
+
+/-- The second Newton identity
+∑ i in range n, (x i)^2 = (esymm n 1 x)^2 - 2 * (esymm n 2 x)
+-/
+lemma newton_two {n : ℕ} {x: ℕ → ℝ}: ∑ i in range n, (x i)^2 = (esymm n 1 x)^2 - 2 * (esymm n 2 x) := by
+-- in principle this can be deduced from MvPolynomial.psum_eq_mul_esymm_sub_sum but I was too lazy to do so and just did a direct induction proof instead
+  induction' n with m ih
+  . simp
+  rw [sum_range_succ, Nat.succ_eq_add_one, (show esymm (m+1) 1 x = esymm (m+1) (0+1) x by simp), (show esymm (m+1) 2 x = esymm (m+1) (1+1) x by simp), ih, esymm_pascal, esymm_pascal]
+  simp; ring

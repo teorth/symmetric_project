@@ -53,7 +53,9 @@ lemma attainable_reflect (n : ℕ) (s : ℕ → ℝ) : attainable n s → s n �
   simp [choose_symm hk]
   ring
   . contrapose! hn
-    simpa [hx n le_rfl] using hn
+    rw [hx n (by linarith)] at hn
+    simp at hn
+    assumption
   assumption
 
 
