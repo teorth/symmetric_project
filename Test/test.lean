@@ -8,6 +8,23 @@ import Mathlib.Algebra.BigOperators.Ring
 open Finset
 open BigOperators
 open Real
+open Nat
+
+example (n : ℕ) : ∏ j in range n, (n-j+j) = ∏ j in range n, n := by
+  gcongr
+
+
+
+
+example ( n k : ℕ ) : (∏ j in range k, (1 - (j:ℝ) / n)) * (n ^ k) / k ! ≤ (∏ j in range k, (1:ℝ)) * (n ^ k) / k ! := by
+  have h : (k ! : ℝ) > 0 := by positivity
+  show (∏ j in range k, (1 - (j:ℝ) / n)) * (n ^ (k:ℝ)) / (k !:ℝ) ≤ (∏ j in range k, (1:ℝ)) * (n ^ (k:ℝ)) / (k !:ℝ)
+  gcongr
+  sorry
+
+  --   / (k !:ℝ)
+
+
 
 example (a : ℝ) (h : a > 0) : ConvexOn ℝ Set.univ fun x ↦ log (exp x + a) := by
   let g := fun x ↦ rexp x + a

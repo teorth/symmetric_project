@@ -54,7 +54,9 @@ lemma factorial_ge {n : ℕ} : n ! ≥ n^n / exp n := by
 lemma choose_eq {n : ℕ} {k : ℕ} (h : k ≤ n) : choose n k = (∏ j in range k, (1 - (j:ℝ)/n)) * n^k / k ! := by
   have : choose n k = (descFactorial n k : ℝ) / k ! := by
     rw [descFactorial_eq_factorial_mul_choose]
-    field_simp [(observe : k! ≠ 0)]
+    have hk : k ! ≠ 0 := by positivity
+    field_simp [hk]
+    ring
   rw [this]
   congr
   have : n ^ k = ∏ j in range k, (n:ℝ) := by
@@ -65,8 +67,7 @@ lemma choose_eq {n : ℕ} {k : ℕ} (h : k ≤ n) : choose n k = (∏ j in range
   apply prod_congr rfl
   intro j hj
   simp at hj
-  have hn : n ≠ 0 := by linarith
-  field_simp
+  field_simp [(show n ≠ 0 by linarith)]
   symm
   rw [sub_eq_iff_eq_add]
   norm_cast
@@ -74,9 +75,41 @@ lemma choose_eq {n : ℕ} {k : ℕ} (h : k ≤ n) : choose n k = (∏ j in range
   linarith
 
 
+lemma choose_le {n : ℕ} {k : ℕ} (h : k ≤ n) : choose n k ≤ (n:ℝ)^k / k ! := by
+  have h1 : (n:ℝ)^k/k ! = (∏ j in range k, (1:ℝ)) * n^k / (k !:ℝ) := by rw [prod_const_one]; norm_cast; simp
+  rw [h1, choose_eq h]
+  show (∏ j in range k, (1 - (j:ℝ) / n)) * (n ^ k : ℕ) / (k !:ℝ) ≤ (∏ j in range k, (1:ℝ)) * (n ^ k : ℕ) / (k !:ℝ)
+  gcongr with i hi
+  . intro i hi
+    simp at hi; field_simp
+    rw [div_le_iff]
+    . simp; linarith
+    norm_cast; linarith [hi, h]
+  simp at hi; field_simp; positivity
 
-lemma choose_le {n : ℕ} {k : ℕ} (h : k ≤ n) : choose n k ≤ n^k / k ! := by
-  sorry
+lemma choose_ge {n : ℕ} {k : ℕ} (h : k ≤ n) : choose n k ≥ (n:ℝ)^k / (k:ℝ)^k := by
+  suffices : (k:ℝ)^k * choose n k ≥  (choose k k) * n^k
+  . simp at this
+    rw [ge_iff_le, div_le_iff, mul_comm]
+    . exact this
+    induction' k with m hm
+    . simp
+    positivity
 
-lemma choose_ge {n : ℕ} {k : ℕ} (h : k ≤ n) : choose n k ≥ n^k / k^k := by
+  rw [choose_eq h, choose_eq (show k ≤ k by linarith)]
+  field_simp
+  rw [<-mul_assoc, mul_comm ((k:ℝ)^k) _]
+  gcongr with i hi
+  . intro i hi
+    simp at hi; field_simp
+    rw [div_le_iff]
+    . simp; linarith
+    norm_cast; linarith [hi, h]
+  simp at hi; norm_cast; linarith
+
+
+
+
+
+
   sorry
