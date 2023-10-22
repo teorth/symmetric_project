@@ -132,5 +132,5 @@ lemma choose_ge' {n : ℕ} {k : ℕ} (h : k ≤ n) (h2 : 0 < k) : (choose n k : 
   rw [ge_iff_le, <- rpow_le_rpow_iff _ _ h2, <- rpow_mul, div_rpow, (show 1/(k:ℝ) * k = 1 by field_simp)]
   . simp
     rw [<-ge_iff_le]
-    apply choose_ge
-  all_goals {positivity}  
+    apply choose_ge h
+  all_goals {positivity}

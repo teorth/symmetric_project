@@ -10,12 +10,22 @@ open BigOperators
 open Real
 open Nat
 
-example (n : ℕ) : ∏ j in range n, j ≤ ∏ j in range n, n := by
+example (n: ℕ) (X : ℝ) : n * X * n = X * (n^2) := by
+  ring
+  norm_cast
+  ring
+
+
+--
+
+example (n : ℕ) (a : ℕ → ℤ): 0 ≤ ∑ j in range n, a j^2 := by
+  apply sum_nonneg
+  intro i _
+  positivity
+
+example (n : ℕ) : ∏ j in range n, (n-j+j) = ∏ j in range n, n := by
   congr! with j hj
-
-
-
-
+  sorry
 
 example ( n k : ℕ ) : (∏ j in range k, (1 - (j:ℝ) / n)) * (n ^ k) / k ! ≤ (∏ j in range k, (1:ℝ)) * (n ^ k) / k ! := by
   have h : (k ! : ℝ) > 0 := by positivity
@@ -23,7 +33,6 @@ example ( n k : ℕ ) : (∏ j in range k, (1 - (j:ℝ) / n)) * (n ^ k) / k ! �
   gcongr
   sorry
 
-  --   / (k !:ℝ)
 
 
 
