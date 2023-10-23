@@ -69,7 +69,7 @@ theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n
       linarith
 
     simp at h8
-    simp [Real.zero_rpow h7, attainable_zero_eq_one l s h5, h8]
+    simp [Real.zero_rpow h7, attainable_zero_eq_one h5, h8]
     apply sum_nonneg
     intro i _
     positivity

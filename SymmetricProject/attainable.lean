@@ -21,7 +21,7 @@ for all $0 \leq k \leq n$.
 def attainable (n : ℕ) (s : ℕ → ℝ) : Prop := ∃ (x : ℕ → ℝ), ∀ k : ℕ, k ≤ n → esymm n k x = (s k) * (choose n k)
 
 /- Any attainable sequence starts at one. -/
-lemma attainable_zero_eq_one (n : ℕ) (s : ℕ → ℝ) : attainable n s → s 0 = 1 := by
+lemma attainable_zero_eq_one {n : ℕ} {s : ℕ → ℝ} : attainable n s → s 0 = 1 := by
   intro h
   rcases h with ⟨ x, hx ⟩
   have h0: 0 ≤ n := by linarith

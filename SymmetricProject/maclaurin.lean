@@ -69,7 +69,7 @@ theorem maclaurin (n k l : ℕ) (s : ℕ → ℝ) (h1 : attainable n s) (h2 : �
 
   intro k hk hk'
 
-  have h0 : s 0 = 1 := attainable_zero_eq_one n s h1
+  have h0 : s 0 = 1 := attainable_zero_eq_one h1
 
   have newton : ∀ i ∈ range k, s i * s (i+2) ≤ s (i+1)^2 := by
     intro i hi
