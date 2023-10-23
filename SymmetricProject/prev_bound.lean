@@ -5,6 +5,8 @@ import Init.Data.Nat.Basic
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 import Mathlib.Analysis.MeanInequalities
+import Mathlib.Analysis.Calculus.MeanValue
+import Mathlib.Analysis.Calculus.Deriv.Comp
 import SymmetricProject.esymm_basic
 import SymmetricProject.attainable
 import SymmetricProject.stirling
@@ -139,3 +141,37 @@ lemma prelim_bound_rev {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h2 : attainable
       all_goals {positivity}
     all_goals {positivity}
   positivity
+
+/-- for the next step, use
+
+
+log 1 + x - log 1 - x - 2x
+deriv:  2x^2 / 1-x
+
+x = (b-a) / (a+b)
+--/
+
+lemma log_jensen {a b : ℝ} (ha : 0 < a) (hb : a < b) : 2 * ((b-a) / (a+b)) ≤ log b - log a := by
+  set x := (b-a) / (a+b)
+  have hx0 : 0 < x := by
+    apply div_pos; linarith; linarith
+  have hx1 : x < 1 := by
+    rw [div_lt_iff]; linarith; linarith
+  let f := fun (t:ℝ) ↦ log (1 + t) - log (1 - t)
+  have : log b - log a = f x := by
+    sorry
+  rw [this]
+  have : ∃ c, c ∈ Set.Ioo 0 x ∧ deriv f c = (f x - f 0) / (x - 0) := by
+    apply exists_deriv_eq_slope
+    . assumption
+    . sorry
+    sorry
+  rcases this with ⟨ c, ⟨ hc, mean ⟩ ⟩
+  symm at mean
+  rw [div_eq_iff, sub_eq_iff_eq_add] at mean
+  rw [mean]
+  simp
+  gcongr
+  . rw [deriv_sub]
+    sorry
+  linarith
