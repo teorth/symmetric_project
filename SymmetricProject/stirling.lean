@@ -46,8 +46,7 @@ lemma factorial_ge {n : ℕ} : n ! ≥ n^n / exp n := by
     convert h using 1
     . congr
       norm_cast
-    field_simp
-    ring
+    field_simp; ring
   rw [monotone_iff_forall_lt]
   intro a b hab
   gcongr

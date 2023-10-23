@@ -44,11 +44,7 @@ lemma prelim_bound {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h2 : attainable n s
       intro i _
       rw [<-sq_abs, (show |x i|^(2:ℕ) = |x i|^(2:ℝ) by norm_cast), <-rpow_mul]
       simp
-      . positivity
-      . intro i _; positivity
-      . positivity
-      . positivity
-      . positivity
+      all_goals {intros; positivity}
     _ ≤ (abs (∑ j in range n, x j^2) / n)^((2:ℝ)⁻¹) := by
       apply rpow_le_rpow
       . positivity
@@ -59,10 +55,8 @@ lemma prelim_bound {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h2 : attainable n s
           field_simp
         rw [this]
         apply geom_mean_le_arith_mean_weighted
-        . intro i _; positivity
-        . rw [sum_const]; simp; field_simp
-        . intro i _; positivity
-        . intro i _; positivity
+        swap; rw [sum_const]; simp; field_simp
+        all_goals { intros; positivity }
       positivity
     _ ≤ (((esymm n 1 x)^2 + 2 * abs (esymm n 2 x))/n)^((2:ℝ)⁻¹) := by
       gcongr

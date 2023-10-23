@@ -17,7 +17,6 @@ import SymmetricProject.positivity_ext
 /-! The purpose of this file is to establish [Theorem 1.3 of the paper].
 -/
 
-
 open Finset
 open BigOperators
 open Real
@@ -45,9 +44,9 @@ lemma logexp_jensen {n : ℕ} {a : ℝ} {x : ℕ → ℝ} {h_1 : 0 < n} {h_2: 0 
     intro x y hxy; dsimp; gcongr
 
   apply ConvexOn.map_sum_le convex
-  . intro _ _; positivity
+  . intros; positivity
   . rw [sum_const]; simp; field_simp
-  intro i _; simp
+  intros; simp
 
 /--
 If $(s_0,\dots s_n)$ is attainable, r>0, and 1 ≤ l ≤ n, then
@@ -205,18 +204,16 @@ theorem new_inequality' (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable 
   _ ≥ r^l * (( abs (s l) )^(2 / l) + (1/r)^2)^(l / 2) := by
     rw [ge_iff_le, mul_le_mul_left, <-ge_iff_le]
     . apply new_inequality n l s (1/r) h1 h2 h3
-      . positivity
+      positivity
     positivity
   _ = (1 + abs (s l)^((2:ℝ)/l) * r^2)^(l/(2:ℝ)) := by
     have h5 : r^l = (r^2)^(l/2) := by
       rw [<- rpow_mul]
       . congr
-        field_simp
-        ring
+        field_simp; ring
       linarith
     rw [h5, <- mul_rpow]
     . congr
-      field_simp
-      ring
+      field_simp; ring
     . positivity
     positivity
