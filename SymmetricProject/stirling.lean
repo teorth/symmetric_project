@@ -3,6 +3,7 @@ import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Data.Nat.Factorial.BigOperators
 import Init.Data.Nat.Basic
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import SymmetricProject.positivity_ext
 
 
 /- hack to avoid the real powers bug -/
@@ -36,8 +37,6 @@ lemma factorial_ge {n : ℕ} : n ! ≥ n^n / exp n := by
     _ ≥ (n:ℝ)^n/n ! := by
       rw [sum_range_succ]
       simp
-      apply sum_nonneg
-      intro k _
       positivity
   apply_fun (fun (X:ℝ) =>  X * (n ! / exp n)) at h
   . have h1 : (n !: ℝ) ≠ 0 := by positivity
