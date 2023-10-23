@@ -11,6 +11,14 @@ import SymmetricProject.jensen
 /- the newton and maclaurin files are strictly speaking not needed for the main project, but are of independent interest.  If anyone wishes to convert those files to a  proof of the Newton and Maclaurin inequalities that would be suitable for contributing to the mathlib, be my guest.
 -/
 
+/- To do:
+
+* Write a README
+* Formalize the rest of Section 2 (current work in progress at prev_bound)
+* Formalize the main argument in Section 4
+* After the main theorem is formalized, ask for a crowdsourced effort to create MathLib support for the Newton and Maclaurin inequalities, and perhaps also some of the helper lemmas about elementary symmetric polynomials and Finset.mempowersetLen
+
+-/
 
 /- hack to avoid the real powers bug -/
 local macro_rules | `($x ^ $y)   => `(HPow.hPow $x $y)

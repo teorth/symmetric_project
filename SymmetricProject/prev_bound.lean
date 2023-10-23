@@ -174,5 +174,7 @@ lemma log_jensen {a b : ℝ} (ha : 0 < a) (hb : a < b) : 2 * ((b-a) / (a+b)) ≤
   simp
   gcongr
   . rw [deriv_sub]
+    . sorry
+    . sorry
     sorry
   linarith

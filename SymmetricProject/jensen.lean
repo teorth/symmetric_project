@@ -12,7 +12,7 @@ import Mathlib.Analysis.Complex.Polynomial
 import SymmetricProject.esymm_basic
 import SymmetricProject.esymm_generating
 import SymmetricProject.attainable
-
+import SymmetricProject.positivity_ext
 
 /-! The purpose of this file is to establish [Theorem 1.3 of the paper].
 -/
@@ -26,6 +26,8 @@ open Polynomial
 /- A Jensen inequality for the function x -> log(exp x + a) for any positive a. -/
 lemma logexp_jensen {n : ℕ} {a : ℝ} {x : ℕ → ℝ} {h_1 : 0 < n} {h_2: 0 < a}  : ∑ i in range n, ((1:ℝ)/n) * log (exp (x i) + a) ≥ log (exp (∑ i in range n, ((1:ℝ)/n) * x i) + a) := by
   let g := fun x ↦ rexp x + a
+  let f := fun x ↦ log (g x)
+  show f (∑ i in range n, ((1:ℝ)/n) * x i) ≤ ∑ i in range n, ((1:ℝ)/n) * f ( x i )
 
   have g_diff : Differentiable ℝ g := by simp; apply Differentiable.exp; simp
 
@@ -76,7 +78,8 @@ theorem new_inequality (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n
   rcases h5 with ⟨x, h5⟩
 
   have h7a := esymm_prod l x
-  simp [h5 l (by observe : l ≤ l)] at h7a
+  rw [h5 l (show l ≤ l by linarith)] at h7a
+  simp at h7a
 
   have h8 : ∀ i ∈ range l, x i ≠ 0 := by
     contrapose! h6
