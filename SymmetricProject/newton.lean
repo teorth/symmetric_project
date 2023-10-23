@@ -11,7 +11,7 @@ local macro_rules | `($x ^ $y)   => `(HPow.hPow $x $y)
 
 $$ s_{n,k}(x) s_{n,k+2}(x) ≤ s_{n,k+1}(x)^2.$$
 
-This turns out to be straightforward with the tools from the attainable file. 
+This turns out to be straightforward with the tools from the attainable file.
 -/
 
 theorem newton_identity (n k : ℕ) (h: k+2 ≤ n) : ∀ s : ℕ → ℝ, attainable n s → s k * s (k+2) ≤ s (k+1)^2 := by
@@ -30,9 +30,9 @@ theorem newton_identity (n k : ℕ) (h: k+2 ≤ n) : ∀ s : ℕ → ℝ, attain
       nlinarith
     let s' := fun (m:ℕ) => s (k+2-m) / s (k+2)
     have h2 : attainable (k+2) s' := by
-      apply attainable_reflect (k+2) s h1 non_vanish
+      apply attainable_reflect h1 non_vanish
     have h3 := this s' h2
-    have hs': ∀ m : ℕ, s' m = s (k+2-m) / s (k+2) := by 
+    have hs': ∀ m : ℕ, s' m = s (k+2-m) / s (k+2) := by
       intro m
       rfl
     rw [hs' 0, hs' 1, hs' 2] at h3
@@ -49,7 +49,7 @@ theorem newton_identity (n k : ℕ) (h: k+2 ≤ n) : ∀ s : ℕ → ℝ, attain
   suffices : ∀ s : ℕ → ℝ, attainable 2 s → s 0 * s 2 ≤ s 1^2
   . intro s ha
     have h1 : attainable 2 s := attainable_truncate (k+2) 2 s (show 2 ≤ k+2 by linarith) ha
-    clear ha 
+    clear ha
     exact this s h1
 
   intro s ha
@@ -78,7 +78,7 @@ theorem newton_identity (n k : ℕ) (h: k+2 ≤ n) : ∀ s : ℕ → ℝ, attain
   rw [<- sub_nonneg]
   field_simp
   have h : (2:ℝ) ^ 2 = 4 := by norm_num
-  rw [h]  
+  rw [h]
   have h' : (x 0 + x 1) ^ 2 - 4 * (x 0 * x 1) = (x 0 - x 1) * (x 0 - x 1) := by ring
   rw [h']
   nlinarith

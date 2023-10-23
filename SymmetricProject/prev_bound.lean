@@ -24,14 +24,10 @@ open Nat
 open Finset
 open BigOperators
 
-lemma square (x : ℝ) : x^2 = |x|^2 := by
-  rw [<- abs_of_nonneg (show (0:ℝ) ≤ x^2 by positivity), pow_abs]
-
 /- the preliminary bound
 |s_n|^(1/n) ≤ 2n max( |s_1|, |s_2|^(1/2))
 -/
-lemma prelim_bound {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h5 : attainable n s) : |s n|^((1:ℝ)/n) ≤ ((2:ℝ) * n)^((1:ℝ)/2) * max |s 1| (|s 2|^((1:ℝ)/2))  := by
-  simp
+lemma prelim_bound {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h5 : attainable n s) : |s n|^((n:ℝ)⁻¹) ≤ ((2:ℝ) * n)^((2:ℝ)⁻¹) * max |s 1| (|s 2|^((2:ℝ)⁻¹))  := by
   set X := max |s 1| (|s 2|^((2:ℝ)⁻¹))
   rcases h5 with ⟨ x, hx ⟩
   calc
@@ -43,7 +39,7 @@ lemma prelim_bound {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h5 : attainable n s
       rw [<- abs_rpow_of_nonneg, <- finset_prod_rpow, <- this, abs_prod, abs_prod]
       apply prod_congr rfl
       intro i _
-      rw [square, (show |x i|^(2:ℕ) = |x i|^(2:ℝ) by norm_cast), <-rpow_mul]
+      rw [<-sq_abs, (show |x i|^(2:ℕ) = |x i|^(2:ℝ) by norm_cast), <-rpow_mul]
       simp
       . positivity
       . intro i _; positivity
@@ -76,7 +72,7 @@ lemma prelim_bound {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h5 : attainable n s
     _ ≤ ((2:ℝ) * n)^((2:ℝ)⁻¹) * X := by
       rw [hx 1 (by linarith), hx 2 (by linarith), <- rpow_le_rpow_iff _ _ (show 0 < 2 by norm_num), <- rpow_mul, mul_rpow, <-rpow_mul]
       simp
-      rw [div_le_iff, (show (2:ℝ) * n * (X ^ 2) * n = (X * n)^2 + (n * X)^2 by ring), square (s 1 * n), abs_mul]
+      rw [div_le_iff, (show (2:ℝ) * n * (X ^ 2) * n = (X * n)^2 + (n * X)^2 by ring), <- sq_abs (s 1 * n), abs_mul]
       simp
       gcongr
       . apply le_max_left
@@ -91,3 +87,20 @@ lemma prelim_bound {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h5 : attainable n s
         simp
         all_goals {positivity}
       all_goals {positivity}
+
+/- the reversed preliminary bound
+|s_n|^(1/n) ≤ max( (2n)^{1/2(n-1)} |s_{n-1}|^{1/n-1}, (2n)^{2/2(n-2)} |s_{n-2}|^(1/n-2))
+-/
+lemma prelim_bound_rev {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h2 : attainable n s) : |s n|^((n:ℝ)⁻¹) ≤ max (((2:ℝ) * n)^((1:ℝ)/(2*(n-1))) * |s (n-1)|^((n-1:ℝ)⁻¹)) (( (2:ℝ)*n)^((2:ℝ)/(2*(n-2))) * |s (n-2)|^((n-2:ℝ)⁻¹))  := by
+  by_cases hsn : s n = 0
+  . simp [hsn]
+    left
+    rw [zero_rpow]
+    all_goals {positivity}
+  let s' := fun k ↦ s (n - k) / s n
+  have hs' : attainable n s' := by
+    apply attainable_reflect h2 hsn
+  
+
+  sorry
+-- max ((2:ℝ) * n)^((1:ℝ)/(2*(n-1))) * |s (n-1)|^((n-1:ℝ)⁻¹) ( (2:ℝ)*n)^((2:ℝ)/(2*(n-2))) * |s (

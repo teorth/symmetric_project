@@ -42,7 +42,7 @@ lemma attainable_scaling (n : ℕ) (s : ℕ → ℝ) (a : ℝ) : attainable n s 
   ring
 
 /-- An attainable sequence can be reflected if its final entry is non-zero. [Lemma 2.1(ii) in the paper]-/
-lemma attainable_reflect (n : ℕ) (s : ℕ → ℝ) : attainable n s → s n ≠ 0 → attainable n fun k ↦ s (n - k) / s n := by
+lemma attainable_reflect {n : ℕ} {s : ℕ → ℝ} : attainable n s → s n ≠ 0 → attainable n fun k ↦ s (n - k) / s n := by
   intro h hn
   rcases h with ⟨ x, hx ⟩
   use 1/x
