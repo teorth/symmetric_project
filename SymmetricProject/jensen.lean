@@ -27,22 +27,24 @@ open Polynomial
 lemma logexp_jensen {n : ℕ} {a : ℝ} {x : ℕ → ℝ} {h_1 : 0 < n} {h_2: 0 < a}  : ∑ i in range n, ((1:ℝ)/n) * log (exp (x i) + a) ≥ log (exp (∑ i in range n, ((1:ℝ)/n) * x i) + a) := by
   let g := fun x ↦ rexp x + a
   let f := fun x ↦ log (g x)
-  show f (∑ i in range n, ((1:ℝ)/n) * x i) ≤ ∑ i in range n, ((1:ℝ)/n) * f ( x i )
+  show ∑ i in range n, ((1:ℝ)/n) * f ( x i ) ≥ f (∑ i in range n, ((1:ℝ)/n) * x i)
 
   have g_diff : Differentiable ℝ g := by simp; apply Differentiable.exp; simp
 
   have hg_nonzero (x : ℝ): g x ≠ 0 := by dsimp; linarith [exp_pos x]
 
-  have hf' : deriv (fun x ↦ log (g x)) = fun x ↦ 1 - a / (g x) := by
+  have hf' : deriv f = fun x ↦ 1 - a / (g x) := by
     ext x
     rw [deriv.log (Differentiable.differentiableAt g_diff) (hg_nonzero x)]
     field_simp [hg_nonzero x]
 
-  apply ConvexOn.map_sum_le
-  . apply MonotoneOn.convexOn_of_deriv convex_univ (Continuous.continuousOn (Differentiable.continuous (Differentiable.log g_diff hg_nonzero))) (Differentiable.differentiableOn (Differentiable.log g_diff hg_nonzero))
+  have convex : ConvexOn ℝ Set.univ f := by
+    apply MonotoneOn.convexOn_of_deriv convex_univ (Continuous.continuousOn (Differentiable.continuous (Differentiable.log g_diff hg_nonzero))) (Differentiable.differentiableOn (Differentiable.log g_diff hg_nonzero))
     apply Monotone.monotoneOn
     rw [hf', monotone_iff_forall_lt]
     intro x y hxy; dsimp; gcongr
+
+  apply ConvexOn.map_sum_le convex
   . intro _ _; positivity
   . rw [sum_const]; simp; field_simp
   intro i _; simp
