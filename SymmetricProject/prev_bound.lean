@@ -10,6 +10,7 @@ import Mathlib.Analysis.Calculus.Deriv.Comp
 import SymmetricProject.esymm_basic
 import SymmetricProject.attainable
 import SymmetricProject.stirling
+import SymmetricProject.positivity_ext
 
 /- hack to avoid the real powers bug -/
 local macro_rules | `($x ^ $y)   => `(HPow.hPow $x $y)
@@ -45,13 +46,13 @@ lemma prelim_bound {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h2 : attainable n s
       simp
       . positivity
       . intro i _; positivity
-      . apply prod_nonneg; intro i _; positivity
+      . positivity
       . positivity
       . positivity
     _ ≤ (abs (∑ j in range n, x j^2) / n)^((2:ℝ)⁻¹) := by
       apply rpow_le_rpow
       . positivity
-      . rw [abs_prod, abs_of_nonneg (show (0:ℝ) ≤ ∑ j in range n, x j^2 by norm_cast; apply sum_nonneg; intro i _; positivity), <- finset_prod_rpow, sum_div]
+      . rw [abs_prod, abs_of_nonneg (by positivity), <- finset_prod_rpow, sum_div]
         have : ∑ j in range n, x j^2 / n = ∑ j in range n, ((n:ℝ)⁻¹)* |x j^2| := by
           congr
           ext j
