@@ -141,15 +141,7 @@ lemma prelim_bound_rev {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h2 : attainable
     all_goals {positivity}
   positivity
 
-/-- for the next step, use
-
-
-log 1 + x - log 1 - x - 2x
-deriv:  2x^2 / 1-x
-
-x = (b-a) / (a+b)
---/
-
+/-- If 0 < a < b, then 2(b-a)/(a+b) ≤ log b - log a -/
 lemma log_jensen {a b : ℝ} (ha : 0 < a) (hb : a < b) : 2 * ((b-a) / (a+b)) ≤ log b - log a := by
   set x := (b-a) / (a+b)
   have hx0 : 0 < x := by
@@ -212,3 +204,24 @@ lemma log_jensen {a b : ℝ} (ha : 0 < a) (hb : a < b) : 2 * ((b-a) / (a+b)) ≤
     . rw [differentiableAt_const_sub_iff]; simp
     positivity
   linarith
+
+lemma prelim_bound_rev' {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h2 : attainable n s) : |s n|^((n:ℝ)⁻¹) ≤ max (((2:ℝ) * n)^((Real.log (n-1) - Real.log (n-2))/2) * |s (n-1)|^((n-1:ℝ)⁻¹)) (( (2:ℝ)*n)^((Real.log (n-1) - Real.log (n-3))) * |s (n-2)|^((n-2:ℝ)⁻¹)) := by
+  apply le_trans (prelim_bound_rev h1 h2) _
+  have h1' : (2:ℝ) < (n:ℝ) := by norm_cast
+  apply max_le_max
+  all_goals {
+    apply mul_le_mul_of_nonneg_right
+    rw [Real.rpow_le_rpow_left_iff]
+    (try rw [le_div_iff])
+    apply le_trans _ (log_jensen _ _)
+    field_simp
+    rw [div_le_div_iff]
+    . ring; linarith
+    . linarith
+    . linarith
+    . linarith
+    . linarith
+    . linarith
+    . linarith
+    positivity
+  }
