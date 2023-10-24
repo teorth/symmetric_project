@@ -4,9 +4,13 @@ import Mathlib.Data.Nat.Factorial.BigOperators
 import Init.Data.Nat.Basic
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Analysis.SpecialFunctions.Log.Deriv
 import Mathlib.Analysis.MeanInequalities
+import Mathlib.Analysis.Calculus.Deriv.Basic
 import Mathlib.Analysis.Calculus.MeanValue
 import Mathlib.Analysis.Calculus.Deriv.Comp
+import Mathlib.Topology.ContinuousOn
 import SymmetricProject.esymm_basic
 import SymmetricProject.attainable
 import SymmetricProject.stirling
@@ -154,21 +158,57 @@ lemma log_jensen {a b : ℝ} (ha : 0 < a) (hb : a < b) : 2 * ((b-a) / (a+b)) ≤
     rw [div_lt_iff]; linarith; linarith
   let f := fun (t:ℝ) ↦ log (1 + t) - log (1 - t)
   have : log b - log a = f x := by
-    sorry
+    simp
+    have : a+b > 0 := by linarith
+    rw [sub_eq_sub_iff_add_eq_add, <- log_mul, <- log_mul]
+    . congr 1
+      field_simp; ring
+    all_goals{(try field_simp); linarith}
   rw [this]
   have : ∃ c, c ∈ Set.Ioo 0 x ∧ deriv f c = (f x - f 0) / (x - 0) := by
     apply exists_deriv_eq_slope
     . assumption
-    . sorry
-    sorry
+    . apply ContinuousOn.sub
+      all_goals{
+        apply ContinuousOn.log
+        apply Continuous.continuousOn
+        continuity
+        intro y hy
+        simp at hy
+        linarith
+      }
+    apply DifferentiableOn.sub
+    all_goals{
+      apply DifferentiableOn.log
+      apply Differentiable.differentiableOn
+      apply Differentiable.const_add
+      (try apply Differentiable.neg)
+      simp
+      intro y hy
+      simp at hy
+      linarith
+    }
   rcases this with ⟨ c, ⟨ hc, mean ⟩ ⟩
   symm at mean
   rw [div_eq_iff, sub_eq_iff_eq_add] at mean
   rw [mean]
-  simp
+  simp at hc ⊢
+  rcases hc with ⟨ hc1, hc2 ⟩
+  have hc3 : 1 - c > 0 := by linarith
   gcongr
-  . rw [deriv_sub]
-    . sorry
-    . sorry
-    sorry
+  . rw [deriv_sub, deriv.log, deriv.log, deriv_const_add, deriv_const_sub, deriv_id'']
+    . field_simp
+      rw [le_div_iff]
+      ring; simp
+      all_goals {positivity}
+    . rw [differentiableAt_const_sub_iff]; simp
+    . positivity
+    . rw [differentiableAt_const_add_iff]; simp
+    . positivity
+    . apply DifferentiableAt.log
+      . rw [differentiableAt_const_add_iff]; simp
+      positivity
+    apply DifferentiableAt.log
+    . rw [differentiableAt_const_sub_iff]; simp
+    positivity
   linarith
