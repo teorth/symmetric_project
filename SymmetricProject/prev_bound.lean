@@ -86,8 +86,8 @@ lemma prelim_bound {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h2 : attainable n s
           linarith
         rw [<- rpow_le_rpow_iff _ _ (show 0 < (2:ℝ)⁻¹ by norm_num), (show X^(2:ℕ) = X^(2:ℝ) by norm_cast), <- rpow_mul]
         simp
-        all_goals {positivity}
-      all_goals {positivity}
+        all_goals positivity
+      all_goals positivity
 
 /- the reversed preliminary bound
 |s_n|^(1/n) ≤ max( (2n)^{1/2(n-1)} |s_{n-1}|^{1/n-1}, (2n)^{2/2(n-2)} |s_{n-2}|^(1/n-2))
@@ -123,7 +123,7 @@ lemma prelim_bound_rev {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h2 : attainable
         rw [mul_comm, <- rpow_mul]
         congr 2
         ring
-        all_goals {positivity}
+        all_goals positivity
       right
       have h1' : (0:ℝ) < (n:ℝ)- 2 := by
         rw [lt_sub_iff_add_lt]; norm_cast
@@ -137,8 +137,8 @@ lemma prelim_bound_rev {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h2 : attainable
       congr 2
       . field_simp [h1']
       field_simp [h1']
-      all_goals {positivity}
-    all_goals {positivity}
+      all_goals positivity
+    all_goals positivity
   positivity
 
 /-- If 0 < a < b, then 2(b-a)/(a+b) ≤ log b - log a -/
@@ -320,7 +320,7 @@ lemma iterated_rev {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+3
   . simp [hsn]
     left
     rw [zero_rpow]
-    all_goals {positivity}
+    all_goals positivity
   have bound := iterated (attainable_reflect h2 hsn) h3
   simp [attainable_zero_eq_one h2] at bound ⊢
   rw [abs_inv, abs_div, abs_div, div_rpow, div_rpow, inv_rpow, mul_div, mul_div] at bound
@@ -341,7 +341,7 @@ lemma iterated_rev {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+3
         . field_simp; ring
         . congr 1; field_simp
         congr 1; field_simp
-      all_goals {positivity}
+      all_goals positivity
     right -- could possibly shorten this proof by judicious use of swap, let, all_goals, and try
     have h0 : n - (n-(k+1)) = k+1 := by
       suffices : k+1 + (n-(k+1)) = n
@@ -358,5 +358,5 @@ lemma iterated_rev {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+3
       . field_simp; ring
       . congr 1; field_simp
       congr 1; field_simp
-    all_goals {positivity}
-  all_goals {positivity}
+    all_goals positivity
+  all_goals positivity

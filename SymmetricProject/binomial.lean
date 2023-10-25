@@ -4,7 +4,7 @@ import Mathlib.Data.Finset.Fin
 import Mathlib.Data.Fintype.Fin
 import Init.Data.Nat.Basic
 
-/-! Basic facts about the set "set_binom n k" (or $\binom{[n]}{k}$) of k-element subsets of $[n] = \{0, \dots, n-1\}$. 
+/-! Basic facts about the set "set_binom n k" (or $\binom{[n]}{k}$) of k-element subsets of $[n] = \{0, \dots, n-1\}$.
 
 Thanks to Patrick Massot for some optimizations and suggestions.
 -/
@@ -15,7 +15,7 @@ open Finset
 
 /-- `set_binom n k` is the set $\binom{[n]}{k}$ of k-element subsets of $[n] = \{0, \dots, n-1\}$ -/
 def set_binom (n : ℕ) (k : ℕ) : Finset (Finset ℕ) :=
-  powersetLen k (range n)
+  powersetLen k (range n) -- should change to powersetCard if updating to most recent MathLib
 
 /-- Variant of `set_binom` remembering that everything is `< n`. -/
 def set_binom' (n : ℕ) (k : ℕ) : Finset (Finset (Fin n)) :=
