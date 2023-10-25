@@ -191,7 +191,7 @@ lemma log_jensen {a b : ℝ} (ha : 0 < a) (hb : a < b) : 2 * ((b-a) / (a+b)) ≤
   . rw [deriv_sub, deriv.log, deriv.log, deriv_const_add, deriv_const_sub, deriv_id'']
     . field_simp
       rw [le_div_iff]
-      ring; simp
+      ring_nf; simp
       all_goals {positivity}
     . rw [differentiableAt_const_sub_iff]; simp
     . positivity
@@ -205,9 +205,10 @@ lemma log_jensen {a b : ℝ} (ha : 0 < a) (hb : a < b) : 2 * ((b-a) / (a+b)) ≤
     positivity
   linarith
 
-lemma prelim_bound_rev' {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h2 : attainable n s) : |s n|^((n:ℝ)⁻¹) ≤ max (((2:ℝ) * n)^((Real.log (n-1) - Real.log (n-2))/2) * |s (n-1)|^((n-1:ℝ)⁻¹)) (( (2:ℝ)*n)^((Real.log (n-1) - Real.log (n-3))) * |s (n-2)|^((n-2:ℝ)⁻¹)) := by
-  apply le_trans (prelim_bound_rev h1 h2) _
-  have h1' : (2:ℝ) < (n:ℝ) := by norm_cast
+/-- Annoyingly, this version of the bound (which telescopes nicely) is only useful for n>3.  -/
+lemma prelim_bound_rev' {n : ℕ} {s : ℕ → ℝ} (h1 : n > 3) (h2 : attainable n s) : |s n|^((n:ℝ)⁻¹) ≤ max (((2:ℝ) * n)^((Real.log (n-1) - Real.log (n-2))/2) * |s (n-1)|^((n-1:ℝ)⁻¹)) (( (2:ℝ)*n)^((Real.log (n-1) - Real.log (n-3))/2) * |s (n-2)|^((n-2:ℝ)⁻¹)) := by
+  apply le_trans (prelim_bound_rev (show n>2 by linarith) h2) _
+  have h1' : (3:ℝ) < (n:ℝ) := by norm_cast
   apply max_le_max
   all_goals {
     apply mul_le_mul_of_nonneg_right
@@ -216,12 +217,114 @@ lemma prelim_bound_rev' {n : ℕ} {s : ℕ → ℝ} (h1 : n > 2) (h2 : attainabl
     apply le_trans _ (log_jensen _ _)
     field_simp
     rw [div_le_div_iff]
-    . ring; linarith
+    . ring_nf; linarith
     . linarith
     . linarith
     . linarith
     . linarith
     . linarith
-    . linarith
-    positivity
+    . (try linarith); (try positivity)
+    (try positivity)
   }
+
+/-- could also use Int.coe_nat_sub here -/
+lemma nat_sub_eq_real_sub {a b : ℕ} (h: b ≤ a) : (a - b:ℕ) = (a:ℝ) - (b:ℝ) := by
+  rw [eq_sub_iff_add_eq]
+  norm_cast
+  exact Nat.sub_add_cancel h
+
+/-- inequality (2.1) from the paper, corrected to only hold for k+3 ≤ n --/
+lemma iterated {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+3 ≤ n) : |s n|^((n:ℝ)⁻¹) ≤ max (((2:ℝ) * n)^((Real.log (n-1) - Real.log (n-k-1))/2) * |s (n-k)|^((n-k:ℝ)⁻¹)) (( (2:ℝ)*n)^((Real.log (n-1) - Real.log (n-(k+1:ℕ)-1))/2) * |s (n-(k+1))|^((n-(k+1:ℕ):ℝ)⁻¹)) := by
+  let f := fun (m:ℕ) ↦ ((2:ℝ) * n)^((Real.log (n-1) - Real.log (n-m-1))/2) * |s (n-m)|^((n-m:ℝ)⁻¹)
+  show |s n|^((n:ℝ)⁻¹) ≤ max (f k) (f (k+1))
+  induction' k with m hm
+  . simp
+  have hm := hm (show m+3 ≤ n by linarith)
+  simp at hm
+  rcases hm with hm | hm
+  . have := attainable_truncate n (n-m) s (Nat.sub_le n m) h2
+    have h3 : m + 4 ≤ n := by rw [Nat.succ_eq_add_one] at h3; linarith
+    have h4 : n-m > 3 := calc
+      n-m ≥ m + 4 - m := Nat.sub_le_sub_right h3 m
+      _ = 4 := Nat.add_sub_cancel_left m 4
+      _ > 3 := by norm_num
+    have := prelim_bound_rev' h4 this
+    apply le_trans hm _
+    have h5 : 0 < (2:ℝ) * n := by norm_cast; linarith
+    have h6 : 0 < (((2:ℝ) * n) ^ ((Real.log (n - 1) - Real.log (n - m - 1)) / 2)) := by positivity
+    rw [<-mul_le_mul_left h6] at this
+    rw [nat_sub_eq_real_sub (show m ≤ n by linarith)] at this
+    apply le_trans this _
+    rw [mul_max_of_nonneg]
+    clear hm this h5 h6
+    have h7 : n > 0 := by linarith
+    . apply max_le_max
+      . simp; ring_nf
+        have h8 : n - succ m = n - m - 1 := by
+          symm
+          apply Nat.sub_eq_of_eq_add
+          apply Nat.sub_eq_of_eq_add
+          rw [Nat.succ_eq_add_one, add_assoc, add_comm 1 m, Nat.sub_add_cancel]
+          linarith
+        rw [h8]
+        apply mul_le_mul_of_nonneg_right
+        . simp
+          rw [<-le_div_iff', <- rpow_sub]
+          ring_nf; simp
+          apply rpow_le_rpow
+          . simp; linarith
+          . simp
+          . simp
+            rw [Real.log_le_log]
+            . linarith
+            all_goals {
+              simp
+              rw [_root_.lt_sub_iff_add_lt]
+              norm_cast; linarith
+            }
+          . simp; assumption
+          . positivity
+        positivity
+      simp; ring_nf
+      have h8 : n - (1+succ m) = n - m - 2 := by
+        symm
+        apply Nat.sub_eq_of_eq_add
+        apply Nat.sub_eq_of_eq_add
+        rw [Nat.succ_eq_add_one, (show 1+(m+1)=m+2 by ring), add_assoc, add_comm 2 m, Nat.sub_add_cancel]
+        linarith
+      rw [h8]
+      apply mul_le_mul_of_nonneg_right
+      . simp
+        rw [<-le_div_iff', <- rpow_sub]
+        ring_nf; simp
+        apply rpow_le_rpow
+        . simp; linarith
+        . simp
+        . simp; rw [Real.log_le_log]
+          . linarith
+          all_goals {
+            simp; rw [_root_.lt_sub_iff_add_lt]
+            norm_cast; linarith
+          }
+        . simp; assumption
+        . positivity
+      positivity
+    positivity
+  simp
+  left
+  exact hm
+
+/-- the bound two displays after (2.1) --/
+lemma iterated_rev {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+3 ≤ n) : |s n|^((n:ℝ)⁻¹) ≤ max (((2:ℝ) * n)^((Real.log (n-1) - Real.log (n-k-1))*(n-k)/(2*k)) * |s k|^((k:ℝ)⁻¹)) (( (2:ℝ)*n)^((Real.log (n-1) - Real.log (n-(k+1:ℕ)-1))*(n-(k+1))/(2*(k+1))) * |s (k+1)|^(((k+1:ℕ):ℝ)⁻¹)) := by
+  have : n > (0:ℝ) := by norm_cast; linarith
+  by_cases hsn: s n = 0
+  . simp [hsn]
+    left
+    rw [zero_rpow]
+    all_goals {positivity}
+  let s' := fun k ↦ s (n - k) / s n
+  have bound := iterated (attainable_reflect h2 hsn) h3
+  simp [attainable_zero_eq_one h2] at bound
+  rw [abs_inv, abs_div, abs_div, div_rpow, div_rpow, inv_rpow] at bound
+  . sorry
+  sorry
