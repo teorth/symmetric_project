@@ -360,3 +360,87 @@ lemma iterated_rev {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+3
       congr 1; field_simp
     all_goals positivity
   all_goals positivity
+
+lemma root_self {x:ℝ} (h: x > 0) : x^(x⁻¹) ≤ Real.exp (Real.exp 1)⁻¹ := by
+  rw [<- Real.log_le_iff_le_exp, Real.log_rpow, inv_mul_le_iff, <-sub_le_sub_iff_right 1]
+  . have := Real.log_le_sub_one_of_pos (show 0 < (x * (Real.exp 1)⁻¹) by positivity)
+    convert this using 1
+    rw [Real.log_mul]
+    . simp; ring
+    all_goals positivity
+  all_goals positivity
+
+/-- The Gopalan-Yehudayoff bound for n ≥ 8. -/
+lemma prev_bound_large_n {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+1 ≤ n) (h4 : 0 < k) (h5 : 8 ≤ n): |s n|^((n:ℝ)⁻¹) ≤ (rexp ((rexp 1)⁻¹ * 4))  * ((2:ℝ) * n)^((2:ℝ)⁻¹) * max (|s k|^((k:ℝ)⁻¹))  (|s (k+1)|^(((k+1:ℕ):ℝ)⁻¹)) := by
+  rcases le_or_gt (2*k) n with h6 | h6
+  . have : ∃ k' : ℕ, 2 * k' ≤ n + 2 ∧ |s n|^((n:ℝ)⁻¹) ≤ ((2:ℝ)*n)^((Real.log (n-1) - Real.log (n-k'-1))*(n-k')/(2*k')) * |s k'|^((k':ℝ)⁻¹) ∧ |s k'|^((k':ℝ)⁻¹) ≤ max (|s k|^((k:ℝ)⁻¹))  (|s (k+1)|^(((k+1:ℕ):ℝ)⁻¹)) ∧ (0:ℝ) < k' := by
+      have h3' : k+3 ≤ n := by linarith
+      have bound := iterated_rev h2 h3' h4
+      simp at bound
+      rcases bound with bound | bound
+      . use k
+        constructor
+        . linarith
+        . constructor
+          . exact bound
+          constructor
+          . simp
+          norm_cast
+      use k+1
+      constructor
+      . linarith
+      . constructor
+        . simp
+          exact bound
+        constructor
+        . simp
+        norm_cast; linarith
+    rcases this with ⟨ k', hk', bound, hs, h4' ⟩
+    have h7 : 0 < (n:ℝ) - (k':ℝ) - 1 := by
+      rw [_root_.lt_sub_iff_add_lt, _root_.lt_sub_iff_add_lt]
+      norm_cast
+      linarith
+    have h8: 0 < (n:ℝ) - 1 := by
+      rw [_root_.lt_sub_iff_add_lt]
+      norm_cast
+      linarith
+    apply bound.trans
+    apply le_trans _ ((_root_.mul_le_mul_left _).2 hs)
+    gcongr
+    rw [<-log_div]
+    have : Real.log (((n:ℝ) -1) / ((n:ℝ) - (k':ℝ) - 1)) * ((n:ℝ)-k') / (2*k')  ≤ (2:ℝ)⁻¹ + ((2:ℝ)*n)⁻¹ * 4 := by
+      have : Real.log (((n:ℝ) -1) / ((n:ℝ) - (k':ℝ) - 1)) ≤ (((n:ℝ) -1) / ((n:ℝ) - (k':ℝ) - 1)) - 1 := by
+        apply Real.log_le_sub_one_of_pos
+      apply le_trans ((div_le_div_right _).2 (mul_le_mul_of_nonneg_right this _)) _
+      . positivity
+      . rw [_root_.le_sub_iff_add_le]
+        norm_cast
+        linarith
+      clear s h2 k h3 h4 h6 bound hs this
+      have : ((n:ℝ)-1)/((n:ℝ)-(k':ℝ)-1) - 1 = (k':ℝ) / ((n:ℝ)-(k':ℝ)-1) := by
+        field_simp
+      rw [this, <-_root_.sub_le_iff_le_add']
+      field_simp
+      rw [div_le_div_iff, <-sub_nonneg]
+      ring_nf
+      suffices : 0 ≤ 4 * (k':ℝ) * (3 * (n:ℝ) - 4  - 4 * (k':ℝ))
+      . convert this using 1
+        ring
+      apply mul_nonneg
+      . positivity
+      . rw [sub_nonneg, _root_.le_sub_iff_add_le]
+        norm_cast; linarith
+      all_goals positivity
+    apply le_trans ((rpow_le_rpow_left_iff _).2 this) _
+    . norm_cast; linarith
+    rw [rpow_add, mul_comm (rexp ((rexp 1)⁻¹ * 4)) _, rpow_mul, (show rexp ((rexp 1)⁻¹ * 4) = (rexp (rexp 1)⁻¹)^(4:ℝ) by apply exp_mul)]
+    gcongr
+    apply root_self
+    . (try norm_cast); positivity
+    . (try norm_cast); positivity
+    . (try norm_cast); positivity
+    . (try norm_cast); positivity
+    . (try norm_cast); positivity
+    . (try norm_cast); positivity
+    
+  sorry
