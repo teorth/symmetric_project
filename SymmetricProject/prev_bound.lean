@@ -467,6 +467,7 @@ lemma prev_bound_large_n {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3
       zify; linarith
       zify; linarith
       zify; rw [Int.coe_nat_sub]; zify; linarith
+      zify; linarith
     have h9 : (n:ℝ) - (n - (k+1) : ℕ) = k+1 := by
       rw [sub_eq_iff_eq_add']
       norm_cast
@@ -502,7 +503,8 @@ lemma prev_bound_large_n {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3
       apply this.trans
       apply mul_le_mul_of_nonneg_right
       . norm_cast
-      . have : add_one_le_exp_of_nonneg (show 0 ≤ 1 by norm_num); linarith
+      . have := add_one_le_exp_of_nonneg (show 0 ≤ 1 by norm_num);
+        linarith
       . norm_num
       . assumption
       . positivity
@@ -528,4 +530,118 @@ lemma prev_bound_large_n {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3
   rw [h3, (show (k:ℝ) + 1 = n by norm_cast)]
 
 
--- (h2 : attainable n s) (h3 : k+3 ≤ n) : |s n|^((n:ℝ)⁻¹) ≤ max (((2:ℝ) * n)^((Real.log (n-1) - Real.log (n-k-1))/2) * |s (n-k)|^((n-k:ℝ)⁻¹)) (( (2:ℝ)*n)^((Real.log (n-1) - Real.log (n-(k+1:ℕ)-1))/2) * |s (n-(k+1))|^((n-(k+1:ℕ):ℝ)⁻¹))
+/-- The Gopalan-Yehudayoff bound in general --/
+lemma prev_bound : ∃ C : ℝ, ∀ n : ℕ, ∀ k : ℕ, ∀ s : ℕ → ℝ, (attainable n s) → (k+1 ≤ n) → (0 < k) → |s n|^((n:ℝ)⁻¹) ≤ C * (n:ℝ)^((2:ℝ)⁻¹) * max (|s k|^((k:ℝ)⁻¹))  (|s (k+1)|^(((k+1:ℕ):ℝ)⁻¹)) := by
+  use max (rexp ((rexp 1)⁻¹ * 4) * (2:ℝ)^((2:ℝ)⁻¹) ) ((2:ℝ) * (7:ℝ)^((2:ℝ)⁻¹))
+  intro n k s h2 h3 h4
+  rcases le_or_gt 8 n with h5 | h5
+  . have := prev_bound_large_n h2 h3 h4 h5
+    apply this.trans
+    rw [mul_rpow, <-mul_assoc]
+    apply mul_le_mul_of_nonneg_right
+    apply mul_le_mul_of_nonneg_right
+    simp
+    all_goals positivity
+  have h9 : ((2:ℝ) * n)^(1:ℝ) ≤ 2 * (7:ℝ)^((2:ℝ)⁻¹) * (n:ℝ)^((2:ℝ)⁻¹) := by
+    rw [rpow_one, mul_assoc]
+    gcongr
+    rw [<- rpow_le_rpow_iff _ _ (show 0 < 2 by norm_num), mul_rpow, <-rpow_mul, <-rpow_mul, (show (n:ℝ)^(2:ℝ) = n * n by norm_cast; ring)]
+    simp
+    gcongr
+    norm_cast; linarith
+    all_goals positivity
+  rw [le_iff_lt_or_eq] at h3
+  rcases h3 with h3 | h3
+  . have : k+2 ≤ n := by linarith
+    rw [le_iff_lt_or_eq] at this
+    rcases this with h3 | h3
+    . have h3 : k+3 ≤n := by linarith
+      have bound := iterated_rev h2 h3 h4
+      apply bound.trans
+      have : ∀ k' : ℕ, k' ≤ k+1 → 0 < k' → ((2:ℝ)*n)^ ((Real.log ((n:ℝ) - 1) - Real.log ((n:ℝ) - k' - 1)) * ((n:ℝ) - k') / ((2:ℝ) * k')) ≤ 2 * (7:ℝ)^((2:ℝ)⁻¹) * (n:ℝ)^((2:ℝ)⁻¹) := by
+        intro k' hk' hk''
+        have h6 : 0 < (n:ℝ) - k' := by
+          rw [lt_sub_iff_add_lt]
+          norm_cast; linarith
+        have h7 : 0 < (n:ℝ) - k' - 1 := by
+          rw [lt_sub_iff_add_lt, lt_sub_iff_add_lt]
+          norm_cast; linarith
+        have h8 : 0 < (n:ℝ) - 1 := by
+          rw [lt_sub_iff_add_lt]
+          norm_cast; linarith
+        apply le_trans _ h9
+        rw [rpow_le_rpow_left_iff, div_le_iff, <-le_div_iff, <-log_div]
+        apply (log_le_sub_one_of_pos _).trans
+        field_simp
+        rw [div_le_div_iff, mul_comm 2 _, mul_assoc]
+        gcongr
+        suffices : (k':ℝ) + 2 ≤ n
+        . linarith
+        norm_cast; linarith
+        . positivity
+        . positivity
+        . positivity
+        . positivity
+        . positivity
+        . positivity
+        . positivity
+        linarith
+      rw [mul_max_of_nonneg]
+      apply max_le_max
+      . apply mul_le_mul_of_nonneg_right
+        apply (this k (show k ≤ k+1 by linarith) h4).trans
+        apply mul_le_mul_of_nonneg_right
+        . simp
+        all_goals positivity
+      apply mul_le_mul_of_nonneg_right
+      rw [(show (k:ℝ) + 1 = (k+1:ℕ) by norm_cast)]
+      apply (this (k+1) (show k+1 ≤ k+1 by linarith) (by linarith)).trans
+      apply mul_le_mul_of_nonneg_right
+      . simp
+      all_goals positivity
+    have bound := prelim_bound_rev (show n > 2 by linarith) h2
+    apply bound.trans
+    rw [max_comm, mul_max_of_nonneg]
+    apply max_le_max
+    . have : n-2 = k := by
+        zify at h3 ⊢; rw [Int.coe_nat_sub, <-h3]; simp; linarith
+      rw [this]
+      have : (n:ℝ)-2 = k := by
+        rw [sub_eq_iff_eq_add]; norm_cast; linarith
+      rw [this]
+      apply mul_le_mul_of_nonneg_right
+      rw [max_mul_of_nonneg]
+      simp
+      right
+      apply le_trans _ h9
+      rw [rpow_le_rpow_left_iff, div_le_iff]
+      . norm_cast; linarith
+      . positivity
+      . norm_cast; linarith
+      . positivity
+      positivity
+    have : n-1 = k+1 := by
+        zify at h3 ⊢; rw [Int.coe_nat_sub, <-h3]; simp; linarith; linarith
+    rw [this]
+    have : (n:ℝ)-1 = (k+1:ℕ) := by
+        rw [sub_eq_iff_eq_add]; norm_cast; linarith
+    rw [this]
+    apply mul_le_mul_of_nonneg_right
+    rw [max_mul_of_nonneg]
+    simp
+    right
+    apply le_trans _ h9
+    rw [rpow_le_rpow_left_iff]
+    have : 0 < (k:ℝ) + 1 := by norm_cast; linarith
+    . field_simp; rw [div_le_iff]; norm_cast; linarith; positivity
+    . norm_cast; linarith
+    . positivity
+    . positivity
+    positivity
+  rw [<- one_mul (|s n| ^ ((n:ℝ)⁻¹)), <- one_mul 1]
+  gcongr
+  . simp; left; rw [<-one_mul 1]; gcongr
+    . simp; positivity
+    . apply one_le_rpow; norm_num; positivity
+  . apply one_le_rpow; simp; linarith; positivity
+  simp [h3]
