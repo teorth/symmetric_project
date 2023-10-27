@@ -15,6 +15,7 @@ import SymmetricProject.esymm_basic
 import SymmetricProject.attainable
 import SymmetricProject.stirling
 import SymmetricProject.positivity_ext
+import SymmetricProject.Tactic.Rify
 
 /- hack to avoid the real powers bug -/
 local macro_rules | `($x ^ $y)   => `(HPow.hPow $x $y)
@@ -444,39 +445,26 @@ lemma prev_bound_large_n {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3
   rw [le_iff_lt_or_eq] at h3
   rcases h3 with h3 | h3
   . have h3' : (n-(k+1)) + 3 ≤ n := by
-      zify at h4 h5 h6 ⊢
-      rw [Int.coe_nat_sub]
-      zify; all_goals linarith
+      zify [h3.le] at *
+      linarith
     have bound := iterated h2 h3'
     apply bound.trans
     clear h2 h3' bound
+    have h3' : n - (k+1) + 1 ≤ n := by zify [h3]; linarith
+    have h3'' : n - (k+1) ≤ n := by zify [h3]; linarith
     have h5' : 0 < (n:ℝ) - 1 := by
-      simp; norm_cast; linarith
+      rify at *; linarith
     have h7: n - (n - (k+1)) = k+1 := by
-      zify at h3 h4 h5 h6 ⊢
-      rw [Int.coe_nat_sub, Int.coe_nat_sub]
-      . zify; linarith
-      . zify; linarith
-      zify; rw [Int.coe_nat_sub]; zify; linarith
-      zify; linarith
+      zify [h3, h3''] at *
+      linarith
     have h8: n - (n - (k+1) + 1) = k := by
-      zify at h3 h4 h5 h6 ⊢
-      rw [Int.coe_nat_sub]
-      zify
-      rw [Int.coe_nat_sub]
-      zify; linarith
-      zify; linarith
-      zify; rw [Int.coe_nat_sub]; zify; linarith
-      zify; linarith
+      zify [h3, h3'] at *
+      linarith
     have h9 : (n:ℝ) - (n - (k+1) : ℕ) = k+1 := by
-      rw [sub_eq_iff_eq_add']
-      norm_cast
-      rw [Nat.sub_add_cancel]
+      zify [h3, h3'] at *
       linarith
     have h10 : (n:ℝ) - (n - (k+1) + 1 : ℕ) = k := by
-      rw [sub_eq_iff_eq_add']
-      norm_cast
-      rw [add_assoc, add_comm 1 k, Nat.sub_add_cancel]
+      zify [h3, h3'] at *
       linarith
     rw [h7, h8, h9, h10, mul_assoc, mul_max_of_nonneg, <- one_mul (max _ _), max_comm]
     apply mul_le_mul
@@ -561,14 +549,14 @@ lemma prev_bound : ∃ C : ℝ, ∀ n : ℕ, ∀ k : ℕ, ∀ s : ℕ → ℝ, (
       have : ∀ k' : ℕ, k' ≤ k+1 → 0 < k' → ((2:ℝ)*n)^ ((Real.log ((n:ℝ) - 1) - Real.log ((n:ℝ) - k' - 1)) * ((n:ℝ) - k') / ((2:ℝ) * k')) ≤ 2 * (7:ℝ)^((2:ℝ)⁻¹) * (n:ℝ)^((2:ℝ)⁻¹) := by
         intro k' hk' hk''
         have h6 : 0 < (n:ℝ) - k' := by
-          rw [lt_sub_iff_add_lt]
-          norm_cast; linarith
+          rify at h3 hk'
+          linarith
         have h7 : 0 < (n:ℝ) - k' - 1 := by
-          rw [lt_sub_iff_add_lt, lt_sub_iff_add_lt]
-          norm_cast; linarith
+          rify at h3 hk'
+          linarith
         have h8 : 0 < (n:ℝ) - 1 := by
-          rw [lt_sub_iff_add_lt]
-          norm_cast; linarith
+          rify at h3 h4
+          linarith
         apply le_trans _ h9
         rw [rpow_le_rpow_left_iff, div_le_iff, <-le_div_iff, <-log_div]
         apply (log_le_sub_one_of_pos _).trans
@@ -604,10 +592,10 @@ lemma prev_bound : ∃ C : ℝ, ∀ n : ℕ, ∀ k : ℕ, ∀ s : ℕ → ℝ, (
     rw [max_comm, mul_max_of_nonneg]
     apply max_le_max
     . have : n-2 = k := by
-        zify at h3 ⊢; rw [Int.coe_nat_sub, <-h3]; simp; linarith
+        zify [show 2 ≤ n by linarith] at h3 ⊢; linarith
       rw [this]
       have : (n:ℝ)-2 = k := by
-        rw [sub_eq_iff_eq_add]; norm_cast; linarith
+        rify [show 2 ≤ n by linarith] at h3 ⊢; linarith
       rw [this]
       apply mul_le_mul_of_nonneg_right
       rw [max_mul_of_nonneg]
@@ -621,10 +609,10 @@ lemma prev_bound : ∃ C : ℝ, ∀ n : ℕ, ∀ k : ℕ, ∀ s : ℕ → ℝ, (
       . positivity
       positivity
     have : n-1 = k+1 := by
-        zify at h3 ⊢; rw [Int.coe_nat_sub, <-h3]; simp; linarith; linarith
+      zify [show 1 ≤ n by linarith] at h3 ⊢; linarith
     rw [this]
     have : (n:ℝ)-1 = (k+1:ℕ) := by
-        rw [sub_eq_iff_eq_add]; norm_cast; linarith
+      rify [show 1 ≤ n by linarith] at h3 ⊢; linarith
     rw [this]
     apply mul_le_mul_of_nonneg_right
     rw [max_mul_of_nonneg]
