@@ -28,7 +28,7 @@ established by Gopalan-Yehudayoff.
 -/
 
 open Real
-open Nat
+open Nat hiding log
 open Finset
 open BigOperators
 
@@ -207,7 +207,7 @@ lemma log_jensen {a b : ℝ} (ha : 0 < a) (hb : a < b) : 2 * ((b-a) / (a+b)) ≤
   linarith
 
 /-- Annoyingly, this version of the bound (which telescopes nicely) is only useful for n>3.  -/
-lemma prelim_bound_rev' {n : ℕ} {s : ℕ → ℝ} (h1 : n > 3) (h2 : attainable n s) : |s n|^((n:ℝ)⁻¹) ≤ max (((2:ℝ) * n)^((Real.log (n-1) - Real.log (n-2))/2) * |s (n-1)|^((n-1:ℝ)⁻¹)) (( (2:ℝ)*n)^((Real.log (n-1) - Real.log (n-3))/2) * |s (n-2)|^((n-2:ℝ)⁻¹)) := by
+lemma prelim_bound_rev' {n : ℕ} {s : ℕ → ℝ} (h1 : n > 3) (h2 : attainable n s) : |s n|^((n:ℝ)⁻¹) ≤ max (((2:ℝ) * n)^((log (n-1) - log (n-2))/2) * |s (n-1)|^((n-1:ℝ)⁻¹)) (( (2:ℝ)*n)^((log (n-1) - log (n-3))/2) * |s (n-2)|^((n-2:ℝ)⁻¹)) := by
   apply le_trans (prelim_bound_rev (show n>2 by linarith) h2) _
   have h1' : (3:ℝ) < (n:ℝ) := by norm_cast
   apply max_le_max
@@ -235,8 +235,8 @@ lemma nat_sub_eq_real_sub {a b : ℕ} (h: b ≤ a) : (a - b:ℕ) = (a:ℝ) - (b:
   exact Nat.sub_add_cancel h
 
 /-- inequality (2.1) from the paper, corrected to only hold for k+3 ≤ n --/
-lemma iterated {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+3 ≤ n) : |s n|^((n:ℝ)⁻¹) ≤ max (((2:ℝ) * n)^((Real.log (n-1) - Real.log (n-k-1))/2) * |s (n-k)|^((n-k:ℝ)⁻¹)) (( (2:ℝ)*n)^((Real.log (n-1) - Real.log (n-(k+1:ℕ)-1))/2) * |s (n-(k+1))|^((n-(k+1:ℕ):ℝ)⁻¹)) := by
-  let f := fun (m:ℕ) ↦ ((2:ℝ) * n)^((Real.log (n-1) - Real.log (n-m-1))/2) * |s (n-m)|^((n-m:ℝ)⁻¹)
+lemma iterated {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+3 ≤ n) : |s n|^((n:ℝ)⁻¹) ≤ max (((2:ℝ) * n)^((log (n-1) - log (n-k-1))/2) * |s (n-k)|^((n-k:ℝ)⁻¹)) (( (2:ℝ)*n)^((log (n-1) - log (n-(k+1:ℕ)-1))/2) * |s (n-(k+1))|^((n-(k+1:ℕ):ℝ)⁻¹)) := by
+  let f := fun (m:ℕ) ↦ ((2:ℝ) * n)^((log (n-1) - log (n-m-1))/2) * |s (n-m)|^((n-m:ℝ)⁻¹)
   show |s n|^((n:ℝ)⁻¹) ≤ max (f k) (f (k+1))
   induction' k with m hm
   . simp
@@ -252,7 +252,7 @@ lemma iterated {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+3 ≤
     have := prelim_bound_rev' h4 this
     apply le_trans hm _
     have h5 : 0 < (2:ℝ) * n := by norm_cast; linarith
-    have h6 : 0 < (((2:ℝ) * n) ^ ((Real.log (n - 1) - Real.log (n - m - 1)) / 2)) := by positivity
+    have h6 : 0 < (((2:ℝ) * n) ^ ((log (n - 1) - log (n - m - 1)) / 2)) := by positivity
     rw [<-mul_le_mul_left h6] at this
     rw [nat_sub_eq_real_sub (show m ≤ n by linarith)] at this
     apply le_trans this _
@@ -276,7 +276,7 @@ lemma iterated {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+3 ≤
           . simp; linarith
           . simp
           . simp
-            rw [Real.log_le_log]
+            rw [log_le_log]
             . linarith
             all_goals {
               simp; rw [_root_.lt_sub_iff_add_lt]
@@ -300,7 +300,7 @@ lemma iterated {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+3 ≤
         apply rpow_le_rpow
         . simp; linarith
         . simp
-        . simp; rw [Real.log_le_log]
+        . simp; rw [log_le_log]
           . linarith
           all_goals {
             simp; rw [_root_.lt_sub_iff_add_lt]
@@ -315,7 +315,7 @@ lemma iterated {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+3 ≤
   exact hm
 
 /-- the bound two displays after (2.1).  Thanks to Kyle Miller for speeding up the convert code which was unusually slow. --/
-lemma iterated_rev {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+3 ≤ n) (h4 : 0 < k): |s n|^((n:ℝ)⁻¹) ≤ max (((2:ℝ) * n)^((Real.log (n-1) - Real.log (n-k-1))*(n-k)/(2*k)) * |s k|^((k:ℝ)⁻¹)) (( (2:ℝ)*n)^((Real.log (n-1) - Real.log (n-(k+1:ℕ)-1))*(n-(k+1))/(2*(k+1))) * |s (k+1)|^(((k+1:ℕ):ℝ)⁻¹)) := by
+lemma iterated_rev {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+3 ≤ n) (h4 : 0 < k): |s n|^((n:ℝ)⁻¹) ≤ max (((2:ℝ) * n)^((log (n-1) - log (n-k-1))*(n-k)/(2*k)) * |s k|^((k:ℝ)⁻¹)) (( (2:ℝ)*n)^((log (n-1) - log (n-(k+1:ℕ)-1))*(n-(k+1))/(2*(k+1))) * |s (k+1)|^(((k+1:ℕ):ℝ)⁻¹)) := by
   have : n > (0:ℝ) := by norm_cast; linarith
   by_cases hsn: s n = 0
   . simp [hsn]
@@ -363,10 +363,10 @@ lemma iterated_rev {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+3
   all_goals positivity
 
 lemma root_self {x:ℝ} (h: x > 0) : x^(x⁻¹) ≤ Real.exp (Real.exp 1)⁻¹ := by
-  rw [<- Real.log_le_iff_le_exp, Real.log_rpow, inv_mul_le_iff, <-sub_le_sub_iff_right 1]
-  . have := Real.log_le_sub_one_of_pos (show 0 < (x * (Real.exp 1)⁻¹) by positivity)
+  rw [<- log_le_iff_le_exp, log_rpow, inv_mul_le_iff, <-sub_le_sub_iff_right 1]
+  . have := log_le_sub_one_of_pos (show 0 < (x * (Real.exp 1)⁻¹) by positivity)
     convert this using 1
-    rw [Real.log_mul]
+    rw [log_mul]
     . simp; ring
     all_goals positivity
   all_goals positivity
@@ -374,7 +374,7 @@ lemma root_self {x:ℝ} (h: x > 0) : x^(x⁻¹) ≤ Real.exp (Real.exp 1)⁻¹ :
 /-- The Gopalan-Yehudayoff bound for n ≥ 8. --/
 lemma prev_bound_large_n {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3 : k+1 ≤ n) (h4 : 0 < k) (h5 : 8 ≤ n): |s n|^((n:ℝ)⁻¹) ≤ (rexp ((rexp 1)⁻¹ * 4))  * ((2:ℝ) * n)^((2:ℝ)⁻¹) * max (|s k|^((k:ℝ)⁻¹))  (|s (k+1)|^(((k+1:ℕ):ℝ)⁻¹)) := by
   rcases le_or_gt (2*k) n with h6 | h6
-  . have : ∃ k' : ℕ, 2 * k' ≤ n + 2 ∧ |s n|^((n:ℝ)⁻¹) ≤ ((2:ℝ)*n)^((Real.log (n-1) - Real.log (n-k'-1))*(n-k')/(2*k')) * |s k'|^((k':ℝ)⁻¹) ∧ |s k'|^((k':ℝ)⁻¹) ≤ max (|s k|^((k:ℝ)⁻¹))  (|s (k+1)|^(((k+1:ℕ):ℝ)⁻¹)) ∧ (0:ℝ) < k' := by
+  . have : ∃ k' : ℕ, 2 * k' ≤ n + 2 ∧ |s n|^((n:ℝ)⁻¹) ≤ ((2:ℝ)*n)^((log (n-1) - log (n-k'-1))*(n-k')/(2*k')) * |s k'|^((k':ℝ)⁻¹) ∧ |s k'|^((k':ℝ)⁻¹) ≤ max (|s k|^((k:ℝ)⁻¹))  (|s (k+1)|^(((k+1:ℕ):ℝ)⁻¹)) ∧ (0:ℝ) < k' := by
       have h3' : k+3 ≤ n := by linarith
       have bound := iterated_rev h2 h3' h4
       simp at bound
@@ -409,9 +409,9 @@ lemma prev_bound_large_n {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3
     apply le_trans _ ((_root_.mul_le_mul_left _).2 hs)
     gcongr
     rw [<-log_div]
-    have : Real.log (((n:ℝ) -1) / ((n:ℝ) - (k':ℝ) - 1)) * ((n:ℝ)-k') / (2*k')  ≤ (2:ℝ)⁻¹ + ((2:ℝ)*n)⁻¹ * 4 := by
-      have : Real.log (((n:ℝ) -1) / ((n:ℝ) - (k':ℝ) - 1)) ≤ (((n:ℝ) -1) / ((n:ℝ) - (k':ℝ) - 1)) - 1 := by
-        apply Real.log_le_sub_one_of_pos
+    have : log (((n:ℝ) -1) / ((n:ℝ) - (k':ℝ) - 1)) * ((n:ℝ)-k') / (2*k')  ≤ (2:ℝ)⁻¹ + ((2:ℝ)*n)⁻¹ * 4 := by
+      have : log (((n:ℝ) -1) / ((n:ℝ) - (k':ℝ) - 1)) ≤ (((n:ℝ) -1) / ((n:ℝ) - (k':ℝ) - 1)) - 1 := by
+        apply log_le_sub_one_of_pos
         positivity
       apply le_trans ((div_le_div_right _).2 (mul_le_mul_of_nonneg_right this _)) _
       . positivity
@@ -469,7 +469,7 @@ lemma prev_bound_large_n {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3
     rw [h7, h8, h9, h10, mul_assoc, mul_max_of_nonneg, <- one_mul (max _ _), max_comm]
     apply mul_le_mul
     . simp; positivity
-    have (k' : ℕ) (h : k ≤ k') : ((2:ℝ)*n)^((Real.log ((n:ℝ)-1) - Real.log ((k':ℝ) - 1))/2) ≤ ((2:ℝ) * n) ^ (2:ℝ)⁻¹ := by
+    have (k' : ℕ) (h : k ≤ k') : ((2:ℝ)*n)^((log ((n:ℝ)-1) - log ((k':ℝ) - 1))/2) ≤ ((2:ℝ) * n) ^ (2:ℝ)⁻¹ := by
       have : 0 < (k':ℝ) - 1 := by rw [_root_.lt_sub_iff_add_lt]; norm_cast; linarith
       rw [rpow_le_rpow_left_iff]
       field_simp
@@ -517,6 +517,17 @@ lemma prev_bound_large_n {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3
   simp; right
   rw [h3, (show (k:ℝ) + 1 = n by norm_cast)]
 
+-- We know the next big proof will be based on a trichotomy, so let's get that out of the way
+-- by stating and proving the next two lemmas.
+lemma Nat.succ_le_or_eq_of_le {k n : ℕ } (h : k ≤ n) : k + 1 ≤ n ∨ k = n  :=
+  h.lt_or_eq.casesOn (fun h ↦ Or.inl h) fun h ↦ Or.inr h
+
+lemma Nat.trichotomy_of_le {k n : ℕ } (h : k ≤ n) : k + 2 ≤ n ∨ n = k + 1 ∨ n = k := by
+  rcases Nat.succ_le_or_eq_of_le h with h | rfl
+  · rcases Nat.succ_le_or_eq_of_le h with h | rfl
+    · exact Or.inl h
+    · exact Or.inr <| Or.inl rfl
+  · exact Or.inr <| Or.inr rfl
 
 /-- The Gopalan-Yehudayoff bound in general --/
 lemma prev_bound : ∃ C : ℝ, C > 0 ∧ ∀ n : ℕ, ∀ k : ℕ, ∀ s : ℕ → ℝ, (attainable n s) → (k+1 ≤ n) → (0 < k) → |s n|^((n:ℝ)⁻¹) ≤ C * (n:ℝ)^((2:ℝ)⁻¹) * max (|s k|^((k:ℝ)⁻¹))  (|s (k+1)|^(((k+1:ℕ):ℝ)⁻¹)) := by
@@ -525,113 +536,89 @@ lemma prev_bound : ∃ C : ℝ, C > 0 ∧ ∀ n : ℕ, ∀ k : ℕ, ∀ s : ℕ 
   . positivity
   intro n k s h2 h3 h4
   rcases le_or_gt 8 n with h5 | h5
-  . have := prev_bound_large_n h2 h3 h4 h5
-    apply this.trans
-    rw [mul_rpow, <-mul_assoc]
-    apply mul_le_mul_of_nonneg_right
-    apply mul_le_mul_of_nonneg_right
-    simp
-    all_goals positivity
-  have h9 : ((2:ℝ) * n)^(1:ℝ) ≤ 2 * (7:ℝ)^((2:ℝ)⁻¹) * (n:ℝ)^((2:ℝ)⁻¹) := by
-    rw [rpow_one, mul_assoc]
+  · -- Case `n ≤ 8`
+    apply (prev_bound_large_n h2 h3 h4 h5).trans
+    rw [mul_rpow, ← mul_assoc]
     gcongr
-    rw [<- rpow_le_rpow_iff _ _ (show 0 < 2 by norm_num), mul_rpow, <-rpow_mul, <-rpow_mul, (show (n:ℝ)^(2:ℝ) = n * n by norm_cast; ring)]
-    simp
-    gcongr
-    norm_cast; linarith
+    · simp
     all_goals positivity
-  rw [le_iff_lt_or_eq] at h3
-  rcases h3 with h3 | h3
-  . have : k+2 ≤ n := by linarith
-    rw [le_iff_lt_or_eq] at this
-    rcases this with h3 | h3
-    . have h3 : k+3 ≤n := by linarith
-      have bound := iterated_rev h2 h3 h4
-      apply bound.trans
-      have : ∀ k' : ℕ, k' ≤ k+1 → 0 < k' → ((2:ℝ)*n)^ ((Real.log ((n:ℝ) - 1) - Real.log ((n:ℝ) - k' - 1)) * ((n:ℝ) - k') / ((2:ℝ) * k')) ≤ 2 * (7:ℝ)^((2:ℝ)⁻¹) * (n:ℝ)^((2:ℝ)⁻¹) := by
-        intro k' hk' hk''
-        have h6 : 0 < (n:ℝ) - k' := by
-          rify at h3 hk'
-          linarith
-        have h7 : 0 < (n:ℝ) - k' - 1 := by
-          rify at h3 hk'
-          linarith
-        have h8 : 0 < (n:ℝ) - 1 := by
-          rify at h3 h4
-          linarith
-        apply le_trans _ h9
-        rw [rpow_le_rpow_left_iff, div_le_iff, <-le_div_iff, <-log_div]
-        apply (log_le_sub_one_of_pos _).trans
-        field_simp
-        rw [div_le_div_iff, mul_comm 2 _, mul_assoc]
-        gcongr
-        suffices : (k':ℝ) + 2 ≤ n
-        . linarith
-        norm_cast; linarith
-        . positivity
-        . positivity
-        . positivity
-        . positivity
-        . positivity
-        . positivity
-        . positivity
-        linarith
-      rw [mul_max_of_nonneg]
-      apply max_le_max
-      . apply mul_le_mul_of_nonneg_right
-        apply (this k (show k ≤ k+1 by linarith) h4).trans
-        apply mul_le_mul_of_nonneg_right
-        . simp
-        all_goals positivity
-      apply mul_le_mul_of_nonneg_right
-      rw [(show (k:ℝ) + 1 = (k+1:ℕ) by norm_cast)]
-      apply (this (k+1) (show k+1 ≤ k+1 by linarith) (by linarith)).trans
-      apply mul_le_mul_of_nonneg_right
-      . simp
-      all_goals positivity
-    have bound := prelim_bound_rev (show n > 2 by linarith) h2
-    apply bound.trans
-    rw [max_comm, mul_max_of_nonneg]
-    apply max_le_max
-    . have : n-2 = k := by
-        zify [show 2 ≤ n by linarith] at h3 ⊢; linarith
-      rw [this]
-      have : (n:ℝ)-2 = k := by
-        rify [show 2 ≤ n by linarith] at h3 ⊢; linarith
-      rw [this]
-      apply mul_le_mul_of_nonneg_right
-      rw [max_mul_of_nonneg]
+  ·  -- Case `n > 8`
+    have h9 : ((2:ℝ) * n)^(1:ℝ) ≤ 2 * (7:ℝ)^((2:ℝ)⁻¹) * (n:ℝ)^((2:ℝ)⁻¹) := by
+      rw [rpow_one, mul_assoc]
+      gcongr
+      rw [← rpow_le_rpow_iff _ _ (show 0 < 2 by norm_num), mul_rpow, ← rpow_mul, ← rpow_mul,
+          (show (n:ℝ)^(2:ℝ) = n * n by norm_cast; ring)]
       simp
-      right
-      apply le_trans _ h9
-      rw [rpow_le_rpow_left_iff, div_le_iff]
-      . norm_cast; linarith
-      . positivity
-      . norm_cast; linarith
-      . positivity
+      gcongr
+      norm_cast; linarith
+      all_goals positivity
+    rcases Nat.trichotomy_of_le h3 with h3 | rfl | rfl
+    · -- Case `k + 3 ≤ n`
+      apply (iterated_rev h2 h3 h4).trans
+      -- Send everything to `ℝ`, calling `N` and `K` the numbers `n` and `k` seen as reals numbers.
+      have n_nonneg : 0 ≤ n := n.zero_le -- Make sure we won't forget that `0 ≤ N`.
+      rify at *
+      generalize (n : ℝ) = N at *
+      generalize (k : ℝ) = K at *
+      have : ∀ K' ≤ K+1, 0 < K' → (2*N)^ ((log (N - 1) - log (N - K' - 1)) * (N - K') / (2 * K')) ≤
+                                    2 * (7:ℝ)^((2:ℝ)⁻¹) * N^((2:ℝ)⁻¹) := by
+        intro K' hK' hK''
+        apply le_trans _ h9
+        -- Premptively state that everything that will go in a division or log is positive.
+        have h6 : 0 < N - K' := by linarith
+        have h7 : 0 < N - K' - 1 := by linarith
+        have h8 : 0 < N - 1 := by linarith
+        have h10 : 0 < (N - 1) / (N - K' - 1) := by positivity
+        rw [← log_div (by linarith) (by linarith)]
+        gcongr
+        · linarith
+        · field_simp [div_le_iff] -- Note you can provide extra lemmas to `field_simp`
+          rw [← le_div_iff h6]
+          · apply (log_le_sub_one_of_pos h10).trans
+            field_simp [div_le_div_iff]
+            rw [mul_comm 2 _, mul_assoc]
+            gcongr
+            linarith
+      rw [mul_max_of_nonneg]
+      -- Now apply `gcongr` a lot more than in original version
+      · gcongr
+        . apply (this K (by linarith) h4).trans
+          gcongr
+          exact? says apply le_max_right
+        · apply (this (K+1) le_rfl (by linarith)).trans
+          gcongr
+          exact? says apply le_max_right
       positivity
-    have : n-1 = k+1 := by
-      zify [show 1 ≤ n by linarith] at h3 ⊢; linarith
-    rw [this]
-    have : (n:ℝ)-1 = (k+1:ℕ) := by
-      rify [show 1 ≤ n by linarith] at h3 ⊢; linarith
-    rw [this]
-    apply mul_le_mul_of_nonneg_right
-    rw [max_mul_of_nonneg]
-    simp
-    right
-    apply le_trans _ h9
-    rw [rpow_le_rpow_left_iff]
-    have : 0 < (k:ℝ) + 1 := by norm_cast; linarith
-    . field_simp; rw [div_le_iff]; norm_cast; linarith; positivity
-    . norm_cast; linarith
-    . positivity
-    . positivity
-    positivity
-  rw [<- one_mul (|s n| ^ ((n:ℝ)⁻¹)), <- one_mul 1]
-  gcongr
-  . simp; left; rw [<-one_mul 1]; gcongr
-    . simp; positivity
-    . apply one_le_rpow; norm_num; positivity
-  . apply one_le_rpow; simp; linarith; positivity
-  simp [h3]
+    · -- Case `n = k + 2`, except we got rid of `n` and work only with `k + 2`.
+      apply (prelim_bound_rev (by linarith) h2).trans
+      -- Send everything to `ℝ`, calling `K` the number `k` seen as a real number.
+      change 1 ≤ k at h4 -- Don't forget that `0 < k` really means `1 ≤ k` before going real.
+      rify at *
+      generalize (k : ℝ) = K at *
+      -- clean-up all stupid expressions appearing
+      rw [show K + 1 + 1 = K+2 by ring, show K + 2 - 1 = K + 1 by ring, show K + 2 - 2 = K by ring,
+          show k + 1 + 1 - 2 = k by simp, show k + 1 + 1 - 1 = k + 1 by simp] at *
+      -- Premptively prove positivity of things appearing in denominators
+      have : 0 < K + 1 := by linarith
+      rw [max_comm, mul_max_of_nonneg]
+      -- Now apply `gcongr` a lot more than in original version
+      · gcongr
+        all_goals
+          rw [max_mul_of_nonneg]
+          · simp
+            right
+            apply le_trans _ h9
+            gcongr
+            · linarith
+            · field_simp [div_le_iff]
+              linarith
+          . positivity
+      · positivity
+    · -- Case `n = k + 1`, except we got rid of `n` and work only with `k + 1`.
+      rw [← one_mul (|s (k+1)| ^ (((k+1:ℕ):ℝ)⁻¹)), ← one_mul 1]
+      gcongr
+      . simp; left; rw [← one_mul 1]; gcongr
+        . simp; positivity
+        . apply one_le_rpow; norm_num; positivity
+      . apply one_le_rpow; simp; positivity
+      simp
