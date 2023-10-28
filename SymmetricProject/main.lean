@@ -96,11 +96,10 @@ lemma best_constant_bounds { k l n N : ℕ } { s : ℕ → ℝ } (h1 : 0 < k) (h
   field_simp [(show 2*Q' ≠ 0 by linarith)]
   ring
 
-/-- Anything less than the best constant isn't a bound. -/
-lemma cant_beat_best_constant {N : ℕ} {A : ℝ} (hN: 1 ≤ N) (hA : A < best_constant N) : ∃ k l n : ℕ, ∃ s : ℕ → ℝ, (0 < k) ∧ (k ≤ l) ∧ (l ≤ n) ∧ (n ≤ N) ∧ (attainable n s) ∧ |s l|^((l:ℝ)⁻¹) ≥ A * max (((l:ℝ) / k )^((2:ℝ)⁻¹) * |s k|^((k:ℝ)⁻¹)) (((l:ℝ) / (k+1) )^((2:ℝ)⁻¹) * |s (k+1)|^((k+1:ℝ)⁻¹)) := by
+/-- Anything less than the best constant isn't a bound.  Implements some convenient normalizations. -/
+lemma cant_beat_best_constant {N : ℕ} {A : ℝ} (hN: 1 ≤ N) (hA : A < best_constant N) : ∃ k n : ℕ, ∃ s : ℕ → ℝ, (0 < k) ∧ (k ≤ n) ∧ (n ≤ N) ∧ (attainable n s) ∧ |s n| = 1 ∧ 1 ≥ A * max (((n:ℝ) / k )^((2:ℝ)⁻¹) * |s k|^((k:ℝ)⁻¹)) (((n:ℝ) / (k+1) )^((2:ℝ)⁻¹) * |s (k+1)|^((k+1:ℝ)⁻¹)) := by
   rcases le_or_gt A 1 with hA' | hA'
-  . use 1, 1, 1, (fun _ ↦ 1)
-    constructor; norm_num
+  . use 1, 1, (fun _ ↦ 1)
     constructor; norm_num
     constructor; norm_num
     constructor; exact hN
@@ -119,13 +118,36 @@ lemma cant_beat_best_constant {N : ℕ} {A : ℝ} (hN: 1 ≤ N) (hA : A < best_c
   simp [upper_bounds] at not_bound
   replace not_bound := not_bound (show 1 ≤ A by linarith)
   rcases not_bound with ⟨ k, ⟨ l, ⟨ n, ⟨ s, ⟨ h1, ⟨ h2, ⟨ h3, ⟨ h4, ⟨ h5, h6 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
-  use k, l, n, s
+  have : 0 < |s l| := by
+    contrapose! h6
+    simp at h6
+    rw [h6]
+    simp
+    rw [Real.zero_rpow (show (l:ℝ)⁻¹ ≠ 0 by simp; linarith)]
+    positivity
+  let s' := (fun m ↦ (|s l|^(-(l:ℝ)⁻¹))^m * s m)
+  use k, l, s'
   constructor; assumption
   constructor; assumption
-  constructor; assumption
-  constructor; assumption
-  constructor; assumption
-  linarith
+  constructor; linarith
+  constructor
+  . exact attainable_scaling l s (|s l|^(-(l:ℝ)⁻¹)) (attainable_truncate n l s h3 h1)
+  constructor
+  . dsimp
+    rw [(show (|s l| ^ (-(l:ℝ)⁻¹)) ^ (l:ℕ) = (|s l| ^ (-(l:ℝ)⁻¹)) ^ (l:ℝ) by norm_cast), <-rpow_mul, abs_mul, abs_rpow_of_nonneg, abs_abs, neg_mul, inv_mul_cancel, rpow_neg_one, inv_mul_cancel]
+    . positivity
+    . norm_cast; linarith
+    . positivity
+    positivity
+  rw [ge_iff_le, <-mul_le_mul_right (show 0 < |s l|^((l:ℝ)⁻¹) by positivity), mul_assoc, max_mul_of_nonneg, mul_assoc, mul_assoc, le_iff_lt_or_eq]
+  left; simp
+  convert h6 using 4
+  . rw [abs_mul, mul_rpow, (show (|s l| ^ (-(l:ℝ)⁻¹)) ^ (k:ℕ) = (|s l| ^ (-(l:ℝ)⁻¹)) ^ (k:ℝ) by norm_cast), abs_rpow_of_nonneg, <-rpow_mul, abs_rpow_of_nonneg, mul_comm, mul_inv_cancel, abs_abs, rpow_one, <- mul_assoc, <-rpow_add]
+    . simp
+    all_goals positivity
+  rw [abs_mul, mul_rpow, (show (|s l| ^ (-(l:ℝ)⁻¹)) ^ (k+1:ℕ) = (|s l| ^ (-(l:ℝ)⁻¹)) ^ (k+1:ℝ) by norm_cast), abs_rpow_of_nonneg, <-rpow_mul, abs_rpow_of_nonneg, mul_comm, mul_inv_cancel, abs_abs, rpow_one, <- mul_assoc, <-rpow_add]
+  . simp
+  all_goals positivity
 
 
 
