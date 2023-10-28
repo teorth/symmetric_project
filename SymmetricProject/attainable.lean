@@ -231,3 +231,10 @@ lemma attainable_truncate (n : ℕ) (l : ℕ) (s : ℕ → ℝ) (hln : l ≤ n) 
     linarith
   rw [hln'']
   tauto
+
+/-- The constant sequence i ↦ 1 is attainable. -/
+lemma attainable_one (n : ℕ) : attainable n (fun _ ↦ 1) := by
+  dsimp [attainable]
+  use fun _ => 1
+  intro k hk
+  simp [esymm_one_eq_binom]
