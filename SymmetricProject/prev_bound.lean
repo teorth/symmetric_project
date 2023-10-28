@@ -519,8 +519,10 @@ lemma prev_bound_large_n {n k : ℕ} {s : ℕ → ℝ} (h2 : attainable n s) (h3
 
 
 /-- The Gopalan-Yehudayoff bound in general --/
-lemma prev_bound : ∃ C : ℝ, ∀ n : ℕ, ∀ k : ℕ, ∀ s : ℕ → ℝ, (attainable n s) → (k+1 ≤ n) → (0 < k) → |s n|^((n:ℝ)⁻¹) ≤ C * (n:ℝ)^((2:ℝ)⁻¹) * max (|s k|^((k:ℝ)⁻¹))  (|s (k+1)|^(((k+1:ℕ):ℝ)⁻¹)) := by
+lemma prev_bound : ∃ C : ℝ, C > 0 ∧ ∀ n : ℕ, ∀ k : ℕ, ∀ s : ℕ → ℝ, (attainable n s) → (k+1 ≤ n) → (0 < k) → |s n|^((n:ℝ)⁻¹) ≤ C * (n:ℝ)^((2:ℝ)⁻¹) * max (|s k|^((k:ℝ)⁻¹))  (|s (k+1)|^(((k+1:ℕ):ℝ)⁻¹)) := by
   use max (rexp ((rexp 1)⁻¹ * 4) * (2:ℝ)^((2:ℝ)⁻¹) ) ((2:ℝ) * (7:ℝ)^((2:ℝ)⁻¹))
+  constructor
+  . positivity
   intro n k s h2 h3 h4
   rcases le_or_gt 8 n with h5 | h5
   . have := prev_bound_large_n h2 h3 h4 h5
