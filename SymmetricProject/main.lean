@@ -66,7 +66,7 @@ lemma one_le_best (N:ℕ) : 1 ≤ best_constant N := by
   intro A hA
   exact hA.left
 
-/-- The best constant is a bound. -/
+/-- The best constant is a bound. (4.1) in the paper -/
 lemma best_constant_bounds { k l n N : ℕ } { s : ℕ → ℝ } (h1 : 0 < k) (h2 : k ≤ l) (h3 : l ≤ n) (h4 : n ≤ N) (h5 : attainable n s) : |s l|^((l:ℝ)⁻¹) ≤ best_constant N * max (((l:ℝ) / k )^((2:ℝ)⁻¹) * |s k|^((k:ℝ)⁻¹)) (((l:ℝ) / (k+1) )^((2:ℝ)⁻¹) * |s (k+1)|^((k+1:ℝ)⁻¹)) := by
   set Q := max (((l:ℝ) / k )^((2:ℝ)⁻¹) * |s k|^((k:ℝ)⁻¹)) (((l:ℝ) / (k+1) )^((2:ℝ)⁻¹) * |s (k+1)|^((k+1:ℝ)⁻¹))
   set X := |s l|^((l:ℝ)⁻¹)
@@ -96,7 +96,7 @@ lemma best_constant_bounds { k l n N : ℕ } { s : ℕ → ℝ } (h1 : 0 < k) (h
   field_simp [(show 2*Q' ≠ 0 by linarith)]
   ring
 
-/-- Anything less than the best constant isn't a bound.  Implements some convenient normalizations. -/
+/-- Anything less than the best constant isn't a bound.  Implements some convenient normalizations.  Essentially (4.3) in the paper -/
 lemma cant_beat_best_constant {N : ℕ} {A : ℝ} (hN: 1 ≤ N) (hA : A < best_constant N) : ∃ k n : ℕ, ∃ s : ℕ → ℝ, (0 < k) ∧ (k ≤ n) ∧ (n ≤ N) ∧ (attainable n s) ∧ |s n| = 1 ∧ 1 ≥ A * max (((n:ℝ) / k )^((2:ℝ)⁻¹) * |s k|^((k:ℝ)⁻¹)) (((n:ℝ) / (k+1) )^((2:ℝ)⁻¹) * |s (k+1)|^((k+1:ℝ)⁻¹)) := by
   rcases le_or_gt A 1 with hA' | hA'
   . use 1, 1, (fun _ ↦ 1)
@@ -149,9 +149,59 @@ lemma cant_beat_best_constant {N : ℕ} {A : ℝ} (hN: 1 ≤ N) (hA : A < best_c
   . simp
   all_goals positivity
 
-
-
-
+/-- a reversed version of the bound from the best constant. (4.2) in the paper -/
+lemma best_constant_bounds_rev { k l n N : ℕ } { s : ℕ → ℝ } (h1 : 0 < k) (h2 : k+2 ≤ l) (h3 : l ≤ n) (h4 : n ≤ N) (h5 : attainable n s) : |s l|^((l:ℝ)⁻¹) ≤ max ((best_constant N)^((k:ℝ)/((l:ℝ)-(k:ℝ))) * ((l:ℝ) / k )^((k:ℝ)/(2*((l:ℝ)-k))) * |s (l-k)|^((l-(k:ℝ))⁻¹)) ((best_constant N)^((k+1:ℝ)/((l:ℝ)-(k+1:ℝ))) * ((l:ℝ) / (k+1) )^((k+1:ℝ)/(2*((l:ℝ)-(k+1:ℝ)))) * |s (l-(k+1))|^((l-(k+1:ℝ))⁻¹)) := by
+  have h6 : 0 ≤ best_constant N := by linarith [one_le_best N]
+  by_cases h7 : s l = 0
+  . rw [h7, abs_zero, zero_rpow]
+    . positivity
+    simp; linarith
+  have h8 := attainable_zero_eq_one h5
+  replace h5 := attainable_truncate n l s h3 h5
+  replace h5 := attainable_reflect h5 h7
+  set s' : ℕ → ℝ := (fun m ↦ (s (l-m)) / (s l))
+  have bound := best_constant_bounds h1 (show k ≤l by linarith) (show l ≤ l by linarith) (show l ≤ N by linarith) h5
+  rw [mul_max_of_nonneg _ _ h6] at bound
+  simp [h8, abs_mul, mul_rpow, abs_inv, inv_rpow, div_eq_mul_inv] at bound
+  simp
+  have h3' : 0 < (l:ℝ) := by norm_cast; linarith
+  rcases bound with bound | bound
+  . left
+    rw [<-mul_assoc, <-mul_assoc, <-div_le_iff, <- rpow_neg_one, <- rpow_neg_one (|s l| ^ ((k:ℝ)⁻¹)), <- rpow_mul, <- rpow_mul, <- rpow_sub] at bound
+    have h9 : 0 < ((l:ℝ) - k) := by
+      rify at h2; linarith
+    have h10 : 0 < (k:ℝ) / ((l:ℝ) - k) := by
+      positivity
+    have h1' : 0 < (k:ℝ) := by norm_cast
+    have h11 : ((l:ℝ)⁻¹ * (-1) - (k:ℝ)⁻¹ * (-1)) * ((k:ℝ) / ((l:ℝ) - k)) = (l:ℝ)⁻¹ := by
+      field_simp [h9, h1', h3']; ring
+    have h11' : (k:ℝ)⁻¹ * ((k:ℝ) / ((l:ℝ) - k)) = ((l:ℝ)-(k:ℝ))⁻¹ := by
+      field_simp [h9, h1', h3']
+    rw [<-rpow_le_rpow_iff _ _ h10, <- rpow_mul, mul_rpow, mul_rpow, <-rpow_mul, h11, h11'] at bound
+    convert bound using 3
+    rw [div_eq_mul_inv, mul_rpow, mul_rpow, <-inv_rpow, <- rpow_mul, <- rpow_mul]
+    congr 2
+    . field_simp [h9]
+    . field_simp [h9]
+    all_goals positivity
+  right
+  rw [<-mul_assoc, <-mul_assoc, <-div_le_iff, <- rpow_neg_one, <- rpow_neg_one (|s l| ^ (((k:ℝ)+1)⁻¹)), <- rpow_mul, <- rpow_mul, <- rpow_sub] at bound
+  have h9 : 0 < ((l:ℝ) - (k+1)) := by
+    rify at h2; linarith
+  have h10 : 0 < ((k:ℝ)+1) / ((l:ℝ) - (k+1)) := by
+    positivity
+  have h1' : 0 < (k:ℝ)+1 := by norm_cast; linarith
+  have h11 : ((l:ℝ)⁻¹ * (-1) - ((k:ℝ)+1)⁻¹ * (-1)) * (((k:ℝ)+1) / ((l:ℝ) - (k+1))) = (l:ℝ)⁻¹ := by
+    field_simp [h9, h1', h3']; ring
+  have h11' : ((k:ℝ)+1)⁻¹ * (((k:ℝ)+1) / ((l:ℝ) - (k+1))) = ((l:ℝ)-((k:ℝ)+1))⁻¹ := by
+    field_simp [h9, h1', h3']
+  rw [<-rpow_le_rpow_iff _ _ h10, <- rpow_mul, mul_rpow, mul_rpow, <-rpow_mul, <-rpow_mul, h11, h11'] at bound
+  convert bound using 3
+  rw [div_eq_mul_inv, mul_rpow, mul_rpow]
+  congr 2
+  . field_simp [h9]
+  . field_simp [h9]
+  all_goals positivity
 
 
 
