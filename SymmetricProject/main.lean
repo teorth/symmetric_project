@@ -242,7 +242,26 @@ lemma best_constant_bounds_rev' { k m n N : ℕ } { s : ℕ → ℝ } (h1 : m < 
 
 
 /-- A form of the main theorem. --/
-theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, best_constant N ≤ C := by
+theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N ≤ C := by
+  use 100 -- placeholder
+  intro N hN
+  let A := rexp (-(N:ℝ)⁻¹) * best_constant N
+  have hA : A < best_constant N := by
+    sorry
+  have cant := cant_beat_best_constant hN hA
+  rcases cant with ⟨ k, ⟨ n, ⟨ s, ⟨ h1, ⟨ h2, ⟨ h3, ⟨ h4, ⟨ h5, h6 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+  by_cases h7 : k = n
+  . sorry
+  by_cases h8 : k+1 = n
+  . sorry
+  by_cases h9 : k ≤ 10 -- placeholder
+  . sorry
+  by_cases h10 : 3 * k ≥ 2 * n
+  . sorry
+  have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ ((10:ℝ) * n / m)^((m:ℝ)/2) := by -- placeholder
+    sorry
+  have eq47 {m : ℕ} (h11: 0 < m) (h12: m < k) : (Nat.choose n m) * |s m| ≤ (10 * k / (A*m))^((m:ℝ)) * ((n:ℝ)/k)^((m:ℝ)/2) := by -- placeholder
+    sorry
+  let δ := (100:ℝ)⁻¹ -- placeholder
+  let r := δ * ((k:\R)/n)^((2:ℝ)⁻¹)
   sorry
-
--- note : may need to separate off the k = n, n+1 cases separately
