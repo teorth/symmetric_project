@@ -239,10 +239,11 @@ lemma best_constant_bounds_rev' { k m n N : ℕ } { s : ℕ → ℝ } (h1 : m < 
 
 
 
-
+-- prev_bound : ∃ C : ℝ, C > 0 ∧ ∀ n : ℕ, ∀ k : ℕ, ∀ s : ℕ → ℝ, (attainable n s) → (k+1 ≤ n) → (0 < k) → |s n|^((n:ℝ)⁻¹) ≤ C * (n:ℝ)^((2:ℝ)⁻¹) * max (|s k|^((k:ℝ)⁻¹))  (|s (k+1)|^(((k+1:ℕ):ℝ)⁻¹))
 
 /-- A form of the main theorem. --/
 theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N ≤ C := by
+  rcases prev_bound with ⟨ C_prev, hC_prev, bound_prev ⟩
   use 100 -- placeholder
   intro N hN
   let A := rexp (-(N:ℝ)⁻¹) * best_constant N
@@ -253,14 +254,54 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     gcongr
     simp; linarith
   have hA' : 0 < A := by positivity
+  have hBest' : 0 < best_constant N := by positivity
   have cant := cant_beat_best_constant hN hA
   rcases cant with ⟨ k, ⟨ n, ⟨ s, ⟨ h1, ⟨ h2, ⟨ h3, ⟨ h4, ⟨ h5, h6 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+  have hn : (n:ℝ) ≠ 0 := by norm_cast; linarith
+  rw [ge_iff_le] at h6
+  replace h6 := mul_le_mul_of_nonneg_left h6 (show 0 ≤ A⁻¹ by positivity)
+  rw [<-mul_assoc, inv_mul_cancel (show A ≠ 0 by positivity)] at h6
+  simp [<- exp_neg] at h6
+  rcases h6 with ⟨h6, h6'⟩
   by_cases h7 : k = n
-  . sorry
+  . simp [h7, h5, div_self hn] at h6
+    field_simp at h6
+    rw [le_div_iff hBest', one_mul] at h6
+    apply h6.trans
+    sorry -- depends on final choice of C
   by_cases h8 : k+1 = n
-  . sorry
+  . have : (k:ℝ)+1 = n := by norm_cast
+    simp [h8, this, h5, div_self hn] at h6'
+    field_simp at h6'
+    rw [le_div_iff hBest', one_mul] at h6'
+    apply h6'.trans
+    sorry -- depends on final choice of C
+  replace h7 : k+1 ≤ n := by contrapose! h7; linarith
+  replace h8 : k+2 ≤ n := by contrapose! h8; linarith
   by_cases h9 : k ≤ 10 -- placeholder
-  . sorry
+  . replace bound_prev := bound_prev n k s h4 h7 h1
+    rw [mul_max_of_nonneg] at bound_prev
+    simp [h5] at bound_prev
+    rcases bound_prev with bound_prev | bound_prev
+    . have := calc
+        (k:ℝ)^(-(2:ℝ)⁻¹) * C_prev⁻¹ = (k:ℝ)^(-(2:ℝ)⁻¹) * C_prev⁻¹  * 1 := by rw [mul_one]
+        _ ≤ (k:ℝ)^(-(2:ℝ)⁻¹) * C_prev⁻¹ * (C_prev * (n:ℝ)^((2:ℝ)⁻¹) * |s k|^((k:ℝ)⁻¹)) := by
+            apply mul_le_mul_of_nonneg_left
+            assumption
+            positivity
+        _ = ((n:ℝ)/(k:ℝ))^((2:ℝ)⁻¹) * |s k|^((k:ℝ)⁻¹) := by
+            rw [<-mul_assoc]
+            congr 1
+            rw [<-mul_assoc, div_rpow, eq_div_iff, rpow_neg]
+            have h1' : 0 < (k:ℝ)^((2:ℝ)⁻¹) := by positivity
+            have hn' : 0 < (n:ℝ)^((2:ℝ)⁻¹) := by positivity
+            field_simp [h1', hn', hC_prev]
+            ring
+            all_goals positivity
+        _ ≤ (best_constant N)⁻¹ * rexp (N:ℝ)⁻¹ := by exact h6
+      sorry -- depends on final choice of C
+    . sorry
+    positivity
   by_cases h10 : 3 * k ≥ 2 * n
   . sorry
   have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ ((10:ℝ) * n / m)^((m:ℝ)/2) := by -- placeholder
