@@ -246,8 +246,13 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
   use 100 -- placeholder
   intro N hN
   let A := rexp (-(N:ℝ)⁻¹) * best_constant N
+  have hBest := one_le_best N
   have hA : A < best_constant N := by
-    sorry
+    suffices : rexp (-(N:ℝ)⁻¹) * best_constant N < 1 * best_constant N
+    . simpa
+    gcongr
+    simp; linarith
+  have hA' : 0 < A := by positivity
   have cant := cant_beat_best_constant hN hA
   rcases cant with ⟨ k, ⟨ n, ⟨ s, ⟨ h1, ⟨ h2, ⟨ h3, ⟨ h4, ⟨ h5, h6 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
   by_cases h7 : k = n
@@ -263,5 +268,5 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
   have eq47 {m : ℕ} (h11: 0 < m) (h12: m < k) : (Nat.choose n m) * |s m| ≤ (10 * k / (A*m))^((m:ℝ)) * ((n:ℝ)/k)^((m:ℝ)/2) := by -- placeholder
     sorry
   let δ := (100:ℝ)⁻¹ -- placeholder
-  let r := δ * ((k:\R)/n)^((2:ℝ)⁻¹)
+  let r := δ * ((k:ℝ)/n)^((2:ℝ)⁻¹)
   sorry
