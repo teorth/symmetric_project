@@ -203,8 +203,46 @@ lemma best_constant_bounds_rev { k l n N : ℕ } { s : ℕ → ℝ } (h1 : 0 < k
   . field_simp [h9]
   all_goals positivity
 
+set_option maxHeartbeats 400000 in
+/-- a doubly reversed version of the bound from the best constant. The equation after (4.6) in the paper -/
+lemma best_constant_bounds_rev' { k m n N : ℕ } { s : ℕ → ℝ } (h1 : m < k) (h2 : k+2 ≤ n) (h4 : n ≤ N) (h5 : attainable n s) (h6 : |s n| = 1): |s m|^(((n:ℝ)-m)⁻¹) ≤ max ((best_constant N)^(((k:ℝ)-m)/((n:ℝ)-(k:ℝ))) * (((n:ℝ) - m) / ((k:ℝ) - m) )^(((k:ℝ)-m)/(2*((n:ℝ)-k))) * |s k|^((n-(k:ℝ))⁻¹)) ((best_constant N)^(((k:ℝ)+1-m)/((n:ℝ)-((k:ℝ)+1))) * (((n:ℝ) - m) / ((k:ℝ)+1 - m) )^(((k:ℝ)+1-m)/(2*((n:ℝ)-(k+1)))) * |s (k+1)|^((n-((k:ℝ)+1))⁻¹)) := by
+  have h8 : s n ≠ 0 := by
+    contrapose! h6; rw [h6]; norm_cast
+  replace h5 := attainable_reflect h5 h8
+  have h9 : m < n := by linarith
+  have bound := best_constant_bounds_rev (show 0 < k-m by zify [h1]; zify at h1; linarith) (show k-m+2 ≤ n-m by zify [h1, h9]; zify at h1 h2; linarith) (Nat.sub_le n m) h4 h5
+  simp [abs_div, div_rpow, h6] at bound
+  have h10 : n - (n-m) = m := by zify [Nat.sub_le n m, h9]; linarith
+  have h11 : k-m < n-m := by zify [h1, h9]; zify at h1 h2; linarith
+  have h12 : (n-m)-(k-m) = n-k := by zify [h11, h9,h1, (show k ≤ n by linarith)]; linarith
+  have h13 : n - (n-k) = k := by zify [Nat.sub_le n k, (show k ≤ n by linarith)]; linarith
+  have h11' : k-m+1 < n-m := by zify [h1, h9]; zify at h1 h2; linarith
+  have h12' : (n-m)-(k-m+1) = n-(k+1) := by zify [h11', h9,h1, (show k+1 ≤ n by linarith)]; linarith
+  have h13' : n - (n-(k+1)) = k+1 := by zify [Nat.sub_le n (k+1), (show k+1 ≤ n by linarith)]; linarith
+  have h14: (n-m:ℕ) = (n:ℝ) - (m:ℝ) := by rify [h9]
+  have h15: (k-m:ℕ) = (k:ℝ) - (m:ℝ) := by rify [h1]
+  rw [h10, h12, h13, h12', h13',h14,h15] at bound
+  simp
+  rcases bound with bound | bound
+  . left
+    convert (config := {closePost := false})  bound using 1
+    rw [(show ((n:ℝ)-(m:ℝ)) - ((k:ℝ)-(m:ℝ)) = (n:ℝ) - (k:ℝ) by ring)]
+    congr 2
+    rw [div_rpow]
+    . rify at h9; linarith
+    rify at h1; linarith
+  right
+  convert (config := {closePost := false})  bound using 1
+  rw [(show ((n:ℝ)-(m:ℝ)) - ((k:ℝ)-(m:ℝ)+1) = (n:ℝ) - ((k:ℝ)+1) by ring)]
+  congr 4
+  all_goals ring
+
+
+
 
 
 /-- A form of the main theorem. --/
 theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, best_constant N ≤ C := by
   sorry
+
+-- note : may need to separate off the k = n, n+1 cases separately
