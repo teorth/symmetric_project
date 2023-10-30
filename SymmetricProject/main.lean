@@ -278,6 +278,7 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     sorry -- depends on final choice of C
   replace h7 : k+1 ≤ n := by contrapose! h7; linarith
   replace h8 : k+2 ≤ n := by contrapose! h8; linarith
+  have hn' : 0 < (n:ℝ)^((2:ℝ)⁻¹) := by positivity
   by_cases h9 : k ≤ 10 -- placeholder
   . replace bound_prev := bound_prev n k s h4 h7 h1
     rw [mul_max_of_nonneg] at bound_prev
@@ -294,13 +295,27 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
             congr 1
             rw [<-mul_assoc, div_rpow, eq_div_iff, rpow_neg]
             have h1' : 0 < (k:ℝ)^((2:ℝ)⁻¹) := by positivity
-            have hn' : 0 < (n:ℝ)^((2:ℝ)⁻¹) := by positivity
             field_simp [h1', hn', hC_prev]
             ring
             all_goals positivity
-        _ ≤ (best_constant N)⁻¹ * rexp (N:ℝ)⁻¹ := by exact h6
+        _ ≤ (best_constant N)⁻¹ * rexp (N:ℝ)⁻¹ := h6
       sorry -- depends on final choice of C
-    . sorry
+    . have := calc
+        ((k:ℝ)+1)^(-(2:ℝ)⁻¹) * C_prev⁻¹ = ((k:ℝ)+1)^(-(2:ℝ)⁻¹) * C_prev⁻¹  * 1 := by rw [mul_one]
+        _ ≤ ((k:ℝ)+1)^(-(2:ℝ)⁻¹) * C_prev⁻¹ * (C_prev * (n:ℝ)^((2:ℝ)⁻¹) * |s (k+1)|^(((k:ℝ)+1)⁻¹)) := by
+            apply mul_le_mul_of_nonneg_left
+            assumption
+            positivity
+        _ = ((n:ℝ)/((k:ℝ)+1))^((2:ℝ)⁻¹) * |s (k+1)|^(((k:ℝ)+1)⁻¹) := by
+            rw [<-mul_assoc]
+            congr 1
+            rw [<-mul_assoc, div_rpow, eq_div_iff, rpow_neg]
+            have h1' : 0 < ((k:ℝ)+1)^((2:ℝ)⁻¹) := by positivity
+            field_simp [h1', hn', hC_prev]
+            ring
+            all_goals positivity
+        _ ≤ (best_constant N)⁻¹ * rexp (N:ℝ)⁻¹ := h6'
+      sorry -- depends on final choice of C
     positivity
   by_cases h10 : 3 * k ≥ 2 * n
   . sorry
