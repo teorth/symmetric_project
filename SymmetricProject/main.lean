@@ -3,11 +3,14 @@ import Mathlib.Order.CompleteLattice
 import SymmetricProject.attainable
 import SymmetricProject.prev_bound
 
-/- In this file the power notation (and hence also inversion) will always mean the exponent is a real number. -/
+/- In this file the power notation will always mean the base and exponent are real numbers. -/
 local macro_rules | `($x ^ $y)   => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 
 /- In this file the division  notation will always mean division of real numbers. -/
 local macro_rules | `($x / $y)   => `(HDiv.hDiv ($x : ℝ) ($y : ℝ))
+
+/- In this file, inversion will always mean inversion of real numbers. -/
+local macro_rules | `($x ⁻¹)   => `(Inv.inv ($x : ℝ))
 
 /- The purpose of this file is to prove the main theorem, following the arguments in Section 4 of the paper.
 -/
@@ -22,7 +25,7 @@ open Real
 /-- The first task is to prove that the set of potential upper bounds is nonempty. This follows from the Gopalan-Yehudayoff bound. --/
 lemma upper_bounds_nonempty (N:ℕ) : Set.Nonempty (upper_bounds N) := by
   rcases prev_bound with ⟨ C , ⟨ hC, bound⟩ ⟩
-  suffices : max 1 (C * (N:ℝ)^2⁻¹) ∈ upper_bounds N
+  suffices : max 1 (C * N^2⁻¹) ∈ upper_bounds N
   . exact Set.nonempty_of_mem this
   dsimp [upper_bounds]
   constructor
@@ -72,8 +75,8 @@ lemma one_le_best (N:ℕ) : 1 ≤ best_constant N := by
   exact hA.left
 
 /-- The best constant is a bound. (4.1) in the paper -/
-lemma best_constant_bounds { k l n N : ℕ } { s : ℕ → ℝ } (h1 : 0 < k) (h2 : k ≤ l) (h3 : l ≤ n) (h4 : n ≤ N) (h5 : attainable n s) : |s l|^((l:ℝ)⁻¹) ≤ best_constant N * max (((l:ℝ) / k )^((2:ℝ)⁻¹) * |s k|^((k:ℝ)⁻¹)) (((l:ℝ) / (k+1) )^((2:ℝ)⁻¹) * |s (k+1)|^((k+1:ℝ)⁻¹)) := by
-  set Q := max (((l:ℝ) / k )^((2:ℝ)⁻¹) * |s k|^((k:ℝ)⁻¹)) (((l:ℝ) / (k+1) )^((2:ℝ)⁻¹) * |s (k+1)|^((k+1:ℝ)⁻¹))
+lemma best_constant_bounds { k l n N : ℕ } { s : ℕ → ℝ } (h1 : 0 < k) (h2 : k ≤ l) (h3 : l ≤ n) (h4 : n ≤ N) (h5 : attainable n s) : |s l|^l⁻¹ ≤ best_constant N * max ((l / k )^(2⁻¹) * |s k|^k⁻¹) ((l / (k+1) )^2⁻¹ * |s (k+1)|^(k+1)⁻¹) := by
+  set Q := max ((l / k )^2⁻¹ * |s k|^k⁻¹) ((l / (k+1) )^2⁻¹ * |s (k+1)|^(k+1)⁻¹)
   set X := |s l|^((l:ℝ)⁻¹)
 
   have (ε : ℝ) (hε : 0 < ε) : X ≤ (best_constant N+ε) * Q := by
@@ -254,10 +257,10 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
   rcases prev_bound with ⟨ C_prev, hC_prev, bound_prev ⟩
   use 100 -- placeholder
   intro N hN
-  let A := rexp (-(N:ℝ)⁻¹) * best_constant N
+  let A := rexp (-N⁻¹) * best_constant N
   have hBest := one_le_best N
   have hA : A < best_constant N := by
-    suffices : rexp (-(N:ℝ)⁻¹) * best_constant N < 1 * best_constant N
+    suffices : rexp (-N⁻¹) * best_constant N < 1 * best_constant N
     . simpa
     gcongr
     simp; linarith
