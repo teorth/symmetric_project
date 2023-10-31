@@ -249,8 +249,11 @@ lemma best_constant_bounds_rev' { k m n N : ℕ } { s : ℕ → ℝ } (h1 : m < 
   all_goals ring
 
 
-
--- prev_bound : ∃ C : ℝ, C > 0 ∧ ∀ n : ℕ, ∀ k : ℕ, ∀ s : ℕ → ℝ, (attainable n s) → (k+1 ≤ n) → (0 < k) → |s n|^((n:ℝ)⁻¹) ≤ C * (n:ℝ)^((2:ℝ)⁻¹) * max (|s k|^((k:ℝ)⁻¹))  (|s (k+1)|^(((k+1:ℕ):ℝ)⁻¹))
+/-- A small lemma that I found useful when combining two inequalities that had some factors in the "wrong" lcoations. -/
+lemma ineq_comb {a b c d e : ℝ} (h1: a ≤ b * c) (h2: d * c ≤ e) (h3 : 0 ≤ d) (h4 : 0 ≤ b): a * d ≤ b * e := by
+  replace h1 := mul_le_mul_of_nonneg_right h1 h3
+  replace h2 := mul_le_mul_of_nonneg_left h2 h4
+  linarith
 
 /-- A form of the main theorem. --/
 theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N ≤ C := by
@@ -267,7 +270,7 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
   have hA' : 0 < A := by positivity
   have hBest' : 0 < best_constant N := by positivity
   have cant := cant_beat_best_constant hN hA
-  rcases cant with ⟨ k, ⟨ n, ⟨ s, ⟨ h1, ⟨ h2, ⟨ h3, ⟨ h4, ⟨ h5, h6 ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ ⟩ ⟩
+  rcases cant with ⟨ k, n, s, h1, h2, h3, h4, h5, h6 ⟩
   have hn : (n:ℝ) ≠ 0 := by norm_cast; linarith
   rw [ge_iff_le] at h6
   replace h6 := mul_le_mul_of_nonneg_left h6 (show 0 ≤ A⁻¹ by positivity)
@@ -297,33 +300,25 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     rcases bound_prev with bound_prev | bound_prev
     . have := calc
         k^(-2⁻¹) * C_prev⁻¹ = k^(-2⁻¹) * C_prev⁻¹  * 1 := by rw [mul_one]
-        _ ≤ k^(-2⁻¹) * C_prev⁻¹ * (C_prev * n^2⁻¹ * |s k|^k⁻¹) := by
-            apply mul_le_mul_of_nonneg_left
-            assumption
-            positivity
+        _ ≤ k^(-2⁻¹) * C_prev⁻¹ * (C_prev * n^2⁻¹ * |s k|^k⁻¹) := by gcongr
         _ = (n/k)^2⁻¹ * |s k|^k⁻¹ := by
             rw [<-mul_assoc]
             congr 1
             rw [<-mul_assoc, div_rpow, eq_div_iff, rpow_neg]
             have h1' : 0 < k^2⁻¹ := by positivity
-            field_simp [h1', hn', hC_prev]
-            ring
+            field_simp [h1', hn', hC_prev]; ring
             all_goals positivity
         _ ≤ (best_constant N)⁻¹ * rexp N⁻¹ := h6
       sorry -- depends on final choice of C
     . have := calc
         (k+1)^(-2⁻¹) * C_prev⁻¹ = (k+1)^(-2⁻¹) * C_prev⁻¹  * 1 := by rw [mul_one]
-        _ ≤ (k+1)^(-2⁻¹) * C_prev⁻¹ * (C_prev * n^(2⁻¹) * |s (k+1)|^((k+1)⁻¹)) := by
-            apply mul_le_mul_of_nonneg_left
-            assumption
-            positivity
+        _ ≤ (k+1)^(-2⁻¹) * C_prev⁻¹ * (C_prev * n^(2⁻¹) * |s (k+1)|^((k+1)⁻¹)) := by gcongr
         _ = (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ := by
             rw [<-mul_assoc]
             congr 1
             rw [<-mul_assoc, div_rpow, eq_div_iff, rpow_neg]
             have h1' : 0 < (k+1)^2⁻¹ := by positivity
-            field_simp [h1', hn', hC_prev]
-            ring
+            field_simp [h1', hn', hC_prev]; ring
             all_goals positivity
         _ ≤ (best_constant N)⁻¹ * rexp N⁻¹ := h6'
       sorry -- depends on final choice of C
@@ -331,26 +326,25 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
   replace h9 : k > 10 := by contrapose! h9; linarith
   by_cases h10 : 3 * k ≥ 2 * n
   . have h1' : 0 < n-(k+1) := by
-      rify [h7] at h8 ⊢
-      linarith
+      rify [h7] at h8 ⊢; linarith
     have h2' : n-(k+1)+2 ≤ n := by
-      rify [h7] at h9 ⊢
-      linarith
+      rify [h7] at h9 ⊢; linarith
     have bound := best_constant_bounds_rev h1' h2' (show n ≤ n by linarith) h3 h4
     have h3' : n - (n-(k+1)) = k+1 := by
-      rify [Nat.sub_le n (k+1), h7]
-      linarith
+      rify [Nat.sub_le n (k+1), h7]; linarith
     have h4' : n - (n-(k+1) + 1) = k := by
       have : n-(k+1)+1 = n-k := by
         rify [h2, h7]; linarith
       rw [this]
-      rify [Nat.sub_le n k, h2]
-      linarith
+      rify [Nat.sub_le n k, h2]; linarith
     rify [h2, h7] at bound
     have h5' : (n:ℝ) - ((k:ℝ)+1) + 1 = (n:ℝ) - (k:ℝ) := by ring
+    have h7': 0 < (n:ℝ) - ((k:ℝ)+1) := by rify at h8; linarith
+    have h8': 0 < (n:ℝ) - (k:ℝ) := by  linarith
     simp [h5, h3', h4', h5'] at bound
     rcases bound with bound | bound
-    . sorry
+    . replace bound := ineq_comb bound h6' (by positivity) (by positivity)
+      sorry
     sorry
   have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ (10 * n / m)^(m/2) := by -- placeholder, may spin off into its own lemma
     sorry
