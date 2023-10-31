@@ -3,10 +3,10 @@ import Mathlib.Order.CompleteLattice
 import SymmetricProject.attainable
 import SymmetricProject.prev_bound
 
-/- In this file the power notation will always mean the exponent is a real number. -/
-local macro_rules | `($x ^ $y)   => `(HPow.hPow $x ($y : ℝ))
+/- In this file the power notation (and hence also inversion) will always mean the exponent is a real number. -/
+local macro_rules | `($x ^ $y)   => `(HPow.hPow ($x : ℝ) ($y : ℝ))
 
-/- In this file the power notation will always mean division of real numbers. -/
+/- In this file the division  notation will always mean division of real numbers. -/
 local macro_rules | `($x / $y)   => `(HDiv.hDiv ($x : ℝ) ($y : ℝ))
 
 /- The purpose of this file is to prove the main theorem, following the arguments in Section 4 of the paper.
@@ -286,51 +286,51 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     sorry -- depends on final choice of C
   replace h7 : k+1 ≤ n := by contrapose! h7; linarith
   replace h8 : k+2 ≤ n := by contrapose! h8; linarith
-  have hn' : 0 < (n:ℝ)^((2:ℝ)⁻¹) := by positivity
+  have hn' : 0 < n^2⁻¹ := by positivity
   by_cases h9 : k ≤ 10 -- placeholder
   . replace bound_prev := bound_prev n k s h4 h7 h1
     rw [mul_max_of_nonneg] at bound_prev
     simp [h5] at bound_prev
     rcases bound_prev with bound_prev | bound_prev
     . have := calc
-        (k:ℝ)^(-(2:ℝ)⁻¹) * C_prev⁻¹ = (k:ℝ)^(-(2:ℝ)⁻¹) * C_prev⁻¹  * 1 := by rw [mul_one]
-        _ ≤ (k:ℝ)^(-(2:ℝ)⁻¹) * C_prev⁻¹ * (C_prev * (n:ℝ)^((2:ℝ)⁻¹) * |s k|^((k:ℝ)⁻¹)) := by
+        k^(-2⁻¹) * C_prev⁻¹ = k^(-2⁻¹) * C_prev⁻¹  * 1 := by rw [mul_one]
+        _ ≤ k^(-2⁻¹) * C_prev⁻¹ * (C_prev * n^(2⁻¹) * |s k|^(k⁻¹)) := by
             apply mul_le_mul_of_nonneg_left
             assumption
             positivity
-        _ = ((n:ℝ)/(k:ℝ))^((2:ℝ)⁻¹) * |s k|^((k:ℝ)⁻¹) := by
+        _ = (n/k)^(2⁻¹) * |s k|^(k⁻¹) := by
             rw [<-mul_assoc]
             congr 1
             rw [<-mul_assoc, div_rpow, eq_div_iff, rpow_neg]
-            have h1' : 0 < (k:ℝ)^((2:ℝ)⁻¹) := by positivity
+            have h1' : 0 < k^(2⁻¹) := by positivity
             field_simp [h1', hn', hC_prev]
             ring
             all_goals positivity
-        _ ≤ (best_constant N)⁻¹ * rexp (N:ℝ)⁻¹ := h6
+        _ ≤ (best_constant N)⁻¹ * rexp N⁻¹ := h6
       sorry -- depends on final choice of C
     . have := calc
-        ((k:ℝ)+1)^(-(2:ℝ)⁻¹) * C_prev⁻¹ = ((k:ℝ)+1)^(-(2:ℝ)⁻¹) * C_prev⁻¹  * 1 := by rw [mul_one]
-        _ ≤ ((k:ℝ)+1)^(-(2:ℝ)⁻¹) * C_prev⁻¹ * (C_prev * (n:ℝ)^((2:ℝ)⁻¹) * |s (k+1)|^(((k:ℝ)+1)⁻¹)) := by
+        (k+1)^(-2⁻¹) * C_prev⁻¹ = (k+1)^(-2⁻¹) * C_prev⁻¹  * 1 := by rw [mul_one]
+        _ ≤ (k+1)^(-2⁻¹) * C_prev⁻¹ * (C_prev * n^(2⁻¹) * |s (k+1)|^((k+1)⁻¹)) := by
             apply mul_le_mul_of_nonneg_left
             assumption
             positivity
-        _ = ((n:ℝ)/((k:ℝ)+1))^((2:ℝ)⁻¹) * |s (k+1)|^(((k:ℝ)+1)⁻¹) := by
+        _ = (n/(k+1))^(2⁻¹) * |s (k+1)|^((k+1)⁻¹) := by
             rw [<-mul_assoc]
             congr 1
             rw [<-mul_assoc, div_rpow, eq_div_iff, rpow_neg]
-            have h1' : 0 < ((k:ℝ)+1)^((2:ℝ)⁻¹) := by positivity
+            have h1' : 0 < (k+1)^(2⁻¹) := by positivity
             field_simp [h1', hn', hC_prev]
             ring
             all_goals positivity
-        _ ≤ (best_constant N)⁻¹ * rexp (N:ℝ)⁻¹ := h6'
+        _ ≤ (best_constant N)⁻¹ * rexp N⁻¹ := h6'
       sorry -- depends on final choice of C
     positivity
   by_cases h10 : 3 * k ≥ 2 * n
   . sorry
-  have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ ((10:ℝ) * n / m)^((m:ℝ)/2) := by -- placeholder, may spin off into its own lemma
+  have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ (10 * n / m)^(m/2) := by -- placeholder, may spin off into its own lemma
     sorry
-  have eq47 {m : ℕ} (h11: 0 < m) (h12: m < k) : (Nat.choose n m) * |s m| ≤ (10 * k / (A*m))^((m:ℝ)) * ((n:ℝ)/k)^((m:ℝ)/2) := by -- placeholder, may spin off into its own lemma
+  have eq47 {m : ℕ} (h11: 0 < m) (h12: m < k) : (Nat.choose n m) * |s m| ≤ (10 * k / (A*m))^m * (n/k)^(m/2) := by -- placeholder, may spin off into its own lemma
     sorry
-  let δ := (100:ℝ)⁻¹ -- placeholder
-  let r := δ * ((k:ℝ)/n)^((2:ℝ)⁻¹)
+  let δ := 1/100 -- placeholder
+  let r := δ * (k/n)^(2⁻¹)
   sorry
