@@ -319,9 +319,9 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     positivity
   by_cases h10 : 3 * k ≥ 2 * n
   . sorry
-  have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ ((10:ℝ) * n / m)^((m:ℝ)/2) := by -- placeholder
+  have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ ((10:ℝ) * n / m)^((m:ℝ)/2) := by -- placeholder, may spin off into its own lemma
     sorry
-  have eq47 {m : ℕ} (h11: 0 < m) (h12: m < k) : (Nat.choose n m) * |s m| ≤ (10 * k / (A*m))^((m:ℝ)) * ((n:ℝ)/k)^((m:ℝ)/2) := by -- placeholder
+  have eq47 {m : ℕ} (h11: 0 < m) (h12: m < k) : (Nat.choose n m) * |s m| ≤ (10 * k / (A*m))^((m:ℝ)) * ((n:ℝ)/k)^((m:ℝ)/2) := by -- placeholder, may spin off into its own lemma
     sorry
   let δ := (100:ℝ)⁻¹ -- placeholder
   let r := δ * ((k:ℝ)/n)^((2:ℝ)⁻¹)
