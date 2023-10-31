@@ -297,15 +297,15 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     rcases bound_prev with bound_prev | bound_prev
     . have := calc
         k^(-2⁻¹) * C_prev⁻¹ = k^(-2⁻¹) * C_prev⁻¹  * 1 := by rw [mul_one]
-        _ ≤ k^(-2⁻¹) * C_prev⁻¹ * (C_prev * n^(2⁻¹) * |s k|^(k⁻¹)) := by
+        _ ≤ k^(-2⁻¹) * C_prev⁻¹ * (C_prev * n^2⁻¹ * |s k|^k⁻¹) := by
             apply mul_le_mul_of_nonneg_left
             assumption
             positivity
-        _ = (n/k)^(2⁻¹) * |s k|^(k⁻¹) := by
+        _ = (n/k)^2⁻¹ * |s k|^k⁻¹ := by
             rw [<-mul_assoc]
             congr 1
             rw [<-mul_assoc, div_rpow, eq_div_iff, rpow_neg]
-            have h1' : 0 < k^(2⁻¹) := by positivity
+            have h1' : 0 < k^2⁻¹ := by positivity
             field_simp [h1', hn', hC_prev]
             ring
             all_goals positivity
@@ -317,19 +317,41 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
             apply mul_le_mul_of_nonneg_left
             assumption
             positivity
-        _ = (n/(k+1))^(2⁻¹) * |s (k+1)|^((k+1)⁻¹) := by
+        _ = (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ := by
             rw [<-mul_assoc]
             congr 1
             rw [<-mul_assoc, div_rpow, eq_div_iff, rpow_neg]
-            have h1' : 0 < (k+1)^(2⁻¹) := by positivity
+            have h1' : 0 < (k+1)^2⁻¹ := by positivity
             field_simp [h1', hn', hC_prev]
             ring
             all_goals positivity
         _ ≤ (best_constant N)⁻¹ * rexp N⁻¹ := h6'
       sorry -- depends on final choice of C
     positivity
+  replace h9 : k > 10 := by contrapose! h9; linarith
   by_cases h10 : 3 * k ≥ 2 * n
-  . sorry
+  . have h1' : 0 < n-(k+1) := by
+      rify [h7] at h8 ⊢
+      linarith
+    have h2' : n-(k+1)+2 ≤ n := by
+      rify [h7] at h9 ⊢
+      linarith
+    have bound := best_constant_bounds_rev h1' h2' (show n ≤ n by linarith) h3 h4
+    have h3' : n - (n-(k+1)) = k+1 := by
+      rify [Nat.sub_le n (k+1), h7]
+      linarith
+    have h4' : n - (n-(k+1) + 1) = k := by
+      have : n-(k+1)+1 = n-k := by
+        rify [h2, h7]; linarith
+      rw [this]
+      rify [Nat.sub_le n k, h2]
+      linarith
+    rify [h2, h7] at bound
+    have h5' : (n:ℝ) - ((k:ℝ)+1) + 1 = (n:ℝ) - (k:ℝ) := by ring
+    simp [h5, h3', h4', h5'] at bound
+    rcases bound with bound | bound
+    . sorry
+    sorry
   have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ (10 * n / m)^(m/2) := by -- placeholder, may spin off into its own lemma
     sorry
   have eq47 {m : ℕ} (h11: 0 < m) (h12: m < k) : (Nat.choose n m) * |s m| ≤ (10 * k / (A*m))^m * (n/k)^(m/2) := by -- placeholder, may spin off into its own lemma
