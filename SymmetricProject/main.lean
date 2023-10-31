@@ -3,8 +3,11 @@ import Mathlib.Order.CompleteLattice
 import SymmetricProject.attainable
 import SymmetricProject.prev_bound
 
-/- hack to avoid the real powers bug -/
-local macro_rules | `($x ^ $y)   => `(HPow.hPow $x $y)
+/- In this file the power notation will always mean the exponent is a real number. -/
+local macro_rules | `($x ^ $y)   => `(HPow.hPow $x ($y : ℝ))
+
+/- In this file the power notation will always mean division of real numbers. -/
+local macro_rules | `($x / $y)   => `(HDiv.hDiv ($x : ℝ) ($y : ℝ))
 
 /- The purpose of this file is to prove the main theorem, following the arguments in Section 4 of the paper.
 -/
@@ -12,19 +15,21 @@ local macro_rules | `($x ^ $y)   => `(HPow.hPow $x $y)
 open Real
 
 /-- We first need a set of potential upper bounds A. --/
- def upper_bounds (N:ℕ) := { A : ℝ | 1 ≤ A ∧ ∀ k l n : ℕ, ∀ s : ℕ → ℝ, (0 < k) → (k ≤ l) → (l ≤ n) → (n ≤ N) → (attainable n s) → |s l|^((l:ℝ)⁻¹) ≤ A * max (((l:ℝ) / k )^((2:ℝ)⁻¹) * |s k|^((k:ℝ)⁻¹)) (((l:ℝ) / (k+1) )^((2:ℝ)⁻¹) * |s (k+1)|^((k+1:ℝ)⁻¹)) }
+ def upper_bounds (N:ℕ) := { A : ℝ | 1 ≤ A ∧ ∀ k l n : ℕ, ∀ s : ℕ → ℝ, 0 < k → k ≤ l → l ≤ n →
+   n ≤ N → attainable n s →
+   |s l|^l⁻¹ ≤ A * max ((l / k)^2⁻¹ * |s k|^k⁻¹) ((l/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹) }
 
 /-- The first task is to prove that the set of potential upper bounds is nonempty. This follows from the Gopalan-Yehudayoff bound. --/
 lemma upper_bounds_nonempty (N:ℕ) : Set.Nonempty (upper_bounds N) := by
   rcases prev_bound with ⟨ C , ⟨ hC, bound⟩ ⟩
-  suffices : max 1 (C * (N:ℝ)^(2:ℝ)⁻¹) ∈ upper_bounds N
+  suffices : max 1 (C * (N:ℝ)^2⁻¹) ∈ upper_bounds N
   . exact Set.nonempty_of_mem this
   dsimp [upper_bounds]
   constructor
   . simp
   intro k l n s h1 h2 h3 h4 h5
   by_cases h6 : k = l
-  . rw [<-one_mul (|s l|^((l:ℝ)⁻¹))]
+  . rw [<-one_mul (|s l|^l⁻¹)]
     gcongr
     . simp
     have h7: l ≠ 0 := by linarith
@@ -37,13 +42,13 @@ lemma upper_bounds_nonempty (N:ℕ) : Set.Nonempty (upper_bounds N) := by
   . simp; right
     gcongr
     linarith
-  . nth_rewrite 1 [<-one_mul (|s k|^((k:ℝ)⁻¹))]
+  . nth_rewrite 1 [<-one_mul (|s k|^(k⁻¹))]
     gcongr
     apply one_le_rpow
     . rw [le_div_iff]; norm_cast; simpa; positivity
     positivity
-  nth_rewrite 1 [<-one_mul (|s (k+1)|^(((k+1:ℕ):ℝ)⁻¹))]
-  rw [show (k:ℝ)+1 = (k+1:ℕ) by norm_cast]
+  nth_rewrite 1 [<-one_mul (|s (k+1)|^(_)⁻¹)]
+  rify
   gcongr
   apply one_le_rpow
   . rw [le_div_iff]; norm_cast; simpa; positivity
@@ -125,13 +130,14 @@ lemma cant_beat_best_constant {N : ℕ} {A : ℝ} (hN: 1 ≤ N) (hA : A < best_c
     simp
     rw [Real.zero_rpow (show (l:ℝ)⁻¹ ≠ 0 by simp; linarith)]
     positivity
-  let s' := (fun m ↦ (|s l|^(-(l:ℝ)⁻¹))^m * s m)
+  let s' := (fun m : ℕ ↦ (|s l|^(-(l:ℝ)⁻¹))^m * s m)
   use k, l, s'
   constructor; assumption
   constructor; assumption
   constructor; linarith
   constructor
-  . exact attainable_scaling l s (|s l|^(-(l:ℝ)⁻¹)) (attainable_truncate n l s h3 h1)
+  . convert attainable_scaling l s (|s l|^(-(l:ℝ)⁻¹)) (attainable_truncate n l s h3 h1)
+    exact rpow_nat_cast _ _
   constructor
   . dsimp
     rw [(show (|s l| ^ (-(l:ℝ)⁻¹)) ^ (l:ℕ) = (|s l| ^ (-(l:ℝ)⁻¹)) ^ (l:ℝ) by norm_cast), <-rpow_mul, abs_mul, abs_rpow_of_nonneg, abs_abs, neg_mul, inv_mul_cancel, rpow_neg_one, inv_mul_cancel]
@@ -142,10 +148,12 @@ lemma cant_beat_best_constant {N : ℕ} {A : ℝ} (hN: 1 ≤ N) (hA : A < best_c
   rw [ge_iff_le, <-mul_le_mul_right (show 0 < |s l|^((l:ℝ)⁻¹) by positivity), mul_assoc, max_mul_of_nonneg, mul_assoc, mul_assoc, le_iff_lt_or_eq]
   left; simp
   convert h6 using 4
-  . rw [abs_mul, mul_rpow, (show (|s l| ^ (-(l:ℝ)⁻¹)) ^ (k:ℕ) = (|s l| ^ (-(l:ℝ)⁻¹)) ^ (k:ℝ) by norm_cast), abs_rpow_of_nonneg, <-rpow_mul, abs_rpow_of_nonneg, mul_comm, mul_inv_cancel, abs_abs, rpow_one, <- mul_assoc, <-rpow_add]
+  . rw [abs_mul, mul_rpow, abs_pow, ← rpow_nat_cast, <-rpow_mul, abs_rpow_of_nonneg, mul_comm, mul_inv_cancel, abs_abs, rpow_one, <- mul_assoc, <-rpow_add]
     . simp
     all_goals positivity
-  rw [abs_mul, mul_rpow, (show (|s l| ^ (-(l:ℝ)⁻¹)) ^ (k+1:ℕ) = (|s l| ^ (-(l:ℝ)⁻¹)) ^ (k+1:ℝ) by norm_cast), abs_rpow_of_nonneg, <-rpow_mul, abs_rpow_of_nonneg, mul_comm, mul_inv_cancel, abs_abs, rpow_one, <- mul_assoc, <-rpow_add]
+  rw [ ← rpow_nat_cast]
+  rify
+  rw [abs_mul, mul_rpow, abs_rpow_of_nonneg, <-rpow_mul, abs_rpow_of_nonneg, mul_comm, mul_inv_cancel, abs_abs, rpow_one, <- mul_assoc, <-rpow_add]
   . simp
   all_goals positivity
 
