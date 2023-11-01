@@ -276,8 +276,12 @@ lemma lem3 {a b c : ℝ} (h: c>0) : c*a ≤ b ↔ a ≤ b * c⁻¹ := by
   rw [<- le_div_iff' h]
   convert this using 1
 
-lemma lem4 {a b c : ℝ} (ha: 0 ≤ a) (hb : 0 ≤ b) (hc: 0 < c) (h: a^b ≤ c) : a ≤ c^b⁻¹ := by
-  sorry
+lemma lem4 {a b c : ℝ} (ha: 0 ≤ a) (hb : 0 < b) (h: a^b ≤ c) : a ≤ c^b⁻¹ := by
+  replace h := rpow_le_rpow (by positivity) h (show 0 ≤ b⁻¹ by positivity)
+  convert h using 1
+  rw [<- rpow_mul ha, mul_inv_cancel (by positivity)]
+  simp
+
 
 /-- A form of the main theorem. --/
 theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N ≤ C := by
@@ -371,17 +375,22 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     rcases bound with bound | bound
     . replace bound := lem0 bound h6' (by positivity) (by positivity)
       rw [lem1, <-rpow_neg_one (best_constant N), <- rpow_add, lem2, one_mul, lem3, <- inv_rpow _ 2⁻¹, inv_div] at bound
-<<<<<<< HEAD
       have : ((k:ℝ)+1)/n ≤ 1 := by
-        rw [div_le_iff]; norm_cast; positivity
+        rw [div_le_iff]; norm_cast; simpa; positivity
       rw_ineq [hN', this] at bound
-=======
-      rw_ineq [hN'] at bound
-      have : ((k:ℝ)+1)/n ≤ 1 := by
-        rw [le_div_iff]; norm_cast; positivity
-      rw_ineq [this] at bound
+      have h11: (k:ℝ)+1 > 0 := by norm_cast; linarith
+      rw [<- rpow_neg_one, <-rpow_mul] at bound
+      have h12: ((n - ((k:ℝ)+1)) / ((k:ℝ)+1) + -1) * (-1) = (2*(k:ℝ) + 2 - n) / ((k:ℝ)+1) := by field_simp [h11]; ring
+      have h13: 0 < 2*(k:ℝ) + 2 - n := by rify at h8 h10 h9; linarith
+      rw [h12] at bound
+      replace bound := lem4 (by positivity) (by positivity) bound
+      have h14 : (n - ((k:ℝ)+1)) / (2*((k:ℝ)+1)) = (n / (n-((k:ℝ)+1)))⁻¹ * (n / (2*((k:ℝ)+1))) := by
+        rw [inv_div]
+        field_simp [hn, h7', h11]
+      rw [h14, rpow_mul] at bound
+      have h15 : (2*(k:ℝ)+2-n)/((k:ℝ)+1) ≤ 1 := by
+        rw [div_le_iff]; norm_cast; linarith; norm_cast; linarith
 
->>>>>>> d1206b48b16caa7d3ae235f978848d75274b4cea
       sorry
     sorry
   have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ (10 * n / m)^(m/2) := by -- placeholder, may spin off into its own lemma
