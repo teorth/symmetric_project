@@ -323,11 +323,12 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     have h7': 0 < n - ((k:ℝ)+1) := by rify at h8; linarith
     have h8': 0 < n - (k:ℝ) := by  linarith
     simp [h5, h3', h4', h5'] at bound
-    have hN0 : 0 < (N:ℝ) := by norm_cast
-    linarith; norm_num
+    have hN0 : 0 < (N:ℝ) := by norm_cast; linarith
     rcases bound with bound | bound
     . replace bound := lem0 bound h6' (by positivity) (by positivity)
-      -- use lem7
+      rw [(show (k:ℝ)+1 = (k+1:ℕ) by norm_cast)] at bound
+      replace bound := lem7 (by linarith) (by linarith) (by linarith) hN hBest' bound
+      -- lemma lem7 {n k N : ℕ} {A : ℝ} (h1 : k ≥ 10) (h2 : k+1 ≤ n) (h3: 3*k ≥ 2*n) (hN: 1 ≤ N) (hA: 0 < A) (bound: 1*(n/k)^2⁻¹ ≤ A^(((n:ℝ)-k)/k) * (n/((n:ℝ)-k))^((n-k)/(2*k)) * (A⁻¹ * rexp N⁻¹)) : A ≤ (rexp (rexp 1)⁻¹ * rexp 1)^2
       sorry
     replace bound := lem0 bound h6' (by positivity) (by positivity)
     sorry

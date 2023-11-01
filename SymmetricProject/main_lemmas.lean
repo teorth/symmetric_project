@@ -110,18 +110,27 @@ lemma lem7 {n k N : ℕ} {A : ℝ} (h1 : k ≥ 10) (h2 : k+1 ≤ n) (h3: 3*k ≥
   apply bound.trans
   clear N hN hN' A hA bound h12
   apply lem7a
-  . have h14 : (n - (k:ℝ)) / (2*k) = (n / (n-(k:ℝ)))⁻¹ * (n / (2*k)) := by
+  . simp
+    have h14 : (n - (k:ℝ)) / (2*k) = (n / (n-(k:ℝ)))⁻¹ * (n / (2*k)) := by
       rw [inv_div]
       field_simp [hn, hk', h11]
     rw [h14, rpow_mul]
-    have h15 : (n / (n-(k:ℝ)))^(n / (n-(k:ℝ)))⁻¹ ≤ rexp (rexp 1)⁻¹
-    sorry
+    gcongr
+    . rw [<- rpow_one (rexp (rexp 1)⁻¹) ]
+      apply lem7a
+      . exact root_self (by positivity)
+      . rw [div_le_iff]; linarith; positivity
+      . apply one_le_rpow
+        . rw [le_div_iff]; linarith; positivity
+        positivity
+      positivity
+    positivity
   . rw [inv_le, le_div_iff]; field_simp; rify at h1 h2 h3; linarith; all_goals positivity
   . simp
     nth_rewrite 1 [(show (1:ℝ)=(1:ℝ)*1 by norm_num)]
     gcongr
     . apply one_le_rpow
-      . sorry
+      . rw [le_div_iff]; linarith; positivity
       positivity
-    sorry
+    exact one_le_exp (by norm_num)
   all_goals positivity
