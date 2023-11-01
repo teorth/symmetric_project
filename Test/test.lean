@@ -13,7 +13,7 @@ open Nat
 
 
 
-example {a b c : ℕ  } (hc : 0 < c)  (h: a ≤ 2 * c) : a ≤ 3 * c  := by
-  rw_ineq [(show 2 ≤ 3 by norm_num)] at h
-  . sorry
-  sorry
+example {a b c : ℕ  } (ha : 0 < a) (hc : a < c) : 2 * a ≤ 3 * c  := by
+  rw_ineq [(show 2 ≤ 3 by norm_num), hc] at ⊢
+  . norm_num
+  linarith

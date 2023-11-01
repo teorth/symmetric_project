@@ -134,3 +134,29 @@ lemma lem7 {n k N : ℕ} {A : ℝ} (h1 : k ≥ 10) (h2 : k+1 ≤ n) (h3: 3*k ≥
       positivity
     exact one_le_exp (by norm_num)
   all_goals positivity
+
+
+/-- the main calculation needed to establish (4.6)-/
+lemma lem8 { k m n N : ℕ } {s : ℕ → ℝ } {A : ℝ} (h1 : 0 < k) (h2 : k ≤ m) (h3 : m ≤ n) (h4 : n ≤ N) (hA: 0 < A) (bound : |s m|^m⁻¹ ≤ A * max ((m/k)^2⁻¹ * |s k|^k⁻¹) ((m/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹) ) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : (Nat.choose n m) * |s m| ≤ (10 * n / m)^(m/2) := by
+  have hn : 0 < n := by linarith
+  have hm : 0 < m := by linarith
+  rw [mul_max_of_nonneg _ _ (by positivity)] at bound
+  simp at bound
+  rcases bound with bound | bound
+  . rw [<-mul_assoc] at bound
+    replace bound := lem0 bound h6 (by positivity) (by positivity)
+    rw [lem1, mul_inv_cancel, mul_comm, lem3, <-inv_rpow, inv_div, div_rpow, div_rpow] at bound
+    field_simp at bound
+    sorry
+  sorry
+
+/--
+
+
+  .
+    sorry
+  sorry
+--/
+-- lemma lem0 {a b c d e : ℝ} (h1: a ≤ b * c) (h2: d * c ≤ e) (h3 : 0 ≤ d) (h4 : 0 ≤ b): a * d ≤ b * e := by
+
+-- lemma lem8 { k m n N : ℕ } {s : ℕ → ℝ } {A : ℝ} (h1 : 0 < k) (h2 : k ≤ m) (h3 : m ≤ n) (h4 : n ≤ N) (hA: 0 < A) (bound : |s m|^m⁻¹ ≤ A * max ((m/k)^2⁻¹ * |s k|^k⁻¹) ((m/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹) ) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : (Nat.choose n m) * |s m| ≤ (10 * m / n)^(m/2) := by

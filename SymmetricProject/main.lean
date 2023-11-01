@@ -280,6 +280,8 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     field_simp at h6
     rw [le_div_iff hBest', one_mul] at h6
     apply h6.trans
+    rw [show 1/N = N⁻¹ by field_simp]
+    apply (lem5 hN).trans
     sorry -- depends on final choice of C
   by_cases h8 : k+1 = n
   . have : (k:ℝ)+1 = n := by norm_cast
@@ -287,6 +289,8 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     field_simp at h6'
     rw [le_div_iff hBest', one_mul] at h6'
     apply h6'.trans
+    rw [show 1/N = N⁻¹ by field_simp]
+    apply (lem5 hN).trans
     sorry -- depends on final choice of C
   replace h7 : k+1 ≤ n := by contrapose! h7; linarith
   replace h8 : k+2 ≤ n := by contrapose! h8; linarith
@@ -323,18 +327,22 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     have h7': 0 < n - ((k:ℝ)+1) := by rify at h8; linarith
     have h8': 0 < n - (k:ℝ) := by  linarith
     simp [h5, h3', h4', h5'] at bound
-    have hN0 : 0 < (N:ℝ) := by norm_cast; linarith
+    have hN0 : 0 < (N:ℝ) := by norm_cast
     rcases bound with bound | bound
     . replace bound := lem0 bound h6' (by positivity) (by positivity)
       rw [(show (k:ℝ)+1 = (k+1:ℕ) by norm_cast)] at bound
       replace bound := lem7 (by linarith) (by linarith) (by linarith) hN hBest' bound
-      -- lemma lem7 {n k N : ℕ} {A : ℝ} (h1 : k ≥ 10) (h2 : k+1 ≤ n) (h3: 3*k ≥ 2*n) (hN: 1 ≤ N) (hA: 0 < A) (bound: 1*(n/k)^2⁻¹ ≤ A^(((n:ℝ)-k)/k) * (n/((n:ℝ)-k))^((n-k)/(2*k)) * (A⁻¹ * rexp N⁻¹)) : A ≤ (rexp (rexp 1)⁻¹ * rexp 1)^2
-      sorry
-    replace bound := lem0 bound h6' (by positivity) (by positivity)
+      apply bound.trans
+      sorry -- depends on final choice of C
+    replace bound := lem0 bound h6 (by positivity) (by positivity)
+    replace bound := lem7 (by linarith) (by linarith) (by linarith) hN hBest' bound
+    apply bound.trans
+    sorry -- depends on final choice of C
+  have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ (10 * n / m)^(m/2) := by -- placeholder, should spin off into its own lemma
+    have bound := best_constant_bounds h1 h11 h12 h3 h4
+    
     sorry
-  have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ (10 * n / m)^(m/2) := by -- placeholder, may spin off into its own lemma
-    sorry
-  have eq47 {m : ℕ} (h11: 0 < m) (h12: m < k) : (Nat.choose n m) * |s m| ≤ (10 * k / (A*m))^m * (n/k)^(m/2) := by -- placeholder, may spin off into its own lemma
+  have eq47 {m : ℕ} (h11: 0 < m) (h12: m < k) : (Nat.choose n m) * |s m| ≤ (10 * k / (A*m))^m * (n/k)^(m/2) := by -- placeholder, should spin off into its own lemma
     sorry
   let δ := 1/100 -- placeholder
   let r := δ * (k/n)^(2⁻¹)
