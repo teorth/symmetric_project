@@ -12,7 +12,7 @@ open Real
 open Nat
 
 example {a b c d e: ℝ} (h: a*b ≤ c*(Real.exp e)*d) (h1 : e ≤ 1) : false := by
-  rw_ineq h1 at h
+  rw_ineq [h1] at h
   sorry
 
 
