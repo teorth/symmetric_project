@@ -250,8 +250,8 @@ lemma best_constant_bounds_rev' { k m n N : ℕ } { s : ℕ → ℝ } (h1 : m < 
   all_goals ring
 
 
-/-- A small lemma that I found useful when combining two inequalities that had some factors in the "wrong" lcoations. -/
-lemma ineq_comb {a b c d e : ℝ} (h1: a ≤ b * c) (h2: d * c ≤ e) (h3 : 0 ≤ d) (h4 : 0 ≤ b): a * d ≤ b * e := by
+/-- Some trivial lemmas. -/
+lemma lem0 {a b c d e : ℝ} (h1: a ≤ b * c) (h2: d * c ≤ e) (h3 : 0 ≤ d) (h4 : 0 ≤ b): a * d ≤ b * e := by
   replace h1 := mul_le_mul_of_nonneg_right h1 h3
   replace h2 := mul_le_mul_of_nonneg_left h2 h4
   linarith
@@ -275,6 +275,9 @@ lemma lem3 {a b c : ℝ} (h: c>0) : c*a ≤ b ↔ a ≤ b * c⁻¹ := by
   intro this
   rw [<- le_div_iff' h]
   convert this using 1
+
+lemma lem4 {a b c : ℝ} (ha: 0 ≤ a) (hb : 0 ≤ b) (hc: 0 < c) (h: a^b ≤ c) : a ≤ c^b⁻¹ := by
+  sorry
 
 /-- A form of the main theorem. --/
 theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N ≤ C := by
@@ -366,13 +369,11 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     have hN0 : 0 < (N:ℝ) := by norm_cast
     have hN' : N⁻¹ ≤ 1 := by rw [inv_le]; simpa; linarith; norm_num
     rcases bound with bound | bound
-    . replace bound := ineq_comb bound h6' (by positivity) (by positivity)
+    . replace bound := lem0 bound h6' (by positivity) (by positivity)
       rw [lem1, <-rpow_neg_one (best_constant N), <- rpow_add, lem2, one_mul, lem3, <- inv_rpow _ 2⁻¹, inv_div] at bound
-      rw_ineq hN' at bound
       have : ((k:ℝ)+1)/n ≤ 1 := by
-        rw [le_div_iff]; norm_cast; positivity
-      rw_ineq this at bound
-
+        rw [div_le_iff]; norm_cast; positivity
+      rw_ineq [hN', this] at bound
       sorry
     sorry
   have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ (10 * n / m)^(m/2) := by -- placeholder, may spin off into its own lemma
