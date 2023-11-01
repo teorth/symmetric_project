@@ -11,7 +11,9 @@ open BigOperators
 open Real
 open Nat
 
-example {a b c d e: ℝ} (h: a ≤ (Real.exp c)*b) (h1 : c ≤ 1) : false := by
-  rw_ineq [h1] at h
 
+
+example {a b c : ℕ  } (hc : 0 < c)  (h: a ≤ 2 * c) : a ≤ 3 * c  := by
+  rw_ineq [(show 2 ≤ 3 by norm_num)] at h
+  . sorry
   sorry

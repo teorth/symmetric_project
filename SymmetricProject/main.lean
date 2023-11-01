@@ -2,6 +2,7 @@ import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Order.CompleteLattice
 import SymmetricProject.attainable
 import SymmetricProject.prev_bound
+import SymmetricProject.main-lemmas
 import SymmetricProject.Tactic.RwIneq
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
@@ -250,39 +251,8 @@ lemma best_constant_bounds_rev' { k m n N : ℕ } { s : ℕ → ℝ } (h1 : m < 
   all_goals ring
 
 
-/-- Some trivial lemmas. -/
-lemma lem0 {a b c d e : ℝ} (h1: a ≤ b * c) (h2: d * c ≤ e) (h3 : 0 ≤ d) (h4 : 0 ≤ b): a * d ≤ b * e := by
-  replace h1 := mul_le_mul_of_nonneg_right h1 h3
-  replace h2 := mul_le_mul_of_nonneg_left h2 h4
-  linarith
 
-lemma lem1 {a b c d: ℝ} : (a*b)*(c*d)= (b*d) * (a*c) := by ring
-
-lemma lem2 {a b c : ℝ} (h: c>0) : a ≤ b*c ↔ a * c⁻¹ ≤ b := by
-  constructor
-  . intro this
-    rw [<- div_le_iff h] at this
-    convert this using 1
-  intro this
-  rw [<- div_le_iff h]
-  convert this using 1
-
-lemma lem3 {a b c : ℝ} (h: c>0) : c*a ≤ b ↔ a ≤ b * c⁻¹ := by
-  constructor
-  . intro this
-    rw [<- le_div_iff' h] at this
-    convert this using 1
-  intro this
-  rw [<- le_div_iff' h]
-  convert this using 1
-
-lemma lem4 {a b c : ℝ} (ha: 0 ≤ a) (hb : 0 < b) (h: a^b ≤ c) : a ≤ c^b⁻¹ := by
-  replace h := rpow_le_rpow (by positivity) h (show 0 ≤ b⁻¹ by positivity)
-  convert h using 1
-  rw [<- rpow_mul ha, mul_inv_cancel (by positivity)]
-  simp
-
-
+set_option maxHeartbeats 400000 in
 /-- A form of the main theorem. --/
 theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N ≤ C := by
   rcases prev_bound with ⟨ C_prev, hC_prev, bound_prev ⟩
@@ -388,8 +358,9 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
         rw [inv_div]
         field_simp [hn, h7', h11]
       rw [h14, rpow_mul] at bound
+      rw_ineq [root_self (by positivity)] at bound
       have h15 : (2*(k:ℝ)+2-n)/((k:ℝ)+1) ≤ 1 := by
-        rw [div_le_iff]; norm_cast; linarith; norm_cast; linarith
+        rw [div_le_iff]; rify at h9 h8 h10; linarith; norm_cast; linarith
 
       sorry
     sorry
