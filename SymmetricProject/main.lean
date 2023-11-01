@@ -371,9 +371,17 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     rcases bound with bound | bound
     . replace bound := lem0 bound h6' (by positivity) (by positivity)
       rw [lem1, <-rpow_neg_one (best_constant N), <- rpow_add, lem2, one_mul, lem3, <- inv_rpow _ 2⁻¹, inv_div] at bound
+<<<<<<< HEAD
       have : ((k:ℝ)+1)/n ≤ 1 := by
         rw [div_le_iff]; norm_cast; positivity
       rw_ineq [hN', this] at bound
+=======
+      rw_ineq [hN'] at bound
+      have : ((k:ℝ)+1)/n ≤ 1 := by
+        rw [le_div_iff]; norm_cast; positivity
+      rw_ineq [this] at bound
+
+>>>>>>> d1206b48b16caa7d3ae235f978848d75274b4cea
       sorry
     sorry
   have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ (10 * n / m)^(m/2) := by -- placeholder, may spin off into its own lemma
