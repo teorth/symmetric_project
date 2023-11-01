@@ -2,7 +2,7 @@ import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Order.CompleteLattice
 import SymmetricProject.attainable
 import SymmetricProject.prev_bound
-import SymmetricProject.main-lemmas
+import SymmetricProject.main_lemmas
 import SymmetricProject.Tactic.RwIneq
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
@@ -296,29 +296,12 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     rw [mul_max_of_nonneg] at bound_prev
     simp [h5] at bound_prev
     rcases bound_prev with bound_prev | bound_prev
-    . have := calc
-        k^(-2⁻¹) * C_prev⁻¹ = k^(-2⁻¹) * C_prev⁻¹  * 1 := by rw [mul_one]
-        _ ≤ k^(-2⁻¹) * C_prev⁻¹ * (C_prev * n^2⁻¹ * |s k|^k⁻¹) := by gcongr
-        _ = (n/k)^2⁻¹ * |s k|^k⁻¹ := by
-            rw [<-mul_assoc]
-            congr 1
-            rw [<-mul_assoc, div_rpow, eq_div_iff, rpow_neg]
-            have h1' : 0 < k^2⁻¹ := by positivity
-            field_simp [h1', hn', hC_prev]; ring
-            all_goals positivity
-        _ ≤ (best_constant N)⁻¹ * rexp N⁻¹ := h6
+    . have := lem6 bound_prev h6 hBest' h1 hN
+      apply this.trans
       sorry -- depends on final choice of C
-    . have := calc
-        (k+1)^(-2⁻¹) * C_prev⁻¹ = (k+1)^(-2⁻¹) * C_prev⁻¹  * 1 := by rw [mul_one]
-        _ ≤ (k+1)^(-2⁻¹) * C_prev⁻¹ * (C_prev * n^2⁻¹ * |s (k+1)|^((k+1)⁻¹)) := by gcongr
-        _ = (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ := by
-            rw [<-mul_assoc]
-            congr 1
-            rw [<-mul_assoc, div_rpow, eq_div_iff, rpow_neg]
-            have h1' : 0 < (k+1)^2⁻¹ := by positivity
-            field_simp [h1', hn', hC_prev]; ring
-            all_goals positivity
-        _ ≤ (best_constant N)⁻¹ * rexp N⁻¹ := h6'
+    . rw [(show (k:ℝ)+1 = (k+1:ℕ) by norm_cast)] at h6' bound_prev
+      have := lem6 bound_prev h6' hBest' (show 0 < k+1 by linarith) hN
+      apply this.trans
       sorry -- depends on final choice of C
     positivity
   replace h9 : k > 10 := by contrapose! h9; linarith
@@ -341,28 +324,12 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     have h8': 0 < n - (k:ℝ) := by  linarith
     simp [h5, h3', h4', h5'] at bound
     have hN0 : 0 < (N:ℝ) := by norm_cast
-    have hN' : N⁻¹ ≤ 1 := by rw [inv_le]; simpa; linarith; norm_num
+    linarith; norm_num
     rcases bound with bound | bound
     . replace bound := lem0 bound h6' (by positivity) (by positivity)
-      rw [lem1, <-rpow_neg_one (best_constant N), <- rpow_add, lem2, one_mul, lem3, <- inv_rpow _ 2⁻¹, inv_div] at bound
-      have : ((k:ℝ)+1)/n ≤ 1 := by
-        rw [div_le_iff]; norm_cast; simpa; positivity
-      rw_ineq [hN', this] at bound
-      have h11: (k:ℝ)+1 > 0 := by norm_cast; linarith
-      rw [<- rpow_neg_one, <-rpow_mul] at bound
-      have h12: ((n - ((k:ℝ)+1)) / ((k:ℝ)+1) + -1) * (-1) = (2*(k:ℝ) + 2 - n) / ((k:ℝ)+1) := by field_simp [h11]; ring
-      have h13: 0 < 2*(k:ℝ) + 2 - n := by rify at h8 h10 h9; linarith
-      rw [h12] at bound
-      replace bound := lem4 (by positivity) (by positivity) bound
-      have h14 : (n - ((k:ℝ)+1)) / (2*((k:ℝ)+1)) = (n / (n-((k:ℝ)+1)))⁻¹ * (n / (2*((k:ℝ)+1))) := by
-        rw [inv_div]
-        field_simp [hn, h7', h11]
-      rw [h14, rpow_mul] at bound
-      rw_ineq [root_self (by positivity)] at bound
-      have h15 : (2*(k:ℝ)+2-n)/((k:ℝ)+1) ≤ 1 := by
-        rw [div_le_iff]; rify at h9 h8 h10; linarith; norm_cast; linarith
-
+      -- use lem7
       sorry
+    replace bound := lem0 bound h6' (by positivity) (by positivity)
     sorry
   have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ (10 * n / m)^(m/2) := by -- placeholder, may spin off into its own lemma
     sorry
