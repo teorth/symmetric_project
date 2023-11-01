@@ -37,12 +37,18 @@ where `c` is obtained from `b` by replacing any occurence of `x` in a function a
 by `y`. This new relation `h` is proven from `trans h h'` where `h' : r b c` is proven by `gcongr`
 using the list of given identifiers for newly introduced variables.
 Returns the list of new goals. -/
-def Lean.MVarId.rwIneq (g : MVarId) (h : Name) (subst : Expr) (rev : Bool)
+def Lean.MVarId.rwIneq (g : MVarId) (h : Name) (substPrf : Expr) (rev : Bool)
     (names : List (TSyntax ``binderIdent)) : MetaM (List MVarId) := do
+  g.withContext do
+  let subst ← inferType substPrf
   let decl ← (← getLCtx).findFromUserName? h
   let substFun := if rev then Lean.Expr.substInRelRev else Lean.Expr.substInRel
   let some newIneq ← substFun decl.type subst
     | throwError "Could not create the new relation."
+  let g ← if substPrf.isFVar then pure g else do
+    let (_, g) ← g.note (← mkFreshUserName `providedRel) substPrf
+    pure g
+  g.withContext do
   let mvar ← mkFreshExprMVar newIneq
   let (success, _, newGoals) ← mvar.mvarId!.gcongr none names gcongrDefaultDischarger
   if success then
@@ -73,9 +79,9 @@ elab tok:"rw_ineq" rules:rwRuleSeq "at " h:ident withArg:((" with " (colGt binde
   withRWRulesSeq tok rules fun symm term => do
     let mainGoal ← getMainGoal
     mainGoal.withContext do
-    let subst ← inferType (← Lean.Elab.Term.elabTerm term none)
+    let substPrf ← Lean.Elab.Term.elabTerm term none
     let names := (withArg.raw[1].getArgs.map TSyntax.mk).toList
-    replaceMainGoal (← mainGoal.rwIneq h.getId subst symm names)
+    replaceMainGoal (← mainGoal.rwIneq h.getId substPrf symm names)
 
 /-- `rwa_ineq e at h` rewrite in the relation assumption `h : r a b` using `e : s x y` to replace `h`
 with `r a c` where `c` is obtained from `b` by replacing any occurence of `x` in a function
@@ -94,9 +100,9 @@ elab tok:"rwa_ineq" rules:rwRuleSeq "at " h:ident withArg:((" with " (colGt bind
   withRWRulesSeq tok rules fun symm term => do
     let mainGoal ← getMainGoal
     mainGoal.withContext do
-    let subst ← inferType (← Lean.Elab.Term.elabTerm term none)
+    let substPrf ← Lean.Elab.Term.elabTerm term none
     let names := (withArg.raw[1].getArgs.map TSyntax.mk).toList
-    replaceMainGoal (← mainGoal.rwIneq h.getId subst symm names)
+    replaceMainGoal (← mainGoal.rwIneq h.getId substPrf symm names)
   (← getMainGoal).assumption
 
 open Real
@@ -119,3 +125,10 @@ example (x y z w u : ℝ) (bound : x * exp y < z + x^2*exp w) (h : w < u) (hx : 
 
 example {a b c d : ℝ} (bound : a + b ≤ c + d) (h : c ≤ 2) (k : 1 ≤ a) : 1 + b ≤ 2 + d := by
   rwa_ineq [h, ← k] at bound
+
+example {a b : ℕ} (h: a ≤ 2 * b) : a ≤ 3 * b  := by
+  rwa_ineq [show 2 ≤ 3 by norm_num] at h
+
+example {a b : ℝ } (hb : 0 < b) (h: a ≤ 2 * b) : a ≤ 3 * b  := by
+  have test : (2 : ℝ) ≤ 3 := by norm_num
+  rwa_ineq [test] at h
