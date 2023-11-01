@@ -256,6 +256,26 @@ lemma ineq_comb {a b c d e : ℝ} (h1: a ≤ b * c) (h2: d * c ≤ e) (h3 : 0 �
   replace h2 := mul_le_mul_of_nonneg_left h2 h4
   linarith
 
+lemma lem1 {a b c d: ℝ} : (a*b)*(c*d)= (b*d) * (a*c) := by ring
+
+lemma lem2 {a b c : ℝ} (h: c>0) : a ≤ b*c ↔ a * c⁻¹ ≤ b := by
+  constructor
+  . intro this
+    rw [<- div_le_iff h] at this
+    convert this using 1
+  intro this
+  rw [<- div_le_iff h]
+  convert this using 1
+
+lemma lem3 {a b c : ℝ} (h: c>0) : c*a ≤ b ↔ a ≤ b * c⁻¹ := by
+  constructor
+  . intro this
+    rw [<- le_div_iff' h] at this
+    convert this using 1
+  intro this
+  rw [<- le_div_iff' h]
+  convert this using 1
+
 /-- A form of the main theorem. --/
 theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N ≤ C := by
   rcases prev_bound with ⟨ C_prev, hC_prev, bound_prev ⟩
@@ -313,7 +333,7 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
       sorry -- depends on final choice of C
     . have := calc
         (k+1)^(-2⁻¹) * C_prev⁻¹ = (k+1)^(-2⁻¹) * C_prev⁻¹  * 1 := by rw [mul_one]
-        _ ≤ (k+1)^(-2⁻¹) * C_prev⁻¹ * (C_prev * n^(2⁻¹) * |s (k+1)|^((k+1)⁻¹)) := by gcongr
+        _ ≤ (k+1)^(-2⁻¹) * C_prev⁻¹ * (C_prev * n^2⁻¹ * |s (k+1)|^((k+1)⁻¹)) := by gcongr
         _ = (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ := by
             rw [<-mul_assoc]
             congr 1
@@ -339,12 +359,20 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
       rw [this]
       rify [Nat.sub_le n k, h2]; linarith
     rify [h2, h7] at bound
-    have h5' : (n:ℝ) - ((k:ℝ)+1) + 1 = (n:ℝ) - (k:ℝ) := by ring
-    have h7': 0 < (n:ℝ) - ((k:ℝ)+1) := by rify at h8; linarith
-    have h8': 0 < (n:ℝ) - (k:ℝ) := by  linarith
+    have h5' : n - ((k:ℝ)+1) + 1 = n - (k:ℝ) := by ring
+    have h7': 0 < n - ((k:ℝ)+1) := by rify at h8; linarith
+    have h8': 0 < n - (k:ℝ) := by  linarith
     simp [h5, h3', h4', h5'] at bound
+    have hN0 : 0 < (N:ℝ) := by norm_cast
+    have hN' : N⁻¹ ≤ 1 := by rw [inv_le]; simpa; linarith; norm_num
     rcases bound with bound | bound
     . replace bound := ineq_comb bound h6' (by positivity) (by positivity)
+      rw [lem1, <-rpow_neg_one (best_constant N), <- rpow_add, lem2, one_mul, lem3, <- inv_rpow _ 2⁻¹, inv_div] at bound
+      rw_ineq hN' at bound
+      have : ((k:ℝ)+1)/n ≤ 1 := by
+        rw [le_div_iff]; norm_cast; positivity
+      rw_ineq this at bound
+
       sorry
     sorry
   have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ (10 * n / m)^(m/2) := by -- placeholder, may spin off into its own lemma

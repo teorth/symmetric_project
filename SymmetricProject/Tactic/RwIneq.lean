@@ -9,7 +9,8 @@ def Lean.Expr.subst (target old new : Expr) : MetaM Expr := do
     return new
   else
     match target with
-    | Expr.app fn arg    => return (Expr.app fn (← arg.subst old new))
+  | Expr.app fn arg    => return (Expr.app (← fn.subst old new) (← arg.subst old new))
+
     | _                  => return target
 
 /-- Given expressions `orig : r a b` and `subst : s x y` for some relations
