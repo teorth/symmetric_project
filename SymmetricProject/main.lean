@@ -368,10 +368,10 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     rcases bound with bound | bound
     . replace bound := ineq_comb bound h6' (by positivity) (by positivity)
       rw [lem1, <-rpow_neg_one (best_constant N), <- rpow_add, lem2, one_mul, lem3, <- inv_rpow _ 2⁻¹, inv_div] at bound
-      rw_ineq hN' at bound
+      rw_ineq [hN'] at bound
       have : ((k:ℝ)+1)/n ≤ 1 := by
         rw [le_div_iff]; norm_cast; positivity
-      rw_ineq this at bound
+      rw_ineq [this] at bound
 
       sorry
     sorry
