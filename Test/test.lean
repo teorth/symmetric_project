@@ -4,11 +4,17 @@ import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Analysis.SpecialFunctions.ExpDeriv
 import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Algebra.BigOperators.Ring
+import SymmetricProject.Tactic.RwIneq
 
 open Finset
 open BigOperators
 open Real
 open Nat
+
+example {a b c d : ℝ} (h: a*b ≤ c*d) (h1 : d ≤ e) (h2: 0 ≤ c) : a*b ≤ c*e := by
+  rw_ineq h1 at h
+  assumption
+
 
 example (n: ℕ) (X : ℝ) : n * X * n = X * (n^2) := by
   ring
