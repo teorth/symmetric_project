@@ -338,10 +338,9 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     replace bound := lem7 (by linarith) (by linarith) (by linarith) hN hBest' bound
     apply bound.trans
     sorry -- depends on final choice of C
-  have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ ((exp 2) * n / m)^(m/2) := by -- placeholder, should spin off into its own lemma
+  have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ ((exp 4) * n / m)^(m/2) := by
     have bound := best_constant_bounds h1 h11 h12 h3 h4
-
-    sorry
+    exact lem8 h1 h11 h12 h3 hBest' bound h6 h6'
   have eq47 {m : ℕ} (h11: 0 < m) (h12: m < k) : (Nat.choose n m) * |s m| ≤ (10 * k / (A*m))^m * (n/k)^(m/2) := by -- placeholder, should spin off into its own lemma
     sorry
   let δ := 1/100 -- placeholder
