@@ -187,3 +187,50 @@ lemma lem8 { k m n N : ℕ } {s : ℕ → ℝ } {A : ℝ} (h1 : 0 < k) (h2 : k �
       ring
       all_goals positivity
   all_goals positivity
+
+
+lemma lem9a {A s t : ℝ} (h : 0 < A) : A^s * (A⁻¹)^t = A^(s-t) := by
+  rw [<- rpow_neg_one, <- rpow_mul h, <-rpow_add h]
+  congr 1
+  ring
+
+/-- The main calculation needed to establish (4.7) -/
+lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m) (h3 : m < k) (h4 : k+2 ≤ n) (h5 : 1 ≤ N) (hA: 1 ≤ A) (hk : 3 * k < 2 * n) (bound: |s m| ^ ((n:ℝ) - m)⁻¹ ≤ max (A ^ (((k:ℝ) - ↑m) / ((n:ℝ) - k)) * (((n:ℝ) - m) / ((k:ℝ) - m)) ^ (((k:ℝ) - m) / (2 * ((n:ℝ) - k))) * |s k| ^ ((n:ℝ) - k)⁻¹) (A ^ (((k:ℝ) + 1 - m) / ((n:ℝ) - ((k:ℝ) + 1))) *(((n:ℝ) - m) / ((k:ℝ) + 1 - m)) ^ (((k:ℝ) + 1 - m) / (2 * ((n:ℝ) - (k + 1)))) * |s (k + 1)| ^ ((n:ℝ) - (k + 1))⁻¹)) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : (Nat.choose n m) * |s m| ≤ (10 * k / (A * m))^m * (n / k)^(m/2) := by
+  have hnm : 0 < (n:ℝ) - m := by rify at h3 h4; linarith
+  have hnk : 0 < (n:ℝ) - (k+1) := by rify at h4; linarith
+  have hnk1 : 0 < (n:ℝ) - k := by linarith
+  have hkm : 0 < (k:ℝ) - m := by rify at h3; linarith
+  have hkm1 : 0 < (k:ℝ)+1 - m := by linarith
+  have hk0 : 0 < (k:ℝ) := by rify at h1; linarith
+  have hk1 : 0 < (k:ℝ)+1 := by linarith
+  have hA' : 0 < A := by linarith
+
+  have : ∃ k':ℕ, k ≤ k' ∧ k' ≤ k+1 ∧ |s m| * (n/k')^(2⁻¹ *(k'*((n:ℝ)-m)/((n:ℝ)-k'))) ≤ A^(((k':ℝ)-m)/((n:ℝ)-k') * ((n:ℝ)-m)) * (((n:ℝ)-m)/((k':ℝ)-m))^(((k':ℝ)-m)/(2*((n:ℝ)-k')) * ((n:ℝ)-m)) * (A⁻¹* rexp N⁻¹)^(k' * ((n:ℝ)-m) / ((n:ℝ)-k')) := by
+    simp at bound
+    rcases bound with bound | bound
+    . use k
+      constructor; linarith
+      constructor; linarith
+      replace bound := rpow_le_rpow (by positivity) bound (show 0 ≤ (n:ℝ) - m by linarith)
+      replace h6 := rpow_le_rpow (by positivity) h6 (show 0 ≤ k * ((n:ℝ)-m) / ((n:ℝ) - k) by positivity)
+      rw [<-rpow_mul, mul_rpow, mul_rpow, <- rpow_mul, <- rpow_mul, <- rpow_mul, inv_mul_cancel] at bound
+      have : k⁻¹ * (k * ((n:ℝ)-m) / ((n:ℝ)-k)) = ((n:ℝ)-k)⁻¹ * ((n:ℝ)-m) := by field_simp [hk0, hnk1, hnm]; ring
+      rw [mul_rpow, <-rpow_mul, <-rpow_mul, this] at h6
+      replace bound := lem0 bound h6 (by positivity) (by positivity)
+      rwa [rpow_one] at bound
+      all_goals positivity
+    use k+1
+    constructor; linarith
+    constructor; linarith
+    replace bound := rpow_le_rpow (by positivity) bound (show 0 ≤ (n:ℝ) - m by linarith)
+    replace h6' := rpow_le_rpow (by positivity) h6' (show 0 ≤ (k+1) * ((n:ℝ)-m) / ((n:ℝ) - (k+1)) by positivity)
+    rw [<-rpow_mul, mul_rpow, mul_rpow, <- rpow_mul, <- rpow_mul, <- rpow_mul, inv_mul_cancel] at bound
+    have : (k+1)⁻¹ * ((k+1) * ((n:ℝ)-m) / ((n:ℝ)-(k+1))) = ((n:ℝ)-(k+1))⁻¹ * ((n:ℝ)-m) := by field_simp [hk1, hnk, hnm]; ring
+    rw [mul_rpow, <-rpow_mul, <-rpow_mul, this] at h6'
+    replace bound := lem0 bound h6' (by positivity) (by positivity)
+    rwa [rpow_one, (show (k:ℝ)+1 = (k+1:ℕ) by norm_cast)] at bound
+    all_goals positivity
+  clear bound h6 h6'
+  rcases this with ⟨ k', hk', hk'', bound ⟩
+  rw [mul_rpow, lem1, lem9a hA'] at bound
+  sorry

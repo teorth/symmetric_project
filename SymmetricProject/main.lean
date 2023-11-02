@@ -341,8 +341,10 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
   have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ ((exp 4) * n / m)^(m/2) := by
     have bound := best_constant_bounds h1 h11 h12 h3 h4
     exact lem8 h1 h11 h12 h3 hBest' bound h6 h6'
-  have eq47 {m : ℕ} (h11: 0 < m) (h12: m < k) : (Nat.choose n m) * |s m| ≤ (10 * k / (A*m))^m * (n/k)^(m/2) := by -- placeholder, should spin off into its own lemma
+  have eq47 {m : ℕ} (h11: 0 < m) (h12: m < k) : (Nat.choose n m) * |s m| ≤ (10 * k / (A*m))^m * (n/k)^(m/2) := by
+    have bound := best_constant_bounds_rev' h12 h8 h3 h4 h5
     sorry
   let δ := 1/100 -- placeholder
   let r := δ * (k/n)^(2⁻¹)
   sorry
+--  { k m n N : ℕ } { s : ℕ → ℝ } (h1 : m < k) (h2 : k+2 ≤ n) (h4 : n ≤ N) (h5 : attainable n s) (h6 : |s n| = 1): |s m|^(((n:ℝ)-m)⁻¹) ≤ max ((best_constant N)^(((k:ℝ)-m)/((n:ℝ)-(k:ℝ))) * (((n:ℝ) - m) / ((k:ℝ) - m) )^(((k:ℝ)-m)/(2*((n:ℝ)-k))) * |s k|^((n-(k:ℝ))⁻¹)) ((best_constant N)^(((k:ℝ)+1-m)/(n-((k:ℝ)+1))) * (((n:ℝ) - m) / ((k:ℝ)+1 - m) )^(((k:ℝ)+1-m)/(2*((n:ℝ)-(k+1)))) * |s (k+1)|^((n-((k:ℝ)+1))⁻¹)) := by
