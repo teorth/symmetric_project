@@ -1,5 +1,6 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import SymmetricProject.prev_bound
+import SymmetricProject.stirling
 import SymmetricProject.Tactic.Rify
 import SymmetricProject.Tactic.RwIneq
 
@@ -135,28 +136,54 @@ lemma lem7 {n k N : ℕ} {A : ℝ} (h1 : k ≥ 10) (h2 : k+1 ≤ n) (h3: 3*k ≥
     exact one_le_exp (by norm_num)
   all_goals positivity
 
+lemma lem8a { n : ℕ } (h: 0 < n) : n = n^(1/2) * n^(1/2) := by
+  rw [<- rpow_add]
+  norm_num
+  norm_cast
+
+lemma lem8b: rexp 4^(1/2) = (rexp 1) * (rexp 1) := by
+  rw [<-exp_mul, <-exp_add]
+  congr 1
+  norm_num
 
 /-- the main calculation needed to establish (4.6)-/
-lemma lem8 { k m n N : ℕ } {s : ℕ → ℝ } {A : ℝ} (h1 : 0 < k) (h2 : k ≤ m) (h3 : m ≤ n) (h4 : n ≤ N) (hA: 0 < A) (bound : |s m|^m⁻¹ ≤ A * max ((m/k)^2⁻¹ * |s k|^k⁻¹) ((m/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹) ) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : (Nat.choose n m) * |s m| ≤ (10 * n / m)^(m/2) := by
+lemma lem8 { k m n N : ℕ } {s : ℕ → ℝ } {A : ℝ} (h1 : 0 < k) (h2 : k ≤ m) (h3 : m ≤ n) (h4 : n ≤ N) (hA: 0 < A) (bound : |s m|^m⁻¹ ≤ A * max ((m/k)^2⁻¹ * |s k|^k⁻¹) ((m/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹) ) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : (Nat.choose n m) * |s m| ≤ ((exp 4) * n / m)^(m/2) := by
   have hn : 0 < n := by linarith
   have hm : 0 < m := by linarith
+  have hn' : 0 < n^(1/2) := by positivity
+  have hm' : 0 < m^(1/2) := by positivity
   rw [mul_max_of_nonneg _ _ (by positivity)] at bound
   simp at bound
-  rcases bound with bound | bound
-  . rw [<-mul_assoc] at bound
-    replace bound := lem0 bound h6 (by positivity) (by positivity)
+  have : |s m|^(1/m) ≤ m^(1/2) * (rexp 1) / n^(1/2) := by
+    rcases bound with bound | bound
+    . rw [<-mul_assoc] at bound
+      replace bound := lem0 bound h6 (by positivity) (by positivity)
+      rw [lem1, mul_inv_cancel, mul_comm, lem3, <-inv_rpow, inv_div, div_rpow, div_rpow] at bound
+      rw_ineq [lem5 (show 1 ≤ N by linarith)] at bound
+      field_simp at bound
+      exact bound
+      all_goals positivity
+    rw [<-mul_assoc] at bound
+    replace bound := lem0 bound h6' (by positivity) (by positivity)
     rw [lem1, mul_inv_cancel, mul_comm, lem3, <-inv_rpow, inv_div, div_rpow, div_rpow] at bound
+    rw_ineq [lem5 (show 1 ≤ N by linarith)] at bound
     field_simp at bound
-    sorry
-  sorry
+    exact bound
+    all_goals positivity
 
-/--
-
-
-  .
-    sorry
-  sorry
---/
--- lemma lem0 {a b c d e : ℝ} (h1: a ≤ b * c) (h2: d * c ≤ e) (h3 : 0 ≤ d) (h4 : 0 ≤ b): a * d ≤ b * e := by
-
--- lemma lem8 { k m n N : ℕ } {s : ℕ → ℝ } {A : ℝ} (h1 : 0 < k) (h2 : k ≤ m) (h3 : m ≤ n) (h4 : n ≤ N) (hA: 0 < A) (bound : |s m|^m⁻¹ ≤ A * max ((m/k)^2⁻¹ * |s k|^k⁻¹) ((m/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹) ) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : (Nat.choose n m) * |s m| ≤ (10 * m / n)^(m/2) := by
+  rw [<- rpow_le_rpow_iff _ _ (show 0 < 1/m by positivity), mul_rpow, <-rpow_mul, (show m/2 * (1/m) = (1/2) by field_simp [hm]; ring), div_rpow]
+  calc
+    (Nat.choose n m)^(1/m) * |s m|^(1/m) ≤ (exp 1) * n / m * |s m|^(1/m) := by
+      gcongr
+      exact choose_le' h3 hm
+    _ ≤ (rexp 1) * n / m * (m^(1/2) * (rexp 1) / n^(1/2) ) := by
+      gcongr
+    _ = ((rexp 4) * n)^(1/2) / m^(1/2) := by
+      rw [mul_rpow]
+      field_simp [hn', hm', hm]
+      rw [lem8b]
+      nth_rewrite 1 [lem8a hn]
+      nth_rewrite 3 [lem8a hm]
+      ring
+      all_goals positivity
+  all_goals positivity
