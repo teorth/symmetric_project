@@ -24,5 +24,5 @@ local macro_rules | `($x ⁻¹)   => `(Inv.inv ($x : ℝ))
 
 lemma test {n : ℕ} (bound: n ≤ 5) (h: 5 ≤ 10): n ≤ 10 := by
   have h' := (show 5 ≤ 10 by norm_num)
-  rw_ineq [h'] at bound
+  rw_ineq [h] at bound
   assumption

@@ -230,13 +230,6 @@ lemma lem9c { k' mR nR A : ℝ } (h2: 0 < mR) (hnk': 0 < nR - k') (hkm': 0 < k' 
     convert this using 1
     ring
 
-lemma lem9d (A : ℝ) : A ≤ 10 := by sorry
-
-lemma test {s A : ℝ} (bound: s ≤ A) (alt: A ≤ 10): s ≤ 10 := by
-  have h := lem9d A
-  rw_ineq [alt] at bound
-  sorry
-
 set_option maxHeartbeats 400000 in
 -- The main calculation needed to establish (4.7) -/
 lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m) (h3 : m < k) (h4 : k+2 ≤ n) (h5 : n ≤ N) (hA: 1 ≤ A) (hk : 3 * k < 2 * n) (bound: |s m| ^ ((n:ℝ) - m)⁻¹ ≤ max (A ^ (((k:ℝ) - ↑m) / ((n:ℝ) - k)) * (((n:ℝ) - m) / ((k:ℝ) - m)) ^ (((k:ℝ) - m) / (2 * ((n:ℝ) - k))) * |s k| ^ ((n:ℝ) - k)⁻¹) (A ^ (((k:ℝ) + 1 - m) / ((n:ℝ) - ((k:ℝ) + 1))) *(((n:ℝ) - m) / ((k:ℝ) + 1 - m)) ^ (((k:ℝ) + 1 - m) / (2 * ((n:ℝ) - (k + 1)))) * |s (k + 1)| ^ ((n:ℝ) - (k + 1))⁻¹)) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : (Nat.choose n m) * |s m| ≤ (10 * k / (A * m))^m * (n / k)^(m/2) := by
@@ -257,8 +250,9 @@ lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m)
   have hnk' : 0 < nR - k' := by linarith
   have hkm' : 0 < k' - mR := by linarith
   have hk0' : 0 < k' := by linarith
-  have := lem9c h2 hnk' hkm' hA
-  rw_ineq [this] at bound; clear this
+  have h7 := lem9c h2 hnk' hkm' hA
+  set X := A ^ ((k' - mR) / (nR - k') * (nR - mR) - k' * (nR - mR) / (nR - k')) with hX
+--  rw_ineq [h7] at bound; clear h7
   have : (nR-mR) / (k'-mR) ≤ (nR/k') * (k'/(k'-mR)) := by
     rw [(show (nR/k') * (k'/(k'-mR)) = nR / (k'-mR) by field_simp [hk0', hkm'])]
     gcongr
@@ -279,8 +273,8 @@ lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m)
       . rw [div_le_iff]; linarith; positivity
       linarith
     _ ≤ 4 := by linarith
-  set X := N⁻¹ * (k' * (nR-mR) / (nR-k')) with hX
-  rw_ineq [this] at bound; clear this X hX
+  set Y := N⁻¹ * (k' * (nR-mR) / (nR-k')) with hY
+  rw_ineq [this] at bound; clear this Y hY
   have this : k' / (k'-mR) ≤ exp (mR / (k'-mR)) := by
     have : k' / (k'-mR) = mR / (k'-mR) + 1 := by field_simp [hkm']
     rw [this]
@@ -293,9 +287,10 @@ lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m)
     _ = mR * (nR / (nR-k')) / 2 := by field_simp [hnk']; ring
     _ ≤ mR * 4 / 2 := by gcongr
     _ = 2 * mR := by ring
-  set X := mR / (k'-mR) * ((k' - mR) / (2 * (nR-k')) * (nR-mR)) with hX
-  rw_ineq [this] at bound; clear this
-
-
+  set Y := mR / (k'-mR) * ((k' - mR) / (2 * (nR-k')) * (nR-mR)) with hY
+  rw_ineq [this] at bound; clear this Y hY
+  rw [rpow_le_rpow_iff _ _ (show 0 < mR⁻¹ by positivity)] at bound ⊢
+  rw [mul_rpow, mul_rpow, mul_rpow, mul_rpow]
+  
   . sorry
   all_goals positivity
