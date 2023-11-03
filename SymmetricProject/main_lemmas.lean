@@ -344,7 +344,7 @@ lemma lem9g {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m
 
 --   have choose : (Nat.choose n m)^(1/m) ≤ (exp 1) * n / m := choose_le' (show m ≤ n by linarith) h2
 
-lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m) (h3 : m < k) (h4 : k+2 ≤ n) (h5 : n ≤ N) (hA: 1 ≤ A) (hk : 3 * k < 2 * n) (bound: |s m| ^ ((n:ℝ) - m)⁻¹ ≤ max (A ^ (((k:ℝ) - ↑m) / ((n:ℝ) - k)) * (((n:ℝ) - m) / ((k:ℝ) - m)) ^ (((k:ℝ) - m) / (2 * ((n:ℝ) - k))) * |s k| ^ ((n:ℝ) - k)⁻¹) (A ^ (((k:ℝ) + 1 - m) / ((n:ℝ) - ((k:ℝ) + 1))) *(((n:ℝ) - m) / ((k:ℝ) + 1 - m)) ^ (((k:ℝ) + 1 - m) / (2 * ((n:ℝ) - (k + 1)))) * |s (k + 1)| ^ ((n:ℝ) - (k + 1))⁻¹)) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : (Nat.choose n m) * |s m| ≤ (rexp 7 * k / (A * m)) ^ m * (n/(k+1))^(m/2) := by
+lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m) (h3 : m < k) (h4 : k+2 ≤ n) (h5 : n ≤ N) (hA: 1 ≤ A) (hk : 3 * k < 2 * n) (bound: |s m| ^ ((n:ℝ) - m)⁻¹ ≤ max (A ^ (((k:ℝ) - ↑m) / ((n:ℝ) - k)) * (((n:ℝ) - m) / ((k:ℝ) - m)) ^ (((k:ℝ) - m) / (2 * ((n:ℝ) - k))) * |s k| ^ ((n:ℝ) - k)⁻¹) (A ^ (((k:ℝ) + 1 - m) / ((n:ℝ) - ((k:ℝ) + 1))) *(((n:ℝ) - m) / ((k:ℝ) + 1 - m)) ^ (((k:ℝ) + 1 - m) / (2 * ((n:ℝ) - (k + 1)))) * |s (k + 1)| ^ ((n:ℝ) - (k + 1))⁻¹)) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : (Nat.choose n m) * |s m| ≤ (rexp 7 * (k+1) / (A * m)) ^ m * (n/(k+1))^(m/2) := by
   replace bound := lem9g h1 h2 h3 h4 h5 hA hk bound h6 h6'
   clear N h5 h6 h6'
   rw [<- rpow_le_rpow_iff _ _ (show 0 < m⁻¹ by positivity), mul_rpow, mul_rpow, <-rpow_mul, <-rpow_mul]
@@ -358,6 +358,20 @@ lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m)
   have hk' : 0 < (k:ℝ) := by linarith
   have hk'' : 0 < (k:ℝ)+1 := by linarith
   have hnk : 0 < (n:ℝ) - k := by linarith
+  have hn : 0 < (n:ℝ) := by linarith
   field_simp [hk', hk'', hnk, h2]
   rw [mul_comm _ A, div_le_div_right]
-  sorry
+  have {a b c d:ℝ} : a * b * (c * d) = (a*c) * (b*d) := by ring
+  rw [this, <-exp_add]; clear this
+  have {a b c:ℝ} : a * b * c = a * c * b := by ring
+  rw [this, <- div_le_iff]; clear this
+  have {a b c d : ℝ} (h: 0 < d) : a * (b * c) / d = a * (b/d) * c := by field_simp [h]; ring
+  rw [this]; clear this
+  nth_rewrite 1 [<- rpow_one (n/(k+1))]
+  rw [mul_assoc, <- rpow_add]
+  gcongr
+  . norm_num
+  . rw [le_div_iff]; linarith; positivity
+  . rw [(show m / (2*m) = 1/2 by field_simp [h2]; ring)]
+    field_simp; rw [div_le_div_iff]; linarith; positivity; positivity
+  all_goals positivity
