@@ -278,10 +278,15 @@ lemma lem9e {a b c : ℝ} (h: 0 < b) : a * b^(-1) * c * b = a * c := by
   rw [rpow_neg_one]
   field_simp [h]
 
+lemma lem9f {m n k' k : ℝ} (h: k ≤ k') (h2: 0 < n-m) (h3 : 0 < n-k'): (m - n) / (2 * (n - k')) ≤ (m - n) / (2 * (n - k)) := by
+    rw [div_le_div_iff]
+    apply mul_le_mul_of_nonpos_left
+    all_goals linarith
+
 --set_option trace.profiler true in
 set_option maxHeartbeats 400000 in
 -- The main calculation needed to establish (4.7) -/
-lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m) (h3 : m < k) (h4 : k+2 ≤ n) (h5 : n ≤ N) (hA: 1 ≤ A) (hk : 3 * k < 2 * n) (bound: |s m| ^ ((n:ℝ) - m)⁻¹ ≤ max (A ^ (((k:ℝ) - ↑m) / ((n:ℝ) - k)) * (((n:ℝ) - m) / ((k:ℝ) - m)) ^ (((k:ℝ) - m) / (2 * ((n:ℝ) - k))) * |s k| ^ ((n:ℝ) - k)⁻¹) (A ^ (((k:ℝ) + 1 - m) / ((n:ℝ) - ((k:ℝ) + 1))) *(((n:ℝ) - m) / ((k:ℝ) + 1 - m)) ^ (((k:ℝ) + 1 - m) / (2 * ((n:ℝ) - (k + 1)))) * |s (k + 1)| ^ ((n:ℝ) - (k + 1))⁻¹)) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : |s m|^m⁻¹ ≤ (rexp 6) * ((n / (k+1)) ^ (-((n:ℝ) - m) / (2 * ((n:ℝ) - k)))) / A  := by
+lemma lem9g {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m) (h3 : m < k) (h4 : k+2 ≤ n) (h5 : n ≤ N) (hA: 1 ≤ A) (hk : 3 * k < 2 * n) (bound: |s m| ^ ((n:ℝ) - m)⁻¹ ≤ max (A ^ (((k:ℝ) - ↑m) / ((n:ℝ) - k)) * (((n:ℝ) - m) / ((k:ℝ) - m)) ^ (((k:ℝ) - m) / (2 * ((n:ℝ) - k))) * |s k| ^ ((n:ℝ) - k)⁻¹) (A ^ (((k:ℝ) + 1 - m) / ((n:ℝ) - ((k:ℝ) + 1))) *(((n:ℝ) - m) / ((k:ℝ) + 1 - m)) ^ (((k:ℝ) + 1 - m) / (2 * ((n:ℝ) - (k + 1)))) * |s (k + 1)| ^ ((n:ℝ) - (k + 1))⁻¹)) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : |s m|^m⁻¹ ≤ (rexp 6) * ((n / (k+1)) ^ (-((n:ℝ) - m) / (2 * ((n:ℝ) - k)))) / A  := by
   have hm : 1 ≤ m := by linarith
   rify at *
   set nR := (n:ℝ)
@@ -292,6 +297,7 @@ lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m)
   have hA' : 0 < A := by linarith
   have hn' : 0 < nR := by linarith
   have h5' : 0 < NR := by linarith
+  have hk1 : 0 < kR+1 := by linarith
 
   have := lem9b hnm (by linarith) (by linarith) (by linarith) (by linarith) (by linarith) (by linarith) hA' hn' bound h6 h6'
   clear bound h6 h6'
@@ -314,10 +320,44 @@ lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m)
   rw [<- rpow_le_rpow_iff _ _ (show 0 < mR⁻¹ by positivity)] at bound
   rw [mul_rpow, mul_rpow, <-rpow_mul, <-exp_mul, <-rpow_mul] at bound
   apply bound.trans; clear bound
-  field_simp [h2, hnk', hA'] at bound
-
-  . sorry
+  field_simp [h2, hnk', hk''', hA', hk1]
+  rw [rpow_neg_one A]
+  have : -(mR * (nR - mR)) / (2 * (nR - k') * mR) = (mR-nR) / (2*(nR-k')) := by
+    field_simp [hnm, hnk', hkm']
+    ring
+  simp at this
+  rw [this]; clear this
+  field_simp [hA']
+  gcongr
+  have := lem9f hk' hnm hnk'
+  rw_ineq [this]; clear this
+  . rw [le_div_iff]; simp at hnk'; linarith; positivity
+  simp
+  apply rpow_le_rpow_of_exponent_nonpos
+  . positivity
+  . gcongr
+  . rw [div_nonpos_iff]
+    right; constructor
+    . simp at hnm; linarith
+    simp at h4; linarith
   all_goals positivity
 
-
 --   have choose : (Nat.choose n m)^(1/m) ≤ (exp 1) * n / m := choose_le' (show m ≤ n by linarith) h2
+
+lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m) (h3 : m < k) (h4 : k+2 ≤ n) (h5 : n ≤ N) (hA: 1 ≤ A) (hk : 3 * k < 2 * n) (bound: |s m| ^ ((n:ℝ) - m)⁻¹ ≤ max (A ^ (((k:ℝ) - ↑m) / ((n:ℝ) - k)) * (((n:ℝ) - m) / ((k:ℝ) - m)) ^ (((k:ℝ) - m) / (2 * ((n:ℝ) - k))) * |s k| ^ ((n:ℝ) - k)⁻¹) (A ^ (((k:ℝ) + 1 - m) / ((n:ℝ) - ((k:ℝ) + 1))) *(((n:ℝ) - m) / ((k:ℝ) + 1 - m)) ^ (((k:ℝ) + 1 - m) / (2 * ((n:ℝ) - (k + 1)))) * |s (k + 1)| ^ ((n:ℝ) - (k + 1))⁻¹)) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : (Nat.choose n m) * |s m| ≤ (rexp 7 * k / (A * m)) ^ m * (n/(k+1))^(m/2) := by
+  replace bound := lem9g h1 h2 h3 h4 h5 hA hk bound h6 h6'
+  clear N h5 h6 h6'
+  rw [<- rpow_le_rpow_iff _ _ (show 0 < m⁻¹ by positivity), mul_rpow, mul_rpow, <-rpow_mul, <-rpow_mul]
+  have : (Nat.choose n m)^(1/m) * |s m|^(1/m) ≤ (exp 1) * n / m * |s m|^(1/m) := by
+    gcongr
+    exact choose_le' (show m ≤ n by linarith) h2
+  rw [(show 1/m = m⁻¹ by simp)] at this
+  apply this.trans; clear this
+  rw_ineq [bound]; clear bound
+  rify at *
+  have hk' : 0 < (k:ℝ) := by linarith
+  have hk'' : 0 < (k:ℝ)+1 := by linarith
+  have hnk : 0 < (n:ℝ) - k := by linarith
+  field_simp [hk', hk'', hnk, h2]
+  rw [mul_comm _ A, div_le_div_right]
+  sorry
