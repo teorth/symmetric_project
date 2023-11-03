@@ -274,10 +274,15 @@ lemma lem9d { kR k' mR nR A NR sm : ℝ } (h1: kR > 10) (h2 : 0 < mR) (h3 : mR <
   . assumption
   all_goals positivity
 
+lemma lem9e {a b c : ℝ} (h: 0 < b) : a * b^(-1) * c * b = a * c := by
+  rw [rpow_neg_one]
+  field_simp [h]
+
 --set_option trace.profiler true in
 set_option maxHeartbeats 400000 in
 -- The main calculation needed to establish (4.7) -/
-lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m) (h3 : m < k) (h4 : k+2 ≤ n) (h5 : n ≤ N) (hA: 1 ≤ A) (hk : 3 * k < 2 * n) (bound: |s m| ^ ((n:ℝ) - m)⁻¹ ≤ max (A ^ (((k:ℝ) - ↑m) / ((n:ℝ) - k)) * (((n:ℝ) - m) / ((k:ℝ) - m)) ^ (((k:ℝ) - m) / (2 * ((n:ℝ) - k))) * |s k| ^ ((n:ℝ) - k)⁻¹) (A ^ (((k:ℝ) + 1 - m) / ((n:ℝ) - ((k:ℝ) + 1))) *(((n:ℝ) - m) / ((k:ℝ) + 1 - m)) ^ (((k:ℝ) + 1 - m) / (2 * ((n:ℝ) - (k + 1)))) * |s (k + 1)| ^ ((n:ℝ) - (k + 1))⁻¹)) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : (Nat.choose n m) * |s m| ≤ (10 * k / (A * m))^m * (n / k)^(m/2) := by
+lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m) (h3 : m < k) (h4 : k+2 ≤ n) (h5 : n ≤ N) (hA: 1 ≤ A) (hk : 3 * k < 2 * n) (bound: |s m| ^ ((n:ℝ) - m)⁻¹ ≤ max (A ^ (((k:ℝ) - ↑m) / ((n:ℝ) - k)) * (((n:ℝ) - m) / ((k:ℝ) - m)) ^ (((k:ℝ) - m) / (2 * ((n:ℝ) - k))) * |s k| ^ ((n:ℝ) - k)⁻¹) (A ^ (((k:ℝ) + 1 - m) / ((n:ℝ) - ((k:ℝ) + 1))) *(((n:ℝ) - m) / ((k:ℝ) + 1 - m)) ^ (((k:ℝ) + 1 - m) / (2 * ((n:ℝ) - (k + 1)))) * |s (k + 1)| ^ ((n:ℝ) - (k + 1))⁻¹)) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : |s m|^m⁻¹ ≤ (rexp 6) * ((n / (k+1)) ^ (-((n:ℝ) - m) / (2 * ((n:ℝ) - k)))) / A  := by
+  have hm : 1 ≤ m := by linarith
   rify at *
   set nR := (n:ℝ)
   set mR := (m:ℝ)
@@ -292,18 +297,27 @@ lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m)
   clear bound h6 h6'
   rcases this with ⟨ k', hk', hk'', bound ⟩
   replace bound := lem9d h1 h2 h3 h5 hA hk hk' hk'' bound
-  have Ybound := calc
-    mR / (k'-mR) * ((k' - mR) / (2 * (nR-k')) * (nR-mR)) = (mR / (2 * (nR-k')) * (nR-m)) := by field_simp [hkm', hnk']; ring
-    _ ≤ mR / (2 * (nR-k')) * nR := by gcongr; linarith
-    _ = mR * (nR / (nR-k')) / 2 := by field_simp [hnk']; ring
-    _ ≤ mR * 4 / 2 := by gcongr
-    _ = 2 * mR := by ring
-  set Y := mR / (k'-mR) * ((k' - mR) / (2 * (nR-k')) * (nR-mR)) with hY
---  rw_ineq [Ybound] at bound; clear this Y hY
---  rw_ineq [bound]
+  have hnk' : 0 < nR - k' := by linarith
+  have hkm' : 0 < k' - mR := by linarith
+  have hk''' : 0 < k' := by linarith
+  have ratio : nR / (nR-k') ≤ 4 := by
+    rw [div_le_iff]; linarith; positivity
 
- -- rw [<- rpow_le_rpow_iff _ _ (show 0 < mR⁻¹ by positivity)] at bound ⊢
- -- rw [mul_rpow, mul_rpow, mul_rpow, mul_rpow]
+  rw [<- Real.exp_add] at bound
+  have Ybound := calc
+    mR / (k'-mR) * ((k' - mR) / (2 * (nR-k')) * (nR-mR)) + 4 = (mR / (2 * (nR-k')) * (nR-mR)) + 4 := by field_simp [hkm', hnk']; ring
+    _ ≤ mR / (2 * (nR-k')) * nR + 4 := by gcongr; linarith
+    _ = mR * (nR / (nR-k')) / 2 + 4 := by field_simp [hnk']; ring
+    _ ≤ mR * 4 / 2 + 4:= by gcongr
+    _ ≤ 6 * mR := by linarith
+  rw_ineq [Ybound] at bound; clear Ybound N NR h5 h5'
+  rw [<- rpow_le_rpow_iff _ _ (show 0 < mR⁻¹ by positivity)] at bound
+  rw [mul_rpow, mul_rpow, <-rpow_mul, <-exp_mul, <-rpow_mul] at bound
+  apply bound.trans; clear bound
+  field_simp [h2, hnk', hA'] at bound
 
   . sorry
   all_goals positivity
+
+
+--   have choose : (Nat.choose n m)^(1/m) ≤ (exp 1) * n / m := choose_le' (show m ≤ n by linarith) h2
