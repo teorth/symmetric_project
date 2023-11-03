@@ -2,6 +2,7 @@ import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Order.CompleteLattice
 import SymmetricProject.attainable
 import SymmetricProject.prev_bound
+import SymmetricProject.jensen
 import SymmetricProject.main_lemmas
 import SymmetricProject.Tactic.RwIneq
 
@@ -341,10 +342,14 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
   have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ ((exp 4) * n / m)^(m/2) := by
     have bound := best_constant_bounds h1 h11 h12 h3 h4
     exact lem8 h1 h11 h12 h3 hBest' bound h6 h6'
-  have eq47 {m : ℕ} (h11: 0 < m) (h12: m < k) : (Nat.choose n m) * |s m| ≤ (10 * k / (A*m))^m * (n/k)^(m/2) := by
+  have eq47 {m : ℕ} (h11: 0 < m) (h12: m < k) : (Nat.choose n m) * |s m| ≤ ((rexp 7) * (k+1) / ((best_constant N)*m))^m * (n/(k+1))^(m/2) := by
     have bound := best_constant_bounds_rev' h12 h8 h3 h4 h5
-    sorry
+    replace bound := lem9 h9 h11 h12 h8 h3 hBest (by linarith) bound h6 h6'
+    exact bound
   let δ := 1/100 -- placeholder
   let r := δ * (k/n)^(2⁻¹)
+  have s0 : s 0 = 1 := by attainable_zero_one h4
+  have bound := new_inequality' n n s r h4 (show n ≤ n by linarith) (show n ≥ 1 by linarith) (show r > 0 by positivity)
+  clear prev_bound h5 h6 h6'
   sorry
---  { k m n N : ℕ } { s : ℕ → ℝ } (h1 : m < k) (h2 : k+2 ≤ n) (h4 : n ≤ N) (h5 : attainable n s) (h6 : |s n| = 1): |s m|^(((n:ℝ)-m)⁻¹) ≤ max ((best_constant N)^(((k:ℝ)-m)/((n:ℝ)-(k:ℝ))) * (((n:ℝ) - m) / ((k:ℝ) - m) )^(((k:ℝ)-m)/(2*((n:ℝ)-k))) * |s k|^((n-(k:ℝ))⁻¹)) ((best_constant N)^(((k:ℝ)+1-m)/(n-((k:ℝ)+1))) * (((n:ℝ) - m) / ((k:ℝ)+1 - m) )^(((k:ℝ)+1-m)/(2*((n:ℝ)-(k+1)))) * |s (k+1)|^((n-((k:ℝ)+1))⁻¹)) := by
+--   theorem new_inequality' (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n s) (h2 : l ≤ n) (h3: l ≥ 1) (h4 : r > 0) : ∑ m in range (l+1), (Nat.choose l m) * abs (s m) * r^m ≥ (1 + abs (s l)^((2:ℝ)/l) * r^2)^(l/(2:ℝ))
