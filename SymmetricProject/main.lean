@@ -348,8 +348,12 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     exact bound
   let δ := 1/100 -- placeholder
   let r := δ * (k/n)^(2⁻¹)
-  have s0 : s 0 = 1 := by attainable_zero_one h4
+  have s0 : s 0 = 1 := attainable_zero_eq_one h4
   have bound := new_inequality' n n s r h4 (show n ≤ n by linarith) (show n ≥ 1 by linarith) (show r > 0 by positivity)
-  clear prev_bound h5 h6 h6'
+  rw [h5, ge_iff_le] at bound
+  clear bound_prev h4 h5 h6 h6' h2 h7 A hA hA' hn' hN h3
+  have : 1 + 1^(2/n) * r^2 ≤ exp (δ^2 * k / (2*n) ) := by
+    rw [show 1^(2/n) * r^2 = r^2 by simp]
+    sorry
+  rw_ineq [<-this] at bound
   sorry
---   theorem new_inequality' (n l : ℕ) (s : ℕ → ℝ) (r : ℝ) (h1: attainable n s) (h2 : l ≤ n) (h3: l ≥ 1) (h4 : r > 0) : ∑ m in range (l+1), (Nat.choose l m) * abs (s m) * r^m ≥ (1 + abs (s l)^((2:ℝ)/l) * r^2)^(l/(2:ℝ))

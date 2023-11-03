@@ -1,4 +1,5 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Analysis.Calculus.MeanValue
 import SymmetricProject.prev_bound
 import SymmetricProject.stirling
 import SymmetricProject.Tactic.Rify
@@ -372,3 +373,33 @@ lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m)
   . rw [(show m / (2*m) = 1/2 by field_simp [h2]; ring)]
     field_simp; rw [div_le_div_iff]; linarith; positivity; positivity
   all_goals positivity
+
+
+lemma lem10 (x : ℝ) (h1: 0 < x) (h2: x ≤ 1) : exp (x/2) ≤ 1 + x := by
+  rw [<- le_log_iff_exp_le (by linarith)]
+  have : ∃ c, c ∈ Set.Ioo 1 (1+x) ∧ deriv log c = (log (1+x) - log 1) / ((1+x) - 1) := by
+    apply exists_deriv_eq_slope
+    . linarith
+    . apply ContinuousOn.log
+      . apply Continuous.continuousOn; continuity
+      intro y hy
+      simp at hy
+      linarith
+    apply DifferentiableOn.log
+    . apply Differentiable.differentiableOn
+      exact differentiable_id'
+    intro y hy
+    simp at hy
+    linarith
+  rcases this with ⟨c, hc, bound ⟩
+  simp at hc
+  rcases hc with ⟨ hc, hc' ⟩
+  simp at bound
+  have : 0 ≠ c := by linarith
+  field_simp [this] at bound
+  rw [div_le_iff]
+  nth_rewrite 1 [bound]
+  gcongr
+  . apply log_nonneg; linarith
+  . linarith
+  norm_num  

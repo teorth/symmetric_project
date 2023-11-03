@@ -21,6 +21,10 @@ local macro_rules | `($x / $y)   => `(HDiv.hDiv ($x : ℝ) ($y : ℝ))
 /- In this file, inversion will always mean inversion of real numbers. -/
 local macro_rules | `($x ⁻¹)   => `(Inv.inv ($x : ℝ))
 
-example (a b c : ℕ) (h: a ≤ b) : a ≤ c := by
-  rw_ineq [h]
-  sorry
+example (a b c : ℕ) (h: b ≤ c) (h2 : a ≤ b) : a ≤ c := by
+  rw_ineq [<-h2] at h
+  exact h
+
+example (a b c : ℕ) (h: b ≤ c) (h2 : a ≤ b) : a ≤ c := by
+  rw_ineq [<-h]
+  exact h2
