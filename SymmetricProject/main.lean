@@ -342,20 +342,22 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
   have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ ((exp 4) * n / m)^(m/2) := by
     have bound := best_constant_bounds h1 h11 h12 h3 h4
     exact lem8 h1 h11 h12 h3 hBest' bound h6 h6'
-  have eq47 {m : ℕ} (h11: 0 < m) (h12: m < k) : (Nat.choose n m) * |s m| ≤ ((rexp 7) * (k+1) / ((best_constant N)*m))^m * (n/(k+1))^(m/2) := by
+  have eq47 {m : ℕ} (h12: m < k) : (Nat.choose n m) * |s m| ≤ ((rexp 7) * (k+1) / ((best_constant N)*m))^m * (n/(k+1))^(m/2) := by
+    rcases eq_or_lt_of_le (Nat.zero_le m) with h11 | h11
+    . rw [<-h11]
+      simp [attainable_zero_eq_one h4]
     have bound := best_constant_bounds_rev' h12 h8 h3 h4 h5
     replace bound := lem9 h9 h11 h12 h8 h3 hBest (by linarith) bound h6 h6'
     exact bound
   -- now the endgame after (4.7) begins
-  let δ := 1/100 -- placeholder
-  let r := δ * (k/n)^(2⁻¹)
-  have s0 : s 0 = 1 := attainable_zero_eq_one h4
+  let δ := 1/20 -- placeholder
+  let r := δ * ((k+1)/n)^(2⁻¹)
   have bound := new_inequality' n n s r h4 (show n ≤ n by linarith) (show n ≥ 1 by linarith) (show r > 0 by positivity)
   rw [h5, ge_iff_le] at bound
   clear bound_prev h4 h5 h6 h6' h2 h7 A hA hA' hn' hN h3
   rify at h1 h8 h9 h10
-  have : exp (δ^2 * k / (2*n) ) ≤ 1 + 1^(2/n) * r^2 := by
-    have : δ ^ 2 * k / (2*n) = r^2 / 2 := by
+  have : exp (δ^2 * (k+1) / (2*n) ) ≤ 1 + 1^(2/n) * r^2 := by
+    have : δ ^ 2 * (k+1) / (2*n) = r^2 / 2 := by
       dsimp
       rw [mul_rpow, <-rpow_mul, (show 2⁻¹ * 2 = 1 by norm_num)]
       field_simp [hn, h1]; left; ring
@@ -367,7 +369,7 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     rw [abs_of_nonneg, (show 1 = 1 * 1^2⁻¹ by simp)]
     gcongr
     . norm_num
-    . rw [div_le_iff]; linarith; positivity
+    . rw [div_le_iff]; simp; linarith; positivity
     positivity
   rw_ineq [<-this] at bound; clear this
 
