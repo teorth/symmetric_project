@@ -346,14 +346,31 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     have bound := best_constant_bounds_rev' h12 h8 h3 h4 h5
     replace bound := lem9 h9 h11 h12 h8 h3 hBest (by linarith) bound h6 h6'
     exact bound
+  -- now the endgame after (4.7) begins
   let δ := 1/100 -- placeholder
   let r := δ * (k/n)^(2⁻¹)
   have s0 : s 0 = 1 := attainable_zero_eq_one h4
   have bound := new_inequality' n n s r h4 (show n ≤ n by linarith) (show n ≥ 1 by linarith) (show r > 0 by positivity)
   rw [h5, ge_iff_le] at bound
   clear bound_prev h4 h5 h6 h6' h2 h7 A hA hA' hn' hN h3
-  have : 1 + 1^(2/n) * r^2 ≤ exp (δ^2 * k / (2*n) ) := by
-    rw [show 1^(2/n) * r^2 = r^2 by simp]
-    sorry
-  rw_ineq [<-this] at bound
+  rify at h1 h8 h9 h10
+  have : exp (δ^2 * k / (2*n) ) ≤ 1 + 1^(2/n) * r^2 := by
+    have : δ ^ 2 * k / (2*n) = r^2 / 2 := by
+      dsimp
+      rw [mul_rpow, <-rpow_mul, (show 2⁻¹ * 2 = 1 by norm_num)]
+      field_simp [hn, h1]; left; ring
+      all_goals positivity
+    rw [(show 1^(2/n) * r^2 = r^2 by simp), this]
+    apply lem10
+    . positivity
+    simp
+    rw [abs_of_nonneg, (show 1 = 1 * 1^2⁻¹ by simp)]
+    gcongr
+    . norm_num
+    . rw [div_le_iff]; linarith; positivity
+    positivity
+  rw_ineq [<-this] at bound; clear this
+
+
+
   sorry

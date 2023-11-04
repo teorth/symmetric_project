@@ -14,7 +14,7 @@ local macro_rules | `($x / $y)   => `(HDiv.hDiv ($x : ℝ) ($y : ℝ))
 /- In this file, inversion will always mean inversion of real numbers. -/
 local macro_rules | `($x ⁻¹)   => `(Inv.inv ($x : ℝ))
 
-/- The purpose of this file is to prove some easy lemmas used in the main arguments
+/- The purpose of this file is to prove some easy lemmas used in the main arguments.  One could perhaps give these lemmas more useful names.
 -/
 
 open Real
@@ -190,11 +190,13 @@ lemma lem8 { k m n N : ℕ } {s : ℕ → ℝ } {A : ℝ} (h1 : 0 < k) (h2 : k �
   all_goals positivity
 
 
+/-- The calculation to handle (4.7) was extremely lengthy and I ended up breaking it (somewhat artificially) into smaller chucks. First, an easy lemma on combining powers of A and A⁻¹. -/
 lemma lem9a {A s t : ℝ} (h : 0 < A) : A^s * (A⁻¹)^t = A^(s-t) := by
   rw [<- rpow_neg_one, <- rpow_mul (show 0 ≤ A by positivity), <-rpow_add h]
   congr 1
   ring
 
+/-- This lemma essentially establishes the second display after (4.6). -/
 lemma lem9b {kR mR nR NR A sm sk sk1 : ℝ} (hnm : 0 < nR - mR) (hnk : 0 < nR - (kR+1)) (hnk1 : 0 < nR - kR) (hkm : 0 < kR - mR) (hkm1 : 0 < kR + 1 - mR) (hk0 : 0 < kR) (hk1 : 0 < kR+1) (hA' : 0 < A) (hn' : 0 < nR) (bound: |sm| ^ ((nR - mR)⁻¹) ≤ max (A ^ ((kR - mR) / (nR - kR)) * ((nR - mR) / (kR-mR)) ^ ((kR-mR) / (2 * (nR - kR))) * |sk| ^ (nR - kR)⁻¹)  (A ^ ((kR + 1 - mR) / (nR - (kR + 1))) *((nR - mR) / (kR + 1 - mR)) ^ ((kR + 1 - mR) / (2 * (nR - (kR + 1)))) * |sk1| ^ (nR - (kR + 1))⁻¹)) (h6: (nR/kR)^2⁻¹ * |sk|^kR⁻¹ ≤ A⁻¹ * rexp NR⁻¹) (h6': (nR/(kR+1))^2⁻¹ * |sk1|^(kR+1)⁻¹ ≤ A⁻¹ * rexp NR⁻¹) : ∃ k':ℝ, kR ≤ k' ∧ k' ≤ kR+1 ∧ |sm| * (nR/k')^(2⁻¹ * (k'*(nR-mR)/(nR-k'))) ≤ A^((k'-mR)/(nR-k') * (nR-mR)) * ((nR-mR)/(k'-mR))^((k'-mR)/(2*(nR-k')) * (nR-mR)) * (A⁻¹* rexp NR⁻¹)^(k' * (nR-mR) / (nR-k')) := by
   rw [le_max_iff] at bound
   rcases bound with bound | bound
@@ -231,6 +233,7 @@ lemma lem9c { k' mR nR A : ℝ } (h2: 0 < mR) (hnk': 0 < nR - k') (hkm': 0 < k' 
     convert this using 1
     ring
 
+/-- this lemma establishes  a preliminary version of the fifth display after (4.6). -/
 set_option maxHeartbeats 400000 in
 lemma lem9d { kR k' mR nR A NR sm : ℝ } (h1: kR > 10) (h2 : 0 < mR) (h3 : mR < kR) (h5 : nR ≤ NR) (hA: 1 ≤ A) (hk : 3 * kR < 2 * nR) (hk': kR ≤ k') (hk'': k' ≤ kR + 1) (bound: |sm| * (nR / k') ^ (2⁻¹ * (k' * (nR - mR) / (nR - k'))) ≤ A ^ ((k' - mR) / (nR - k') * (nR - mR)) * ((nR - mR) / (k' - mR)) ^ ((k' - mR) / (2 * (nR - k')) * (nR - mR)) * (A⁻¹ * rexp NR⁻¹) ^ (k' * (nR - mR) / (nR - k'))) : |sm| ≤ rexp (mR / (k' - mR) * ((k' - mR) / (2 * (nR - k')) * (nR - mR))) * rexp 4 * A ^ (-mR) * (nR / k') ^ (-mR * (nR - mR) / (2 * (nR - k'))) := by
   have hA' : 0 < A := by linarith
@@ -284,6 +287,7 @@ lemma lem9f {m n k' k : ℝ} (h: k ≤ k') (h2: 0 < n-m) (h3 : 0 < n-k'): (m - n
     apply mul_le_mul_of_nonpos_left
     all_goals linarith
 
+/-- this lemma establishes the fifth display after (4.6). -/
 set_option maxHeartbeats 400000 in
 lemma lem9g {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m) (h3 : m < k) (h4 : k+2 ≤ n) (h5 : n ≤ N) (hA: 1 ≤ A) (hk : 3 * k < 2 * n) (bound: |s m| ^ ((n:ℝ) - m)⁻¹ ≤ max (A ^ (((k:ℝ) - ↑m) / ((n:ℝ) - k)) * (((n:ℝ) - m) / ((k:ℝ) - m)) ^ (((k:ℝ) - m) / (2 * ((n:ℝ) - k))) * |s k| ^ ((n:ℝ) - k)⁻¹) (A ^ (((k:ℝ) + 1 - m) / ((n:ℝ) - ((k:ℝ) + 1))) *(((n:ℝ) - m) / ((k:ℝ) + 1 - m)) ^ (((k:ℝ) + 1 - m) / (2 * ((n:ℝ) - (k + 1)))) * |s (k + 1)| ^ ((n:ℝ) - (k + 1))⁻¹)) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : |s m|^m⁻¹ ≤ (rexp 6) * ((n / (k+1)) ^ (-((n:ℝ) - m) / (2 * ((n:ℝ) - k)))) / A  := by
   have hm : 1 ≤ m := by linarith
@@ -374,7 +378,7 @@ lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m)
     field_simp; rw [div_le_div_iff]; linarith; positivity; positivity
   all_goals positivity
 
-
+/-- A lower bound of 1+x by exp(x/2) when x between 0 and 1.  A sharper lower bound of exp(x - x^2/2) is available for all non-negative x (by establishing that log(1+x)-x+x^2/2 is monotone decreasing for x>=0) but I was too lazy to implement this refinement, which was not needed for my argument. -/
 lemma lem10 (x : ℝ) (h1: 0 < x) (h2: x ≤ 1) : exp (x/2) ≤ 1 + x := by
   rw [<- le_log_iff_exp_le (by linarith)]
   have : ∃ c, c ∈ Set.Ioo 1 (1+x) ∧ deriv log c = (log (1+x) - log 1) / ((1+x) - 1) := by
@@ -402,4 +406,4 @@ lemma lem10 (x : ℝ) (h1: 0 < x) (h2: x ≤ 1) : exp (x/2) ≤ 1 + x := by
   gcongr
   . apply log_nonneg; linarith
   . linarith
-  norm_num  
+  norm_num
