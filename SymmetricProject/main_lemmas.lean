@@ -493,7 +493,7 @@ lemma lem15 { x y z : ℝ } (hx: y ≤ x) (hy : 0 ≤ y) (h : rexp x ≤ rexp y 
   all_goals positivity
 
 /-- Final analysis giving bound on A -/
-lemma lem16 { n k : ℕ } {A : ℝ} (hk: 10 ≤ (k:ℝ)) (hn: (n:ℝ) ≠ 0) (bound: rexp ((1/20) ^ 2 * (k + 1) / (2 * n)) ^ (n / 2) ≤ rexp (rexp 7 * (1/20) * (k + 1) / A) + 2 * 2 ^ (-k) ) : A ≤ 160 * exp 7 := by
+lemma lem16 { n k : ℕ } {A : ℝ} (hk: 10 < (k:ℝ)) (hn: (n:ℝ) ≠ 0) (bound: rexp ((1/20) ^ 2 * (k + 1) / (2 * n)) ^ (n / 2) ≤ rexp (rexp 7 * (1/20) * (k + 1) / A) + 2 * 2 ^ (-k) ) : A ≤ 160 * exp 7 := by
   have : (1 / 20) ^ 2 * (k + 1) / (2 * n) * (n / 2) = (k+1)/1600 := by field_simp [hn]; ring
   rw [<-exp_mul, this] at bound; clear this
 

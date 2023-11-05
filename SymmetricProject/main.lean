@@ -260,8 +260,9 @@ set_option maxHeartbeats 400000 in
 /-- A form of the main theorem. --/
 theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N ≤ C := by
   rcases prev_bound with ⟨ C_prev, hC_prev, bound_prev ⟩
-  use max (exp 1) (max (11^2⁻¹ * C_prev * exp 1) (max ((exp ( (exp 1)⁻¹ * exp 1))^2) (160 * exp 7)))
+  use max (exp 1) (max (11^2⁻¹ * C_prev * exp 1) (max ((((exp (exp 1)⁻¹) * exp 1))^2) (160 * exp 7)))
   intro N hN
+  simp
   let A := rexp (-N⁻¹) * best_constant N
   have hBest := one_le_best N
   have hA : A < best_constant N := by
@@ -280,41 +281,49 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
   simp [<- exp_neg] at h6
   rcases h6 with ⟨h6, h6'⟩
   by_cases h7 : k = n
-  . simp [h7, h5, div_self hn] at h6
+  . left
+    simp [h7, h5, div_self hn] at h6
     field_simp at h6
     rw [le_div_iff hBest', one_mul] at h6
     apply h6.trans
     rw [show 1/N = N⁻¹ by field_simp]
-    apply (lem5 hN).trans
-    simp; left; linarith
+    exact lem5 hN
   by_cases h8 : k+1 = n
-  . have : (k:ℝ)+1 = n := by norm_cast
+  . left
+    have : (k:ℝ)+1 = n := by norm_cast
     simp [h8, this, h5, div_self hn] at h6'
     field_simp at h6'
     rw [le_div_iff hBest', one_mul] at h6'
     apply h6'.trans
     rw [show 1/N = N⁻¹ by field_simp]
-    apply (lem5 hN).trans
-    simp; left; linarith
+    exact lem5 hN
+  right
   replace h7 : k+1 ≤ n := by contrapose! h7; linarith
   replace h8 : k+2 ≤ n := by contrapose! h8; linarith
   have hn' : 0 < n^2⁻¹ := by positivity
-  by_cases h9 : k ≤ 10 -- placeholder
+  by_cases h9 : k ≤ 10
   . replace bound_prev := bound_prev n k s h4 h7 h1
     rw [mul_max_of_nonneg] at bound_prev
     simp [h5] at bound_prev
+    left
     rcases bound_prev with bound_prev | bound_prev
     . have := lem6 bound_prev h6 hBest' h1 hN
       apply this.trans
-      sorry -- depends on final choice of C
+      gcongr
+      norm_cast
+      linarith
     . rw [(show (k:ℝ)+1 = (k+1:ℕ) by norm_cast)] at h6' bound_prev
       have := lem6 bound_prev h6' hBest' (show 0 < k+1 by linarith) hN
       apply this.trans
-      sorry -- depends on final choice of C
+      gcongr
+      norm_cast
+      linarith
     positivity
+  right
   replace h9 : k > 10 := by contrapose! h9; linarith
   by_cases h10 : 3 * k ≥ 2 * n
-  . have h1' : 0 < n-(k+1) := by
+  . left
+    have h1' : 0 < n-(k+1) := by
       rify [h7] at h8 ⊢; linarith
     have h2' : n-(k+1)+2 ≤ n := by
       rify [h7] at h9 ⊢; linarith
@@ -335,13 +344,14 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     rcases bound with bound | bound
     . replace bound := lem0 bound h6' (by positivity) (by positivity)
       rw [(show (k:ℝ)+1 = (k+1:ℕ) by norm_cast)] at bound
-      replace bound := lem7 (by linarith) (by linarith) (by linarith) hN hBest' bound
-      apply bound.trans
-      sorry -- depends on final choice of C
+      have := lem7 (by linarith) (by linarith) (by linarith) hN hBest' bound
+      simp at this
+      assumption
     replace bound := lem0 bound h6 (by positivity) (by positivity)
-    replace bound := lem7 (by linarith) (by linarith) (by linarith) hN hBest' bound
-    apply bound.trans
-    sorry -- depends on final choice of C
+    have := lem7 (by linarith) (by linarith) (by linarith) hN hBest' bound
+    simp at this
+    assumption
+  right
   have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ ((exp 4) * n / m)^(m/2) := by
     have bound := best_constant_bounds h1 h11 h12 h3 h4
     exact lem8 h1 h11 h12 h3 hBest' bound h6 h6'
@@ -425,4 +435,4 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     norm_cast
   dsimp at bound2
   clear eq46 eq47 eq46a eq46b eq47a eq47b bound r h10 h8 s hBest δ
-  sorry
+  exact lem16 h9 hn bound2
