@@ -376,7 +376,7 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     positivity
   rw_ineq [<-this] at bound; clear this
   rw [lem11 (show k ≤ n+1 by rify; linarith)] at bound
-  have eq47a : ∑ m in range k, (Nat.choose n m) * |s_m| * r^m ≤ ∑ m in range k, ((rexp 7) * (k+1) / ((best_constant N)*m))^m * (n/(k+1))^(m/2) * r^m := by
+  have eq47a : ∑ m in range k, (Nat.choose n m) * |s m| * r^m ≤ ∑ m in range k, ((rexp 7) * (k+1) / ((best_constant N)*m))^m * (n/(k+1))^(m/2) * r^m := by
     apply Finset.sum_le_sum
     intro m hm
     simp at hm
@@ -388,12 +388,21 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     intro m hm
     simp at hm
     have : m+1 ≤ n+1-k := by linarith
-    rify (have k ≤ n+1 by rify; linarith) at this
+    rify [show k ≤ n+1 by rify; linarith] at this
     have h : k+m ≤ n := by rify; linarith
+    have h2 : k ≤ k+m := by linarith
     rw [mul_le_mul_right]
-    . exact eq46 (have k ≤ k+m by linarith) h
+    . exact eq46 h2 h
     positivity
-
+  have eq47b : ∑ m in range k, (Nat.choose n m) * |s m| * r^m ≤ exp ((rexp 7) * δ * (k+1) / (best_constant N) ) := by
+    apply eq47a.trans
+    have := lem12 k (best_constant N) ((rexp 7) * (k+1)) (n/(k+1)) r (show 0 < best_constant N by linarith) (show 0 < (rexp 7) * (k+1) by positivity) (show 0 < n/(k+1) by positivity) (show 0 < r by positivity)
+    convert this using 1
+    sorry
 
 
   sorry
+
+
+-- lemma lem12 (k : ℕ) (A B C D : ℝ) (hA: 0 < A) (hB: 0 < B) (hC: 0 < C) (hD: 0 < D) : ∑ m in range k, (B / (A * m)) ^ m * C^(m/2) * D ^ m ≤ exp ( B * C^2⁻¹ * D / A )
+-- ((rexp 7) * (k+1) / ((best_constant N)*m))^m * (n/(k+1))^(m/2) * r^m := by
