@@ -474,3 +474,52 @@ lemma lem14 ( n k : ℕ ) : ∑ m in range n, (1/2)^(k+m) ≤ 2 * 2^(-k) := by
   gcongr
   norm_cast
   apply sum_geometric_two_le
+
+
+/-- technical lemma: if exp(x) ≤ exp(y)+z and 0 ≤ y ≤ z then x ≤ y + z -/
+lemma lem15 { x y z : ℝ } (hx: y ≤ x) (hy : 0 ≤ y) (h : rexp x ≤ rexp y + z) : x ≤ y + z := by
+  rw [(show rexp x = rexp y * rexp (x-y) by rw [<-Real.exp_add]; ring_nf), <-le_div_iff'] at h
+  replace h := (add_one_le_exp (x-y)).trans h
+  rw [le_div_iff, add_comm _ z, <-sub_le_iff_le_add] at h
+  suffices : x-y ≤ z
+  . linarith
+  apply le_trans _ h
+  have : (x-y+1) * rexp y - rexp y = (x-y) * rexp y := by ring
+  rw [this]
+  nth_rewrite 1 [<-mul_one (x-y)]
+  gcongr
+  . linarith
+  . exact one_le_exp hy
+  all_goals positivity
+
+/-- Final analysis giving bound on A -/
+lemma lem16 { n k : ℕ } {A : ℝ} (hk: 10 ≤ (k:ℝ)) (hn: (n:ℝ) ≠ 0) (bound: rexp ((1/20) ^ 2 * (k + 1) / (2 * n)) ^ (n / 2) ≤ rexp (rexp 7 * (1/20) * (k + 1) / A) + 2 * 2 ^ (-k) ) : A ≤ 160 * exp 7 := by
+  have : (1 / 20) ^ 2 * (k + 1) / (2 * n) * (n / 2) = (k+1)/1600 := by field_simp [hn]; ring
+  rw [<-exp_mul, this] at bound; clear this
+
+  by_contra hA'
+  replace hA' := (show 160 * exp 7 ≤ A by linarith)
+  have h7 : 0 < exp 7 := by positivity
+  have hA : 0 < A := by linarith
+  set X := exp 7 * (1/20) * (k+1) / A
+  have hx : X  ≤ (k+1)/3200 := by
+    have : X = (k+1) / (20*A / (rexp 7)) := by field_simp [hA]; ring
+    rw [this]
+    gcongr
+    rw [le_div_iff, <- div_le_iff', (show 3200 * rexp 7 / 20 = (3200/20) * rexp 7 by field_simp)]
+    norm_num
+    linarith
+    all_goals positivity
+  have := lem15 (show X ≤ (k+1)/1600 by linarith) (show 0 ≤ X by positivity) bound
+  rw [(show (k+1)/1600 = (k+1)/3200 + (k+1)/3200 by field_simp; ring)] at this
+  have hx' : (k+1)/3200 + (k+1)/3200 ≤ (k+1)/3200 + 2 * 2^(-k) := by
+    apply this.trans
+    exact add_le_add_right hx (2 * 2 ^ (-k))
+  simp at hx'
+  contrapose! hx'
+  calc
+    2 * 2^(-k) ≤ 2 * 2^(-10) := by gcongr; linarith
+    _ < 11 / 3200 := by
+      rw [lt_div_iff, rpow_neg, (show 2^10 = 1024 by norm_cast)]
+      all_goals norm_num
+    _ ≤ (k+1) / 3200 := by gcongr; linarith

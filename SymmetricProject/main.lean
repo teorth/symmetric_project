@@ -260,7 +260,7 @@ set_option maxHeartbeats 400000 in
 /-- A form of the main theorem. --/
 theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N ≤ C := by
   rcases prev_bound with ⟨ C_prev, hC_prev, bound_prev ⟩
-  use 100 -- placeholder
+  use max (exp 1) (max (11^2⁻¹ * C_prev * exp 1) (max ((exp ( (exp 1)⁻¹ * exp 1))^2) (160 * exp 7)))
   intro N hN
   let A := rexp (-N⁻¹) * best_constant N
   have hBest := one_le_best N
@@ -286,7 +286,7 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     apply h6.trans
     rw [show 1/N = N⁻¹ by field_simp]
     apply (lem5 hN).trans
-    sorry -- depends on final choice of C
+    simp; left; linarith
   by_cases h8 : k+1 = n
   . have : (k:ℝ)+1 = n := by norm_cast
     simp [h8, this, h5, div_self hn] at h6'
@@ -295,7 +295,7 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     apply h6'.trans
     rw [show 1/N = N⁻¹ by field_simp]
     apply (lem5 hN).trans
-    sorry -- depends on final choice of C
+    simp; left; linarith
   replace h7 : k+1 ≤ n := by contrapose! h7; linarith
   replace h8 : k+2 ≤ n := by contrapose! h8; linarith
   have hn' : 0 < n^2⁻¹ := by positivity
@@ -408,7 +408,7 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     all_goals positivity
   have eq46b : ∑ m in range (n+1-k), (Nat.choose n (k+m)) * |s (k+m)| * r^(k+m) ≤ 2 * 2^(-k) := by
     apply eq46a.trans
-    apply le_trans _ (lem14 n+1-k k)
+    apply le_trans _ (lem14 (n+1-k) k)
     apply Finset.sum_le_sum
     intro m hm
     rw [(show (k+m)/2 = 2⁻¹ * (k+m) by field_simp), rpow_mul, <-mul_rpow]
@@ -417,6 +417,12 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     dsimp
     exact lem13 h9 hn
     all_goals positivity
-  rw_ineq [eq46b, eq47b] at bound
-  clear eq46a eq46b eq46b eq47b
+--  `rw_ineq [eq46b, eq47b] at bound` timed out here, working manually instead
+  have bound2 : rexp (δ ^ 2 * (k + 1) / (2 * n)) ^ (n / 2) ≤ rexp (rexp 7 * δ * (k + 1) / best_constant N) + 2 * 2 ^ (-k) := by
+    apply bound.trans
+    gcongr
+    convert eq46b
+    norm_cast
+  dsimp at bound2
+  clear eq46 eq47 eq46a eq46b eq47a eq47b bound r h10 h8 s hBest δ
   sorry
