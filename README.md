@@ -1,6 +1,6 @@
 The primary purpose of this project was to formalize the results in https://arxiv.org/abs/2310.05328 , referred to in the project "the paper".  In particular, to prove the following result: if $s_k$ denotes the $k$^th elementary symmetric mean of $n$ real numbers, then
 
-$$ |s_l|^{1/l} \leq C (l/k)^{1/2} max |s_k|^{1/k}, |s_{k+1}|^{1/(k+1)}$$
+$$ |s_l|^{1/l} \leq C \max((l/k)^{1/2} |s_k|^{1/k}, (l/(k+1))^{1/2} |s_{k+1}|^{1/(k+1)})$$
 
 for all $1 \leq k \leq l \leq n$ and some absolute constant $C$.  In fact this project achieves the value $C = 160 e^7$.
 

@@ -340,7 +340,6 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     have h7': 0 < n - ((k:ℝ)+1) := by rify at h8; linarith
     have h8': 0 < n - (k:ℝ) := by  linarith
     simp [h5, h3', h4', h5'] at bound
-    have hN0 : 0 < (N:ℝ) := by norm_cast
     rcases bound with bound | bound
     . replace bound := lem0 bound h6' (by positivity) (by positivity)
       rw [(show (k:ℝ)+1 = (k+1:ℕ) by norm_cast)] at bound
@@ -420,7 +419,7 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     apply eq46a.trans
     apply le_trans _ (lem14 (n+1-k) k)
     apply Finset.sum_le_sum
-    intro m hm
+    intro m _
     rw [(show (k+m)/2 = 2⁻¹ * (k+m) by field_simp), rpow_mul, <-mul_rpow]
     apply rpow_le_rpow
     . positivity
