@@ -233,8 +233,8 @@ lemma lem9c { k' mR nR A : ℝ } (h2: 0 < mR) (hnk': 0 < nR - k') (hkm': 0 < k' 
     convert this using 1
     ring
 
-/-- this lemma establishes  a preliminary version of the fifth display after (4.6). -/
 set_option maxHeartbeats 400000 in
+/-- this lemma establishes  a preliminary version of the fifth display after (4.6). -/
 lemma lem9d { kR k' mR nR A NR sm : ℝ } (h1: kR > 10) (h2 : 0 < mR) (h3 : mR < kR) (h5 : nR ≤ NR) (hA: 1 ≤ A) (hk : 3 * kR < 2 * nR) (hk': kR ≤ k') (hk'': k' ≤ kR + 1) (bound: |sm| * (nR / k') ^ (2⁻¹ * (k' * (nR - mR) / (nR - k'))) ≤ A ^ ((k' - mR) / (nR - k') * (nR - mR)) * ((nR - mR) / (k' - mR)) ^ ((k' - mR) / (2 * (nR - k')) * (nR - mR)) * (A⁻¹ * rexp NR⁻¹) ^ (k' * (nR - mR) / (nR - k'))) : |sm| ≤ rexp (mR / (k' - mR) * ((k' - mR) / (2 * (nR - k')) * (nR - mR))) * rexp 4 * A ^ (-mR) * (nR / k') ^ (-mR * (nR - mR) / (2 * (nR - k'))) := by
   have hA' : 0 < A := by linarith
   have hn' : 0 < nR := by linarith
@@ -287,8 +287,8 @@ lemma lem9f {m n k' k : ℝ} (h: k ≤ k') (h2: 0 < n-m) (h3 : 0 < n-k'): (m - n
     apply mul_le_mul_of_nonpos_left
     all_goals linarith
 
-/-- this lemma establishes the fifth display after (4.6). -/
 set_option maxHeartbeats 400000 in
+/-- this lemma establishes the fifth display after (4.6). -/
 lemma lem9g {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m) (h3 : m < k) (h4 : k+2 ≤ n) (h5 : n ≤ N) (hA: 1 ≤ A) (hk : 3 * k < 2 * n) (bound: |s m| ^ ((n:ℝ) - m)⁻¹ ≤ max (A ^ (((k:ℝ) - ↑m) / ((n:ℝ) - k)) * (((n:ℝ) - m) / ((k:ℝ) - m)) ^ (((k:ℝ) - m) / (2 * ((n:ℝ) - k))) * |s k| ^ ((n:ℝ) - k)⁻¹) (A ^ (((k:ℝ) + 1 - m) / ((n:ℝ) - ((k:ℝ) + 1))) *(((n:ℝ) - m) / ((k:ℝ) + 1 - m)) ^ (((k:ℝ) + 1 - m) / (2 * ((n:ℝ) - (k + 1)))) * |s (k + 1)| ^ ((n:ℝ) - (k + 1))⁻¹)) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : |s m|^m⁻¹ ≤ (rexp 6) * ((n / (k+1)) ^ (-((n:ℝ) - m) / (2 * ((n:ℝ) - k)))) / A  := by
   have hm : 1 ≤ m := by linarith
   rify at *
@@ -407,3 +407,34 @@ lemma lem10 (x : ℝ) (h1: 0 < x) (h2: x ≤ 1) : exp (x/2) ≤ 1 + x := by
   . apply log_nonneg; linarith
   . linarith
   norm_num
+
+/-- splitting a sum into two subsums. --/
+lemma lem11 {n m : ℕ} (h : m ≤ n) (f : ℕ → ℝ) : (Finset.sum (Finset.range n) fun i => f i) = (Finset.sum (Finset.range m) fun i => f i) + (Finset.sum (Finset.range (n-m)) fun i => f (m+i)) := by
+  have : n = m + (n-m) := by zify [h]; ring
+  nth_rewrite 1 [this]
+  rw [Finset.sum_range, Finset.sum_range, Finset.sum_range]
+  rw [Fin.sum_univ_add]
+  congr 1
+
+open Finset
+open BigOperators
+open Nat
+
+lemma lem12 (k : ℕ) (A B C D : ℝ) (hA: 0 < A) (hB: 0 < B) (hC: 0 < C) (hD: 0 < D) : ∑ m in range k, (B / (A * m)) ^ m * C^(m/2) * D ^ m ≤ exp ( B * C^2⁻¹ * D / A ) := by
+  have est1 (m : ℕ) (hm: 0 < m) : (B / (A * m)) ^ m * C^(m/2) * D ^ m = ( B * C^2⁻¹ * D / A )^m / m^m := by
+    rw [div_rpow, div_rpow, mul_rpow, mul_rpow, mul_rpow, <-rpow_mul, (show 2⁻¹ * m = m/2 by field_simp)]
+    field_simp [(show 0 < A^m by positivity), (show 0<m^m by positivity)]
+    all_goals positivity
+  have est2 (m : ℕ) : (B / (A * m)) ^ m * C^(m/2) * D ^ m ≤ ( B * C^2⁻¹ * D / A )^m / m ! := by
+    rcases eq_or_lt_of_le (Nat.zero_le m) with hm | hm
+    . rw [<-hm]; simp
+    rw [est1 m hm, div_le_div_left _ _ _]
+    norm_cast; apply factorial_le'
+    all_goals positivity
+  have : ∑ m in range k, (B / (A * m)) ^ m * C^(m/2) * D ^m ≤ ∑ m in range k, ( B * C^2⁻¹ * D / A )^m / m ! := by
+    apply sum_le_sum
+    intro m _
+    exact est2 m
+  apply this.trans
+  replace this := sum_le_exp_of_nonneg (show 0 ≤ B * C^2⁻¹ * D / A by positivity) k
+  norm_cast

@@ -1,5 +1,6 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Order.CompleteLattice
+import Mathlib.Algebra.BigOperators.Ring
 import SymmetricProject.attainable
 import SymmetricProject.prev_bound
 import SymmetricProject.jensen
@@ -252,6 +253,8 @@ lemma best_constant_bounds_rev' { k m n N : ℕ } { s : ℕ → ℝ } (h1 : m < 
   all_goals ring
 
 
+open Finset
+open BigOperators
 
 set_option maxHeartbeats 400000 in
 /-- A form of the main theorem. --/
@@ -372,6 +375,24 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     . rw [div_le_iff]; simp; linarith; positivity
     positivity
   rw_ineq [<-this] at bound; clear this
+  rw [lem11 (show k ≤ n+1 by rify; linarith)] at bound
+  have eq47a : ∑ m in range k, (Nat.choose n m) * |s_m| * r^m ≤ ∑ m in range k, ((rexp 7) * (k+1) / ((best_constant N)*m))^m * (n/(k+1))^(m/2) * r^m := by
+    apply Finset.sum_le_sum
+    intro m hm
+    simp at hm
+    rw [mul_le_mul_right]
+    . exact eq47 hm
+    positivity
+  have eq46a : ∑ m in range (n+1-k), (Nat.choose n (k+m)) * |s (k+m)| * r^(k+m) ≤ ∑ m in range (n+1-k), ((exp 4) * n / m)^(m/2) * r^(k+m) := by
+    apply Finset.sum_le_sum
+    intro m hm
+    simp at hm
+    have : m+1 ≤ n+1-k := by linarith
+    rify (have k ≤ n+1 by rify; linarith) at this
+    have h : k+m ≤ n := by rify; linarith
+    rw [mul_le_mul_right]
+    . exact eq46 (have k ≤ k+m by linarith) h
+    positivity
 
 
 

@@ -18,7 +18,7 @@ open Finset
 open BigOperators
 
 /-- n! is upper bounded by n^n -/
-lemma factorial_le {n : ℕ} : n ! ≤ n^n := by
+lemma factorial_le' {n : ℕ} : n ! ≤ n^n := by
   induction' n with m hm
   . simp
   rw [factorial_succ, Nat.pow_succ, succ_eq_add_one, mul_comm]
