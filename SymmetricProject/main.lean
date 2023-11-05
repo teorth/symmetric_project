@@ -383,7 +383,7 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     rw [mul_le_mul_right]
     . exact eq47 hm
     positivity
-  have eq46a : ∑ m in range (n+1-k), (Nat.choose n (k+m)) * |s (k+m)| * r^(k+m) ≤ ∑ m in range (n+1-k), ((exp 4) * n / m)^(m/2) * r^(k+m) := by
+  have eq46a : ∑ m in range (n+1-k), (Nat.choose n (k+m)) * |s (k+m)| * r^(k+m) ≤ ∑ m in range (n+1-k), ((exp 4) * n / (k+m))^((k+m)/2) * r^(k+m) := by
     apply Finset.sum_le_sum
     intro m hm
     simp at hm
@@ -392,17 +392,25 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     have h : k+m ≤ n := by rify; linarith
     have h2 : k ≤ k+m := by linarith
     rw [mul_le_mul_right]
-    . exact eq46 h2 h
+    . have := eq46 h2 h
+      simp at this
+      assumption
     positivity
   have eq47b : ∑ m in range k, (Nat.choose n m) * |s m| * r^m ≤ exp ((rexp 7) * δ * (k+1) / (best_constant N) ) := by
     apply eq47a.trans
     have := lem12 k (best_constant N) ((rexp 7) * (k+1)) (n/(k+1)) r (show 0 < best_constant N by linarith) (show 0 < (rexp 7) * (k+1) by positivity) (show 0 < n/(k+1) by positivity) (show 0 < r by positivity)
-    convert this using 1
-    sorry
+    convert this using 3
+    dsimp
+    have h { a b c d e : ℝ} : a*b*c*(d*e) = a*d*b*(c*e) := by ring
+    rw [h, <- mul_rpow]
+    have h2 : 0 < (k:ℝ)+1 := by linarith
+    field_simp [hn, h2]
+    all_goals positivity
+  have eq46b : ∑ m in range (n+1-k), (Nat.choose n (k+m)) * |s (k+m)| * r^(k+m) ≤ ∑ m in range (n+1-k), 2^(-(k+m)) := by
+    apply eq46a.trans
+    apply Finset.sum_le_sum
+    intro m hm
+    
 
 
   sorry
-
-
--- lemma lem12 (k : ℕ) (A B C D : ℝ) (hA: 0 < A) (hB: 0 < B) (hC: 0 < C) (hD: 0 < D) : ∑ m in range k, (B / (A * m)) ^ m * C^(m/2) * D ^ m ≤ exp ( B * C^2⁻¹ * D / A )
--- ((rexp 7) * (k+1) / ((best_constant N)*m))^m * (n/(k+1))^(m/2) * r^m := by
