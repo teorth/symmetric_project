@@ -1,5 +1,7 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Analysis.Calculus.MeanValue
+import Mathlib.Analysis.SpecificLimits.Basic
+import Mathlib.Data.Complex.ExponentialBounds
 import SymmetricProject.prev_bound
 import SymmetricProject.stirling
 import SymmetricProject.Tactic.Rify
@@ -438,3 +440,37 @@ lemma lem12 (k : ℕ) (A B C D : ℝ) (hA: 0 < A) (hB: 0 < B) (hC: 0 < C) (hD: 0
   apply this.trans
   replace this := sum_le_exp_of_nonneg (show 0 ≤ B * C^2⁻¹ * D / A by positivity) k
   norm_cast
+
+/-- A mostly numerical calculation, used to control the contribution of (4.7) --/
+lemma lem13 { n k m : ℕ } (hk: 10 < (k:ℝ) ) (hn : (n:ℝ) ≠ 0 ) : (rexp 4 * ↑n / (↑k + ↑m)) ^ 2⁻¹ * (1/20 * ((k+1)/n)^2⁻¹) ≤ 1 / 2 := by
+  have hm : 0 ≤ (m:ℝ) := by positivity
+  have h : 0 < (k:ℝ)+m := by linarith
+  rw [mul_comm (1/20) _, <- mul_assoc, <-mul_rpow]
+  field_simp [h, hn]
+  rw [div_le_iff, <- rpow_le_rpow_iff _ _ (show 0 < 2 by norm_num), <-rpow_mul]
+  simp; norm_num
+  have : rexp 4 * n * (k+1) / ((k+m) * n) = (k/(k+m) + 1/(k+m)) * rexp 4:= by field_simp; ring
+  rw [this, <- exp_one_rpow]; clear this
+  have : (k / (k + m) + 1 / (k + m)) * (rexp 1)^4 ≤ (1 + 1/10) * 3^4 := by
+    gcongr
+    . rw [div_le_iff]; norm_cast; linarith; positivity
+    . linarith
+    apply le_of_lt
+    apply exp_one_lt_d9.trans
+    norm_num
+  apply this.trans
+  norm_cast; norm_num
+  all_goals positivity
+
+/-- A simple geometric series bound -/
+lemma lem14 ( n k : ℕ ) : ∑ m in range n, (1/2)^(k+m) ≤ 2 * 2^(-k) := by
+  have : ∑ m in range n, (1/2)^(k+m) = ∑ m in range n, (1/2)^m * 2^(-k) := by
+    congr
+    ext m
+    rw [rpow_add, mul_comm, rpow_neg, <-inv_rpow]
+    congr
+    all_goals norm_num
+  rw [this, <- sum_mul]
+  gcongr
+  norm_cast
+  apply sum_geometric_two_le

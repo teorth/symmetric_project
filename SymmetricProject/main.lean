@@ -406,11 +406,17 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     have h2 : 0 < (k:ℝ)+1 := by linarith
     field_simp [hn, h2]
     all_goals positivity
-  have eq46b : ∑ m in range (n+1-k), (Nat.choose n (k+m)) * |s (k+m)| * r^(k+m) ≤ ∑ m in range (n+1-k), 2^(-(k+m)) := by
+  have eq46b : ∑ m in range (n+1-k), (Nat.choose n (k+m)) * |s (k+m)| * r^(k+m) ≤ 2 * 2^(-k) := by
     apply eq46a.trans
+    apply le_trans _ (lem14 n+1-k k)
     apply Finset.sum_le_sum
     intro m hm
-    
-
-
+    rw [(show (k+m)/2 = 2⁻¹ * (k+m) by field_simp), rpow_mul, <-mul_rpow]
+    apply rpow_le_rpow
+    . positivity
+    dsimp
+    exact lem13 h9 hn
+    all_goals positivity
+  rw_ineq [eq46b, eq47b] at bound
+  clear eq46a eq46b eq46b eq47b
   sorry
