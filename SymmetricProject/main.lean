@@ -6,6 +6,7 @@ import SymmetricProject.prev_bound
 import SymmetricProject.jensen
 import SymmetricProject.main_lemmas
 import SymmetricProject.Tactic.RwIneq
+import SymmetricProject.Tactic.RPowSimp
 
 /- In this file the power notation will always mean the base and exponent are real numbers. -/
 local macro_rules | `($x ^ $y)   => `(HPow.hPow ($x : ℝ) ($y : ℝ))
@@ -111,11 +112,7 @@ lemma best_constant_bounds { k l n N : ℕ } { s : ℕ → ℝ } (h1 : 0 < k) (h
 /-- Anything less than the best constant isn't a bound.  Implements some convenient normalizations.  Essentially (4.3) in the paper -/
 lemma cant_beat_best_constant {N : ℕ} {A : ℝ} (hN: 1 ≤ N) (hA : A < best_constant N) : ∃ k n : ℕ, ∃ s : ℕ → ℝ, (0 < k) ∧ (k ≤ n) ∧ (n ≤ N) ∧ (attainable n s) ∧ |s n| = 1 ∧ 1 ≥ A * max ((n / k )^(2⁻¹) * |s k|^(k⁻¹)) ((n / (k+1) )^(2⁻¹) * |s (k+1)|^((k+1:ℝ)⁻¹)) := by
   rcases le_or_gt A 1 with hA' | hA'
-  . use 1, 1, (fun _ ↦ 1)
-    constructor; norm_num
-    constructor; norm_num
-    constructor; exact hN
-    constructor; exact attainable_one 1
+  . use 1, 1, (fun _ ↦ 1), by norm_num, by norm_num, hN, attainable_one 1
     simp
     have : max 1 (((1:ℝ) + 1)⁻¹ ^ 2⁻¹) = 1 := by
       simp
@@ -130,93 +127,98 @@ lemma cant_beat_best_constant {N : ℕ} {A : ℝ} (hN: 1 ≤ N) (hA : A < best_c
   simp [upper_bounds] at not_bound
   replace not_bound := not_bound (show 1 ≤ A by linarith)
   rcases not_bound with ⟨ k, l, n, s, h1, h2, h3, h4, h5, h6 ⟩
+  have h7 := (trans h5 h4).ne'
   have : 0 < |s l| := by
     contrapose! h6
     simp at h6
-    rw [h6]
-    simp
-    rw [Real.zero_rpow (show l⁻¹ ≠ 0 by simp; linarith)]
+    rw [h6, abs_zero]
+    rpow_simp
     positivity
   let s' := (fun m : ℕ ↦ (|s l|^(-l⁻¹))^m * s m)
-  use k, l, s'
-  constructor; assumption
-  constructor; assumption
-  constructor; linarith
+  use k, l, s', h5, h4, by linarith
   constructor
   . convert attainable_scaling l s (|s l|^(-l⁻¹)) (attainable_truncate n l s h3 h1)
-    exact rpow_nat_cast _ _
+    rpow_simp
   constructor
-  . dsimp
-    rw [(show (|s l| ^ (-l⁻¹)) ^ (l:ℕ) = (|s l| ^ (-l⁻¹)) ^ (l:ℝ) by norm_cast), <-rpow_mul, abs_mul, abs_rpow_of_nonneg, abs_abs, neg_mul, inv_mul_cancel, rpow_neg_one, inv_mul_cancel]
-    . positivity
-    . norm_cast; linarith
-    . positivity
-    positivity
+  . rpow_simp
   rw [ge_iff_le, <-mul_le_mul_right (show 0 < |s l|^l⁻¹ by positivity), mul_assoc, max_mul_of_nonneg, mul_assoc, mul_assoc, le_iff_lt_or_eq]
   left; simp
   convert h6 using 4
-  . rw [abs_mul, mul_rpow, abs_pow, ← rpow_nat_cast, <-rpow_mul, abs_rpow_of_nonneg, mul_comm, mul_inv_cancel, abs_abs, rpow_one, <- mul_assoc, <-rpow_add]
-    . simp
-    all_goals positivity
-  rw [ ← rpow_nat_cast]
-  rify
-  rw [abs_mul, mul_rpow, abs_rpow_of_nonneg, <-rpow_mul, abs_rpow_of_nonneg, mul_comm, mul_inv_cancel, abs_abs, rpow_one, <- mul_assoc, <-rpow_add]
-  . simp
+  . rpow_simp
+  rpow_simp
+  positivity
+
+lemma rev_bound {l n m : ℕ} {s : ℕ → ℝ} (h5 : attainable n s) (h7 : s l ≠ 0) {α β C : ℝ}
+    (hα : 0 < α) (hαβ:  α < β) (hC : 0 ≤ C) :
+    let s' := fun m ↦ s (l - m) / s l;
+    |s' l| ^ α ≤ C * |s (l - m) / s l| ^ β →
+    |s l| ^ α ≤ C ^ (α / (β - α)) * |s (l - m)| ^ (α * β / (β - α)) := by
+  intro s' h
+  have h8 := attainable_zero_eq_one h5
+  have h2 : -α + β ≠ 0 := by linarith
+  have h3 : β - α > 0 := by linarith
+  have h1 : 0 < α/(β-α) := by positivity
+  rpow_simp [h8, Nat.sub_self] at h
+  rw [← div_le_iff] at h
+  rpow_simp at h
+  rw [← rpow_le_rpow_iff _ _ h1] at h
+  rpow_simp at h
+  convert h using 3
+  · field_simp
+    ring
+  · field_simp
+    left
+    ring
+  · field_simp
+    left
+    ring
   all_goals positivity
 
 /-- a reversed version of the bound from the best constant. (4.2) in the paper -/
-lemma best_constant_bounds_rev { k l n N : ℕ } { s : ℕ → ℝ } (h1 : 0 < k) (h2 : k+2 ≤ l) (h3 : l ≤ n) (h4 : n ≤ N) (h5 : attainable n s) : |s l|^l⁻¹ ≤ max ((best_constant N)^(k/(l-(k:ℝ))) * (l/ k )^(k/(2*(l-(k:ℝ)))) * |s (l-k)|^((l-(k:ℝ))⁻¹)) ((best_constant N)^((k+1)/(l-(k+1:ℝ))) * (l/ (k+1) )^((k+1)/(2*(l-(k+1:ℝ)))) * |s (l-(k+1))|^((l-(k+1:ℝ))⁻¹)) := by
+lemma best_constant_bounds_rev { k l n N : ℕ } { s : ℕ → ℝ } (h1 : 0 < k) (h2 : k+2 ≤ l)
+  (h3 : l ≤ n) (h4 : n ≤ N) (h5 : attainable n s) :
+  |s l|^l⁻¹ ≤ max ((best_constant N)^(k/(l-k)) * (l/k)^(k/(2*(l-k))) * |s (l-k)|^((l-k)⁻¹))
+                  ((best_constant N)^((k+1)/(l-(k+1))) * (l/(k+1))^((k+1)/(2*(l-(k+1)))) *
+                   |s (l-(k+1))|^((l-(k+1))⁻¹)) := by
   have h6 : 0 ≤ best_constant N := by linarith [one_le_best N]
   by_cases h7 : s l = 0
   . rw [h7, abs_zero, zero_rpow]
     . positivity
     simp; linarith
-  have h8 := attainable_zero_eq_one h5
-  replace h5 := attainable_truncate n l s h3 h5
-  replace h5 := attainable_reflect h5 h7
+  have h5' := attainable_truncate n l s h3 h5
+  replace h5' := attainable_reflect h5' h7
   set s' : ℕ → ℝ := (fun m ↦ (s (l-m)) / (s l))
-  have bound := best_constant_bounds h1 (show k ≤l by linarith) (show l ≤ l by linarith) (show l ≤ N by linarith) h5
-  rw [mul_max_of_nonneg _ _ h6] at bound
-  simp [h8, abs_mul, mul_rpow, abs_inv, inv_rpow, div_eq_mul_inv] at bound
-  simp
-  have h3' : 0 < (l:ℝ) := by norm_cast; linarith
+  have bound := best_constant_bounds h1 (show k ≤l by linarith) (show l ≤ l by linarith) (show l ≤ N by linarith) h5'
+  rw [mul_max_of_nonneg _ _ h6, ← mul_assoc, ← mul_assoc] at bound
+  set b := best_constant N
+  rw [le_max_iff] at bound ⊢
+  save
+  have key {m : ℕ} (m_pos : 0 < m) (m_lt : m < l) (bound : |s' l| ^ l⁻¹ ≤ b * (l/m) ^ 2⁻¹ * |s' m| ^ m⁻¹) :
+      |s l|^l⁻¹ ≤ b ^ (m / (l - m)) * (l / m) ^ (m / (2 * (l - m))) * |s (l - m)| ^ (l - m)⁻¹ := by
+    convert rev_bound h5 h7 ?_ ?_ ?_ bound using 2
+    · have : (m : ℝ) * l * l⁻¹ = m := by
+        have l_ne : l ≠ 0 := by linarith
+        field_simp
+      rpow_simp
+      simp [this]
+    all_goals
+      have l_ne : (l : ℝ) ≠ 0 := by norm_cast; linarith
+      have k_ne : (m : ℝ) ≠ 0 := by norm_cast; linarith
+    · congr 1
+      have lm_ne : (l : ℝ) - m ≠ 0 := by rify at m_lt; linarith
+      field_simp
+      ring
+    · positivity
+    · rify at m_pos m_lt
+      apply (inv_lt_inv _ _).2 <;> linarith
+    · positivity
   rcases bound with bound | bound
   . left
-    rw [<-mul_assoc, <-mul_assoc, <-div_le_iff, <- rpow_neg_one, <- rpow_neg_one (|s l| ^ (k⁻¹)), <- rpow_mul, <- rpow_mul, <- rpow_sub] at bound
-    have h9 : 0 < ((l:ℝ) - k) := by
-      rify at h2; linarith
-    have h10 : 0 < k / ((l:ℝ) - k) := by
-      positivity
-    have h1' : 0 < (k:ℝ) := by norm_cast
-    have h11 : (l⁻¹ * (-1) - k⁻¹ * (-1)) * (k/ ((l:ℝ) - k)) = l⁻¹ := by
-      field_simp [h9, h1', h3']; ring
-    have h11' : k⁻¹ * (k / ((l:ℝ) - k)) = ((l:ℝ)-(k:ℝ))⁻¹ := by
-      field_simp [h9, h1', h3']
-    rw [<-rpow_le_rpow_iff _ _ h10, <- rpow_mul, mul_rpow, mul_rpow, <-rpow_mul, h11, h11'] at bound
-    convert bound using 3
-    rw [div_eq_mul_inv, mul_rpow, mul_rpow, <-inv_rpow, <- rpow_mul, <- rpow_mul]
-    congr 2
-    . field_simp [h9]
-    . field_simp [h9]
-    all_goals positivity
-  right
-  rw [<-mul_assoc, <-mul_assoc, <-div_le_iff, <- rpow_neg_one, <- rpow_neg_one (|s l| ^ (((k:ℝ)+1)⁻¹)), <- rpow_mul, <- rpow_mul, <- rpow_sub] at bound
-  have h9 : 0 < ((l:ℝ) - (k+1)) := by
-    rify at h2; linarith
-  have h10 : 0 < (k+1) / ((l:ℝ) - (k+1)) := by
-    positivity
-  have h1' : 0 < (k:ℝ)+1 := by norm_cast; linarith
-  have h11 : (l⁻¹ * (-1) - (k+1)⁻¹ * (-1)) * ((k+1) / ((l:ℝ) - (k+1))) = l⁻¹ := by
-    field_simp [h9, h1', h3']; ring
-  have h11' : (k+1)⁻¹ * ((k+1) / ((l:ℝ) - (k+1))) = (l-((k:ℝ)+1))⁻¹ := by
-    field_simp [h9, h1', h3']
-  rw [<-rpow_le_rpow_iff _ _ h10, <- rpow_mul, mul_rpow, mul_rpow, <-rpow_mul, <-rpow_mul, h11, h11'] at bound
-  convert bound using 3
-  rw [div_eq_mul_inv, mul_rpow, mul_rpow]
-  congr 2
-  . field_simp [h9]
-  . field_simp [h9]
-  all_goals positivity
+    exact key h1 (by linarith) bound
+  . right
+    convert key (by linarith : 0 < k+1) (by linarith) ?_
+    all_goals rify
+    exact bound
 
 set_option maxHeartbeats 400000 in
 /-- a doubly reversed version of the bound from the best constant. The equation after (4.6) in the paper -/
