@@ -262,7 +262,7 @@ set_option maxHeartbeats 400000 in
 /-- A form of the main theorem. --/
 theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N ≤ C := by
   rcases prev_bound with ⟨ C_prev, hC_prev, bound_prev ⟩
-  use max (exp 1) (max (11^2⁻¹ * C_prev * exp 1) (max ((((exp (exp 1)⁻¹) * exp 1))^2) (160 * exp 7)))
+  use max (rexp 1) (max (11^2⁻¹ * C_prev * rexp 1) (max ((((rexp (rexp 1)⁻¹) * rexp 1))^2) (160 * rexp 7)))
   intro N hN
   simp
   let A := rexp (-N⁻¹) * best_constant N
@@ -353,7 +353,7 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     simp at this
     assumption
   right
-  have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ ((exp 4) * n / m)^(m/2) := by
+  have eq46 {m : ℕ} (h11: k ≤ m) (h12: m ≤ n) : (Nat.choose n m) * |s m| ≤ ((rexp 4) * n / m)^(m/2) := by
     have bound := best_constant_bounds h1 h11 h12 h3 h4
     exact lem8 h1 h11 h12 h3 hBest' bound h6 h6'
   have eq47 {m : ℕ} (h12: m < k) : (Nat.choose n m) * |s m| ≤ ((rexp 7) * (k+1) / ((best_constant N)*m))^m * (n/(k+1))^(m/2) := by
@@ -370,7 +370,7 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
   rw [h5, ge_iff_le] at bound
   clear bound_prev h4 h5 h6 h6' h2 h7 A hA hA' hn' hN h3
   rify at h1 h8 h9 h10
-  have : exp (δ^2 * (k+1) / (2*n) ) ≤ 1 + 1^(2/n) * r^2 := by
+  have : rexp (δ^2 * (k+1) / (2*n) ) ≤ 1 + 1^(2/n) * r^2 := by
     have : δ ^ 2 * (k+1) / (2*n) = r^2 / 2 := by
       dsimp
       rw [mul_rpow, <-rpow_mul, (show 2⁻¹ * 2 = 1 by norm_num)]
@@ -394,7 +394,7 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
     rw [mul_le_mul_right]
     . exact eq47 hm
     positivity
-  have eq46a : ∑ m in range (n+1-k), (Nat.choose n (k+m)) * |s (k+m)| * r^(k+m) ≤ ∑ m in range (n+1-k), ((exp 4) * n / (k+m))^((k+m)/2) * r^(k+m) := by
+  have eq46a : ∑ m in range (n+1-k), (Nat.choose n (k+m)) * |s (k+m)| * r^(k+m) ≤ ∑ m in range (n+1-k), ((rexp 4) * n / (k+m))^((k+m)/2) * r^(k+m) := by
     apply Finset.sum_le_sum
     intro m hm
     simp at hm
@@ -407,7 +407,7 @@ theorem uniform_bound : ∃ C : ℝ, ∀ N : ℕ, 1 ≤ N → best_constant N �
       simp at this
       assumption
     positivity
-  have eq47b : ∑ m in range k, (Nat.choose n m) * |s m| * r^m ≤ exp ((rexp 7) * δ * (k+1) / (best_constant N) ) := by
+  have eq47b : ∑ m in range k, (Nat.choose n m) * |s m| * r^m ≤ rexp ((rexp 7) * δ * (k+1) / (best_constant N) ) := by
     apply eq47a.trans
     have := lem12 k (best_constant N) ((rexp 7) * (k+1)) (n/(k+1)) r (show 0 < best_constant N by linarith) (show 0 < (rexp 7) * (k+1) by positivity) (show 0 < n/(k+1) by positivity) (show 0 < r by positivity)
     convert this using 3

@@ -150,7 +150,7 @@ lemma lem8b: rexp 4^(1/2) = (rexp 1) * (rexp 1) := by
   norm_num
 
 /-- the main calculation needed to establish (4.6)-/
-lemma lem8 { k m n N : ℕ } {s : ℕ → ℝ } {A : ℝ} (h1 : 0 < k) (h2 : k ≤ m) (h3 : m ≤ n) (h4 : n ≤ N) (hA: 0 < A) (bound : |s m|^m⁻¹ ≤ A * max ((m/k)^2⁻¹ * |s k|^k⁻¹) ((m/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹) ) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : (Nat.choose n m) * |s m| ≤ ((exp 4) * n / m)^(m/2) := by
+lemma lem8 { k m n N : ℕ } {s : ℕ → ℝ } {A : ℝ} (h1 : 0 < k) (h2 : k ≤ m) (h3 : m ≤ n) (h4 : n ≤ N) (hA: 0 < A) (bound : |s m|^m⁻¹ ≤ A * max ((m/k)^2⁻¹ * |s k|^k⁻¹) ((m/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹) ) (h6: (n/k)^2⁻¹ * |s k|^k⁻¹ ≤ A⁻¹ * rexp N⁻¹) (h6': (n/(k+1))^2⁻¹ * |s (k+1)|^(k+1)⁻¹ ≤ A⁻¹ * rexp N⁻¹) : (Nat.choose n m) * |s m| ≤ ((rexp 4) * n / m)^(m/2) := by
   have hn : 0 < n := by linarith
   have hm : 0 < m := by linarith
   have hn' : 0 < n^(1/2) := by positivity
@@ -176,7 +176,7 @@ lemma lem8 { k m n N : ℕ } {s : ℕ → ℝ } {A : ℝ} (h1 : 0 < k) (h2 : k �
 
   rw [<- rpow_le_rpow_iff _ _ (show 0 < 1/m by positivity), mul_rpow, <-rpow_mul, (show m/2 * (1/m) = (1/2) by field_simp [hm]; ring), div_rpow]
   calc
-    (Nat.choose n m)^(1/m) * |s m|^(1/m) ≤ (exp 1) * n / m * |s m|^(1/m) := by
+    (Nat.choose n m)^(1/m) * |s m|^(1/m) ≤ (rexp 1) * n / m * |s m|^(1/m) := by
       gcongr
       exact choose_le' h3 hm
     _ ≤ (rexp 1) * n / m * (m^(1/2) * (rexp 1) / n^(1/2) ) := by
@@ -271,7 +271,7 @@ lemma lem9d { kR k' mR nR A NR sm : ℝ } (h1: kR > 10) (h2 : 0 < mR) (h3 : mR <
     _ ≤ 4 := by linarith
   set Y := NR⁻¹ * (k' * (nR-mR) / (nR-k')) with hY
   rw_ineq [this] at bound; clear this Y hY
-  have this : k' / (k'-mR) ≤ exp (mR / (k'-mR)) := by
+  have this : k' / (k'-mR) ≤ rexp (mR / (k'-mR)) := by
     have : k' / (k'-mR) = mR / (k'-mR) + 1 := by field_simp [hkm']
     rw [this]
     apply add_one_le_exp
@@ -352,7 +352,7 @@ lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m)
   replace bound := lem9g h1 h2 h3 h4 h5 hA hk bound h6 h6'
   clear N h5 h6 h6'
   rw [<- rpow_le_rpow_iff _ _ (show 0 < m⁻¹ by positivity), mul_rpow, mul_rpow, <-rpow_mul, <-rpow_mul]
-  have : (Nat.choose n m)^(1/m) * |s m|^(1/m) ≤ (exp 1) * n / m * |s m|^(1/m) := by
+  have : (Nat.choose n m)^(1/m) * |s m|^(1/m) ≤ (rexp 1) * n / m * |s m|^(1/m) := by
     gcongr
     exact choose_le' (show m ≤ n by linarith) h2
   rw [(show 1/m = m⁻¹ by simp)] at this
@@ -381,7 +381,7 @@ lemma lem9 {k m n N : ℕ} {A : ℝ} {s : ℕ → ℝ} (h1: k > 10) (h2 : 0 < m)
   all_goals positivity
 
 /-- A lower bound of 1+x by exp(x/2) when x between 0 and 1.  A sharper lower bound of exp(x - x^2/2) is available for all non-negative x (by establishing that log(1+x)-x+x^2/2 is monotone decreasing for x>=0) but I was too lazy to implement this refinement, which was not needed for my argument. -/
-lemma lem10 (x : ℝ) (h1: 0 < x) (h2: x ≤ 1) : exp (x/2) ≤ 1 + x := by
+lemma lem10 (x : ℝ) (h1: 0 < x) (h2: x ≤ 1) : rexp (x/2) ≤ 1 + x := by
   rw [<- le_log_iff_exp_le (by linarith)]
   have : ∃ c, c ∈ Set.Ioo 1 (1+x) ∧ deriv log c = (log (1+x) - log 1) / ((1+x) - 1) := by
     apply exists_deriv_eq_slope
@@ -422,7 +422,7 @@ open Finset
 open BigOperators
 open Nat
 
-lemma lem12 (k : ℕ) (A B C D : ℝ) (hA: 0 < A) (hB: 0 < B) (hC: 0 < C) (hD: 0 < D) : ∑ m in range k, (B / (A * m)) ^ m * C^(m/2) * D ^ m ≤ exp ( B * C^2⁻¹ * D / A ) := by
+lemma lem12 (k : ℕ) (A B C D : ℝ) (hA: 0 < A) (hB: 0 < B) (hC: 0 < C) (hD: 0 < D) : ∑ m in range k, (B / (A * m)) ^ m * C^(m/2) * D ^ m ≤ rexp ( B * C^2⁻¹ * D / A ) := by
   have est1 (m : ℕ) (hm: 0 < m) : (B / (A * m)) ^ m * C^(m/2) * D ^ m = ( B * C^2⁻¹ * D / A )^m / m^m := by
     rw [div_rpow, div_rpow, mul_rpow, mul_rpow, mul_rpow, <-rpow_mul, (show 2⁻¹ * m = m/2 by field_simp)]
     field_simp [(show 0 < A^m by positivity), (show 0<m^m by positivity)]
@@ -493,15 +493,15 @@ lemma lem15 { x y z : ℝ } (hx: y ≤ x) (hy : 0 ≤ y) (h : rexp x ≤ rexp y 
   all_goals positivity
 
 /-- Final analysis giving bound on A -/
-lemma lem16 { n k : ℕ } {A : ℝ} (hk: 10 < (k:ℝ)) (hn: (n:ℝ) ≠ 0) (bound: rexp ((1/20) ^ 2 * (k + 1) / (2 * n)) ^ (n / 2) ≤ rexp (rexp 7 * (1/20) * (k + 1) / A) + 2 * 2 ^ (-k) ) : A ≤ 160 * exp 7 := by
+lemma lem16 { n k : ℕ } {A : ℝ} (hk: 10 < (k:ℝ)) (hn: (n:ℝ) ≠ 0) (bound: rexp ((1/20) ^ 2 * (k + 1) / (2 * n)) ^ (n / 2) ≤ rexp (rexp 7 * (1/20) * (k + 1) / A) + 2 * 2 ^ (-k) ) : A ≤ 160 * rexp 7 := by
   have : (1 / 20) ^ 2 * (k + 1) / (2 * n) * (n / 2) = (k+1)/1600 := by field_simp [hn]; ring
   rw [<-exp_mul, this] at bound; clear this
 
   by_contra hA'
-  replace hA' := (show 160 * exp 7 ≤ A by linarith)
-  have h7 : 0 < exp 7 := by positivity
+  replace hA' := (show 160 * rexp 7 ≤ A by linarith)
+  have h7 : 0 < rexp 7 := by positivity
   have hA : 0 < A := by linarith
-  set X := exp 7 * (1/20) * (k+1) / A
+  set X := rexp 7 * (1/20) * (k+1) / A
   have hx : X  ≤ (k+1)/3200 := by
     have : X = (k+1) / (20*A / (rexp 7)) := by field_simp [hA]; ring
     rw [this]
