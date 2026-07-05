@@ -564,7 +564,7 @@ lemma prev_bound : ∃ C : ℝ, C > 0 ∧ ∀ n : ℕ, ∀ k : ℕ, ∀ s : ℕ 
                                     2 * (7:ℝ)^((2:ℝ)⁻¹) * N^((2:ℝ)⁻¹) := by
         intro K' hK' hK''
         apply le_trans _ h9
-        -- Premptively state that everything that will go in a division or log is positive.
+        -- Preemptively state that everything that will go in a division or log is positive.
         have h6 : 0 < N - K' := by linarith
         have h7 : 0 < N - K' - 1 := by linarith
         have h8 : 0 < N - 1 := by linarith
@@ -598,7 +598,7 @@ lemma prev_bound : ∃ C : ℝ, C > 0 ∧ ∀ n : ℕ, ∀ k : ℕ, ∀ s : ℕ 
       -- clean-up all stupid expressions appearing
       rw [show K + 1 + 1 = K+2 by ring, show K + 2 - 1 = K + 1 by ring, show K + 2 - 2 = K by ring,
           show k + 1 + 1 - 2 = k by simp, show k + 1 + 1 - 1 = k + 1 by simp] at *
-      -- Premptively prove positivity of things appearing in denominators
+      -- Preemptively prove positivity of things appearing in denominators
       have : 0 < K + 1 := by linarith
       rw [max_comm, mul_max_of_nonneg]
       -- Now apply `gcongr` a lot more than in original version

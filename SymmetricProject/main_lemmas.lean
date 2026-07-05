@@ -192,7 +192,7 @@ lemma lem8 { k m n N : ℕ } {s : ℕ → ℝ } {A : ℝ} (h1 : 0 < k) (h2 : k �
   all_goals positivity
 
 
-/-- The calculation to handle (4.7) was extremely lengthy and I ended up breaking it (somewhat artificially) into smaller chucks. First, an easy lemma on combining powers of A and A⁻¹. -/
+/-- The calculation to handle (4.7) was extremely lengthy and I ended up breaking it (somewhat artificially) into smaller chunks. First, an easy lemma on combining powers of A and A⁻¹. -/
 lemma lem9a {A s t : ℝ} (h : 0 < A) : A^s * (A⁻¹)^t = A^(s-t) := by
   rw [<- rpow_neg_one, <- rpow_mul (show 0 ≤ A by positivity), <-rpow_add h]
   congr 1

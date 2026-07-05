@@ -28,7 +28,7 @@ example (x y z w u : ℝ) (bound : x * exp y ≤ z + exp w) (h : w ≤ u) :  x *
   exact bound
 ```
 
-As with `rw`, the combination `rw_ineq ... ; assumption` can be abreviated to `rwa_ineq`.
+As with `rw`, the combination `rw_ineq ... ; assumption` can be abbreviated to `rwa_ineq`.
 
 Rewriting from right to left is also supported. Given an inequality assumption `bound : r a b` and
 an expression `e : s x y`, `rw_ineq [← e] at bound` will rewrite `y` to `x` in `bound` in the sense
@@ -92,7 +92,7 @@ partial def Lean.Expr.relInfo? : Expr → MetaM (Option (Expr × Expr × Expr))
   else
     return some (e.appFn!.appFn!, e.appFn!.appArg!, e.appArg!)
 
-/-- Returns a version of `target` where any occurence of `old` as a function argument has
+/-- Returns a version of `target` where any occurrence of `old` as a function argument has
 been replaced by `new`. Comparison with `old` is up to defEq. -/
 def Lean.Expr.subst (target old new : Expr) : MetaM Expr := do
   if ← isDefEq target old then
@@ -104,7 +104,7 @@ def Lean.Expr.subst (target old new : Expr) : MetaM Expr := do
 
 /-- Given expressions `orig : r a b` and `subst : s x y` for some relations
 `r` and `s`, build the expression `r b c` where `c` is obtained from `b` by replacing
-any occurence of `x` in a function application argument by `y`. -/
+any occurrence of `x` in a function application argument by `y`. -/
 def Lean.Expr.substInRel (orig subst : Expr) : MetaM (Option Expr) := do
   let some (relo, _lo, ro) := ← orig.relInfo? | return none
   let some (_rels, ls, rs) := ← subst.relInfo? | return none
@@ -112,7 +112,7 @@ def Lean.Expr.substInRel (orig subst : Expr) : MetaM (Option Expr) := do
 
 /-- Given expressions `orig : r a b` and `subst : s x y` for some relations
 `r` and `s`, build the expression `r a c` where `c` is obtained from `a` by replacing
-any occurence of `x` in a function application argument by `y`. -/
+any occurrence of `x` in a function application argument by `y`. -/
 def Lean.Expr.substInRel' (orig subst : Expr) : MetaM (Option Expr) := do
   let some (relo, lo, _ro) := ← orig.relInfo? | return none
   let some (_rels, ls, rs) := ← subst.relInfo? | return none
@@ -120,7 +120,7 @@ def Lean.Expr.substInRel' (orig subst : Expr) : MetaM (Option Expr) := do
 
 /-- Given expressions `orig : r a b` and `subst : s x y` for some relations
 `r` and `s`, build the expression `r c a` where `c` is obtained from `a` by replacing
-any occurence of `y` in a function application argument by `x`. -/
+any occurrence of `y` in a function application argument by `x`. -/
 def Lean.Expr.substInRelRev (orig subst : Expr) : MetaM (Option Expr) := do
   let some (relo, lo, _ro) := ← orig.relInfo? | return none
   let some (_rels, ls, rs) := ← subst.relInfo? | return none
@@ -128,7 +128,7 @@ def Lean.Expr.substInRelRev (orig subst : Expr) : MetaM (Option Expr) := do
 
 /-- Given expressions `orig : r a b` and `subst : s x y` for some relations
 `r` and `s`, build the expression `r c b` where `c` is obtained from `b` by replacing
-any occurence of `y` in a function application argument by `x`. -/
+any occurrence of `y` in a function application argument by `x`. -/
 def Lean.Expr.substInRelRev' (orig subst : Expr) : MetaM (Option Expr) := do
   let some (relo, _lo, ro) := ← orig.relInfo? | return none
   let some (_rels, ls, rs) := ← subst.relInfo? | return none
@@ -138,7 +138,7 @@ def gcongrDefaultDischarger (g : MVarId) : MetaM PUnit :=Term.TermElabM.run' do
   let [] ← Tactic.run g <| evalTactic (Unhygienic.run `(tactic| gcongr_discharger)) | failure
 
 /-- Rewrite in the relation assumption `h : r a b` using `subst : s x y` to produce `h : r a c`
-where `c` is obtained from `b` by replacing any occurence of `x` in a function application argument
+where `c` is obtained from `b` by replacing any occurrence of `x` in a function application argument
 by `y`. This new relation `h` is proven from `trans h h'` where `h' : r b c` is proven by `gcongr`
 using the list of given identifiers for newly introduced variables.
 Returns the list of new goals. -/
@@ -175,7 +175,7 @@ deriving instance DecidableEq for MVarId
 
 open Linarith in
 /-- Rewrite in the relation target `⊢ r a b` using `subst : s x y` to reduce the goal to `h : r c b`
-where `c` is obtained from `a` by replacing any occurence of `x` in a function application argument
+where `c` is obtained from `a` by replacing any occurrence of `x` in a function application argument
 by `y`. The old goal is proven from the new one using `trans h h'` where `h' : r b c` is proven by `gcongr`
 using the list of given identifiers for newly introduced variables.
 Returns the list of new goals. -/
@@ -232,7 +232,7 @@ open Lean Parser Tactic
 syntax withClause := " with " (colGt Lean.binderIdent)?
 
 /-- `rw_ineq [e] at h` rewrites in the relation assumption `bound : r a b` using `e : s x y` to
-replace `bound` with `r a c` where `c` is obtained from `b` by replacing any occurence of `x` in a
+replace `bound` with `r a c` where `c` is obtained from `b` by replacing any occurrence of `x` in a
 function application argument by `y`. This may generate new goals including new objects that can
 be named using the `with` clause.
 
@@ -284,7 +284,7 @@ elab tok:"rw_ineq" rules:rwRuleSeq loc:(location)? withArg:(withClause)? : tacti
     (failed := fun _ ↦ throwError "rw_ineq failed")
 
 /-- `rw_ineq [e] at h` rewrites in the relation assumption `bound : r a b` using `e : s x y` to
-replace `bound` with `r a c` where `c` is obtained from `b` by replacing any occurence of `x` in a
+replace `bound` with `r a c` where `c` is obtained from `b` by replacing any occurrence of `x` in a
 function application argument by `y`. This may generate new goals including new objects that can
 be named using the `with` clause.
 
