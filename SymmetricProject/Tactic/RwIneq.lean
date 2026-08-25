@@ -73,8 +73,8 @@ example {a c : ℕ} (hc : a < c) : 2 * a ≤ 3 * c  := by
   try linarith only [this]
 ```
 
-**TODO**: The tactic currently assume all inequalities are `≤` or `<`. We should preprocess
-`≥` and `>` (and change the meaning of right to left rewriting accordingly).
+`≥` and `>` are preprocessed to `≤` and `<` (arguments swapped) so rewriting works
+regardless of which way the user wrote the inequality.
 -/
 
 
@@ -85,12 +85,25 @@ initialize registerTraceClass `rw_ineq
 
 /-- Given an expression of the shape `r a b` or a meta-variable whose type has this shape,
 return `some (r, a, b)`, otherwise returns `none`. -/
+/-- Normalize `≥`/`>` to `≤`/`<` by swapping the arguments, so the rest of the tactic
+only has to handle the `LE`/`LT` cases. -/
+def Lean.Expr.normalizeRel (rel lhs rhs : Expr) : Expr × Expr × Expr :=
+  if rel.isAppOf ``GE.ge then
+    (mkAppN (mkConst ``LE.le rel.constLevels!) rel.getAppArgs, rhs, lhs)
+  else if rel.isAppOf ``GT.gt then
+    (mkAppN (mkConst ``LT.lt rel.constLevels!) rel.getAppArgs, rhs, lhs)
+  else
+    (rel, lhs, rhs)
+
+/-- Given an expression of the shape `r a b` or a meta-variable whose type has this shape,
+return `some (r, a, b)`, otherwise returns `none`. `≥`/`>` are rewritten as `≤`/`<`. -/
 partial def Lean.Expr.relInfo? : Expr → MetaM (Option (Expr × Expr × Expr))
 | .mvar m => do Lean.Expr.relInfo? (← m.getType'')
-| e@(_) =>  if e.getAppNumArgs < 2 then
+| e =>
+  if e.getAppNumArgs < 2 then
     return none
   else
-    return some (e.appFn!.appFn!, e.appFn!.appArg!, e.appArg!)
+    return some (normalizeRel e.appFn!.appFn! e.appFn!.appArg! e.appArg!)
 
 /-- Returns a version of `target` where any occurence of `old` as a function argument has
 been replaced by `new`. Comparison with `old` is up to defEq. -/
@@ -375,3 +388,12 @@ example {n : ℕ} (bound : n ≤ 5) : n ≤ 10 := by
   have h' := (show 5 ≤ 10 by norm_num)
   rw_ineq [h'] at bound
   assumption
+
+example (x y z w u : ℝ) (bound : z + exp w ≥ x * exp y) (h : w ≤ u) :
+    z + exp u ≥ x * exp y := by
+  rw_ineq [h] at bound
+  exact bound
+
+example (x y z w u : ℝ) (bound : z + 2*exp w > x * exp y) (h : w < u) :
+    z + 2*exp u > x * exp y := by
+  rwa_ineq [h] at bound
