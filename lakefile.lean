@@ -12,3 +12,8 @@ require mathlib from git
 lean_lib «SymmetricProject» {
   -- add any library configuration options here
 }
+
+/-- Entropy helpers live under `entropy/` rather than `SymmetricProject/`. -/
+lean_lib Entropy where
+  roots := #[`entropy.entropy_basic]
+
