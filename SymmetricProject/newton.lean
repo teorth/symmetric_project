@@ -24,7 +24,8 @@ theorem newton_identity (n k : ℕ) (h: k+2 ≤ n) : ∀ s : ℕ → ℝ, attain
   -- second step: reduce to (n,k) = (k+2,0)
 
   suffices : ∀ s : ℕ → ℝ, attainable (k+2) s → s 0 * s 2 ≤ s 1^2
-  . rcases em (s (k+2) = 0) with vanish | non_vanish
+  . -- If s(k+2) = 0 the identity is immediate and we must not divide.
+    rcases em (s (k+2) = 0) with vanish | non_vanish
     . rw [vanish]
       simp
       nlinarith
@@ -38,11 +39,19 @@ theorem newton_identity (n k : ℕ) (h: k+2 ≤ n) : ∀ s : ℕ → ℝ, attain
     rw [hs' 0, hs' 1, hs' 2] at h3
     -- thanks to Heather Macbeth for simplifications to the field calculations below.
     field_simp at h3
+    -- The multiplier is a square, so the comparison does not depend on the sign of s(k+2).
+    have hsq : 0 ≤ s (k + 2) ^ 2 := sq_nonneg _
     calc s k * s (k + 2) = (s k / s (k + 2)) * s (k + 2) ^ 2 := by
+          -- rewrite as the reflected ratio times the square of s(k+2)
           field_simp
           ring
-      _ ≤ (s (k + 1) ^ 2 / s (k + 2) ^ 2) * s (k + 2) ^ 2 := by gcongr
-      _ = s (k + 1) ^ 2 := by field_simp
+      _ ≤ (s (k + 1) ^ 2 / s (k + 2) ^ 2) * s (k + 2) ^ 2 := by
+          gcongr
+          -- hsq is 0 ≤ s(k+2)²; without it gcongr cannot multiply the ratio inequality.
+          exact hsq
+      _ = s (k + 1) ^ 2 := by
+          -- cancel the square introduced to clear the denominator
+          field_simp
 
   -- third step: reduce to (n,k)=(2,0)
   clear s h1
