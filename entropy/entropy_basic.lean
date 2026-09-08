@@ -14,11 +14,17 @@ local macro_rules | `($x / $y)   => `(HDiv.hDiv ($x : ℝ) ($y : ℝ))
 /- In this file, inversion will always mean inversion of real numbers. -/
 local macro_rules | `($x ⁻¹)   => `(Inv.inv ($x : ℝ))
 
--- the entropy function.  Note that h 0 = 0 thanks to Lean notational conventions. May want to change the name of h and/or localize it to a namespace
-noncomputable def h := (fun x : ℝ ↦ - x * log x)
+-- the binary entropy density on [0,1]. Defined piecewise at 0 so the value
+-- does not depend on Real.log 0 being the junk value 0.
+noncomputable def h : ℝ → ℝ := fun x => if x = 0 then 0 else -x * log x
+
+/-- The off-zero formula, `h x = -x log x`. Used to move derivatives off the `if`. -/
 
 lemma h_nonneg {x : ℝ} (h1 : 0 ≤ x) (h2 : x ≤ 1) : 0 ≤ h x := by
   unfold h
+  split_ifs with hx
+  . simp
+  -- x ≠ 0, so this is -x log x, and log x ≤ 0 on (0,1]
   rw [neg_mul_comm]
   apply mul_nonneg h1
   simp
@@ -40,7 +46,9 @@ lemma h_le {x : ℝ} (hx : 0 ≤ x) : h x ≤ 2 * (sqrt x) / rexp 1 := by
   unfold h
   rw [le_iff_lt_or_eq] at hx
   rcases hx with hx | hx
-  . rw [neg_mul_comm, <- log_inv, <- sq_sqrt (show 0 ≤ x⁻¹ by positivity), log_pow, <-mul_assoc, <- le_div_iff']
+  . have hx0 : x ≠ 0 := by linarith
+    simp [hx0]
+    rw [neg_mul_comm, <- log_inv, <- sq_sqrt (show 0 ≤ x⁻¹ by positivity), log_pow, <-mul_assoc, <- le_div_iff']
     convert log_le (show 0 ≤ sqrt x⁻¹ by positivity) using 1
     field_simp
     nth_rewrite 3 [<- sq_sqrt (show 0 ≤ x by positivity)]
@@ -83,6 +91,8 @@ lemma h_cont : ContinuousOn h (Set.Icc 0 1) := by
   rw [le_iff_lt_or_eq] at hx1
   rcases hx1 with hx1 | hx1
   . unfold h
+    have hx0 : x ≠ 0 := by linarith
+    simp [hx0]
     apply ContinuousWithinAt.mul
     . apply Continuous.continuousWithinAt
       continuity
@@ -102,25 +112,49 @@ lemma h_cont : ContinuousOn h (Set.Icc 0 1) := by
   . simp
   . simp [h]
   . simp [h]
+  -- squeeze between 0 and the explicit upper bound, both continuous at 0 on [0,1]
   . intro y hy; simp at hy ⊢
     exact h_nonneg hy.1 hy.2
   intro y hy; simp at hy ⊢
   exact h_le hy.1
 
+/-- The entropy function off zero, used to compute derivatives. -/
+noncomputable def h_mul (x : ℝ) : ℝ := -x * log x
+
+lemma h_eq_mul {x : ℝ} (hx : x ≠ 0) : h x = h_mul x := by
+  simp [h, h_mul, hx]
+
+lemma h_of_pos {x : ℝ} (hx : 0 < x) : h x = -x * log x := by
+  rw [h_eq_mul hx.ne']; rfl
+
+lemma h_zero : h 0 = 0 := by simp [h]
+
 /-- The differentiability of h. -/
 lemma h_diff : DifferentiableOn ℝ h (Set.Ioo 0 1) := by
-  unfold h
-  apply DifferentiableOn.mul
-  . apply DifferentiableOn.neg
-    apply differentiableOn_id
-  apply DifferentiableOn.log
-  . apply differentiableOn_id
-  intro x hx; simp at hx
-  linarith [hx.1]
+  -- On (0,1) the piecewise definition agrees with -x log x, which is differentiable there.
+  apply DifferentiableOn.congr (g := h_mul)
+  · unfold h_mul
+    apply DifferentiableOn.mul
+    . apply DifferentiableOn.neg
+      apply differentiableOn_id
+    apply DifferentiableOn.log
+    . apply differentiableOn_id
+    intro x hx; simp at hx
+    linarith [hx.1]
+  intro x hx
+  have hx0 : x ≠ 0 := by simp at hx; linarith [hx.1]
+  exact h_eq_mul hx0
 
 /-- The derivative of h. -/
 lemma h_deriv {x : ℝ} (hx: 0 < x) : deriv h x = - log x + (- 1) := by
-  unfold h
+  have hne : x ≠ 0 := hx.ne'
+  -- derivatives see a neighbourhood, so replace h by h_mul off a neighbourhood of 0.
+  have heq : deriv h x = deriv h_mul x := by
+    apply Filter.EventuallyEq.deriv_eq
+    filter_upwards [eventually_ne_nhds hne] with y hy
+    exact h_eq_mul hy
+  rw [heq]
+  unfold h_mul
   rw [deriv_mul]
   . rw [deriv_neg]
     rw [deriv_log]
