@@ -63,8 +63,10 @@ example : Finset.map (Finset.mapFinVal n) (set_binom' n k) = set_binom n k := by
       specialize h mem
       use ⟨m, by simpa using h⟩
 
--- shorter proof provided by Arend Mellendiijk
-example : Finset.map (Finset.mapFinVal n) (set_binom' n k) = set_binom n k := by
+/-- Forgetting the `Fin n` bounds identifies the two families of `k`-element subsets.
+Proof provided by Arend Mellendiijk. -/
+lemma map_set_binom' (n k : ℕ) :
+    Finset.map (Finset.mapFinVal n) (set_binom' n k) = set_binom n k := by
   rw[set_binom, set_binom', ←Finset.powersetLen_map,Fin.map_valEmbedding_univ, Nat.Iio_eq_range]
 
 @[simp] lemma set_binom_card {n k : ℕ} {A} (h : A ∈ set_binom n k) : card A = k := by
