@@ -98,6 +98,29 @@ lemma esymm_sum {n : ℕ} {x: ℕ → ℝ}: esymm n 1 x = ∑ i in range n, x i 
   . exact esymm_eq_zero x (show 1 > 0 by norm_num)
   · simp [ih, esymm_pascal, sum_range_succ]
 
+/-- Elementary symmetric polynomials of nonnegative entries are nonnegative. -/
+lemma esymm_nonneg (n k : ℕ) (x : ℕ → ℝ)
+    (hx : ∀ i ∈ range n, 0 ≤ x i) : 0 ≤ esymm n k x := by
+  unfold esymm
+  apply sum_nonneg
+  intro A hA
+  apply prod_nonneg
+  intro i hi
+  exact hx i (set_binom_subset hA hi)
+
+/-- Elementary symmetric polynomials are monotone on nonnegative entries. -/
+lemma esymm_mono {n k : ℕ} {x y : ℕ → ℝ}
+    (hx : ∀ i ∈ range n, 0 ≤ x i)
+    (hxy : ∀ i ∈ range n, x i ≤ y i) : esymm n k x ≤ esymm n k y := by
+  unfold esymm
+  apply sum_le_sum
+  intro A hA
+  apply prod_le_prod
+  · intro i hi
+    exact hx i (set_binom_subset hA hi)
+  · intro i hi
+    exact hxy i (set_binom_subset hA hi)
+
 /-- If the x_i are positive, then S_{n,k}(x) is positive for k <= n. -/
 lemma esymm_pos (n k : ℕ) (x: ℕ → ℝ) (h1: k ≤ n) (h2: ∀ i ∈ range n, 0 < x i ) : 0 < esymm n k x := by
   unfold esymm
