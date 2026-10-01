@@ -30,6 +30,16 @@ def esymm (n : ℕ) (k : ℕ) (x : ℕ → ℝ): ℝ := ∑ A in set_binom n k, 
 -- TODO: replace the reals by a more general commutative ring R
 -- TODO: relate this function to MvPolynomial.esymm
 
+/-- Elementary symmetric polynomials depend only on the first `n` entries. -/
+lemma esymm_congr {n k : ℕ} {x y : ℕ → ℝ}
+    (h : ∀ i ∈ range n, x i = y i) : esymm n k x = esymm n k y := by
+  unfold esymm
+  apply sum_congr rfl
+  intro A hA
+  apply prod_congr rfl
+  intro i hi
+  exact h i (set_binom_subset hA hi)
+
 /-- S_{n,0}(x)=1 -/
 @[simp]
 lemma esymm_zero_eq_one (n : ℕ) (x : ℕ → ℝ) : esymm n 0 x = 1 := by
