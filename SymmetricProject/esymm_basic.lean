@@ -121,3 +121,9 @@ lemma newton_two {n : ℕ} {x: ℕ → ℝ}: ∑ i in range n, (x i)^2 = (esymm 
 
 lemma esymm_one_eq_binom (n k : ℕ) : esymm n k (fun _ ↦ 1) = Nat.choose n k := by
   simp [esymm, set_binom]
+
+/-- On a constant sequence, each of the `n.choose k` monomials is `a^k`. -/
+lemma esymm_const (n k : ℕ) (a : ℝ) :
+    esymm n k (fun _ ↦ a) = (Nat.choose n k : ℝ) * a^k := by
+  simpa only [mul_one, esymm_one_eq_binom, mul_comm] using
+    esymm_mul n k (fun _ ↦ 1) a
