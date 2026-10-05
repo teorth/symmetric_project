@@ -121,3 +121,18 @@ lemma newton_two {n : ℕ} {x: ℕ → ℝ}: ∑ i in range n, (x i)^2 = (esymm 
 
 lemma esymm_one_eq_binom (n k : ℕ) : esymm n k (fun _ ↦ 1) = Nat.choose n k := by
   simp [esymm, set_binom]
+
+/-- Fewer than `k` nonzero variables force every degree-`k` monomial to vanish. -/
+lemma esymm_eq_zero_of_support_card_lt (n k : ℕ) (x : ℕ → ℝ)
+    (h : ((range n).filter (fun i ↦ x i ≠ 0)).card < k) : esymm n k x = 0 := by
+  unfold esymm
+  apply sum_eq_zero
+  intro A hA
+  by_contra hprod
+  have hnonzero := prod_ne_zero_iff.1 hprod
+  have hsub : A ⊆ (range n).filter (fun i ↦ x i ≠ 0) := by
+    intro i hi
+    exact mem_filter.2 ⟨set_binom_subset hA hi, hnonzero i hi⟩
+  have hcard := card_le_of_subset hsub
+  rw [set_binom_card hA] at hcard
+  exact (not_le_of_gt h) hcard
