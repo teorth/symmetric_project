@@ -121,3 +121,16 @@ lemma newton_two {n : ℕ} {x: ℕ → ℝ}: ∑ i in range n, (x i)^2 = (esymm 
 
 lemma esymm_one_eq_binom (n k : ℕ) : esymm n k (fun _ ↦ 1) = Nat.choose n k := by
   simp [esymm, set_binom]
+
+/-- Permuting the first `n` indices leaves every elementary symmetric polynomial unchanged. -/
+lemma esymm_permutation (n k : ℕ) (x : ℕ → ℝ) (σ : Equiv.Perm ℕ)
+    (hσ : (range n).map σ.toEmbedding = range n) :
+    esymm n k (fun i ↦ x (σ i)) = esymm n k x := by
+  unfold esymm set_binom
+  nth_rewrite 2 [← hσ]
+  rw [powersetLen_map, sum_map]
+  apply sum_congr rfl
+  intro A _
+  change (∏ i in A, x (σ i)) = ∏ i in A.map σ.toEmbedding, x i
+  rw [prod_map]
+  rfl
