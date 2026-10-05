@@ -121,3 +121,25 @@ lemma newton_two {n : ℕ} {x: ℕ → ℝ}: ∑ i in range n, (x i)^2 = (esymm 
 
 lemma esymm_one_eq_binom (n k : ℕ) : esymm n k (fun _ ↦ 1) = Nat.choose n k := by
   simp [esymm, set_binom]
+
+/-- A uniform absolute bound on the variables bounds each degree-`k` monomial. -/
+lemma abs_esymm_le_choose_mul_pow (n k : ℕ) (x : ℕ → ℝ) (a : ℝ)
+    (hx : ∀ i ∈ range n, |x i| ≤ a) :
+    |esymm n k x| ≤ (Nat.choose n k : ℝ) * a^k := by
+  unfold esymm
+  calc
+    |∑ A in set_binom n k, ∏ i in A, x i|
+        ≤ ∑ A in set_binom n k, |∏ i in A, x i| := abs_sum_le_sum_abs _ _
+    _ ≤ ∑ _A in set_binom n k, a^k := by
+      apply sum_le_sum
+      intro A hA
+      rw [abs_prod]
+      calc
+        (∏ i in A, |x i|) ≤ ∏ _i in A, a := by
+          apply prod_le_prod
+          · intro i _
+            exact abs_nonneg _
+          · intro i hi
+            exact hx i (set_binom_subset hA hi)
+        _ = a^k := by simp [set_binom_card hA]
+    _ = (Nat.choose n k : ℝ) * a^k := by simp [set_binom]
