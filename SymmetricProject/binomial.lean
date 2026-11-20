@@ -143,3 +143,7 @@ lemma sdiff_binom_image (n : ℕ) (k : ℕ) (h : k ≤ n) :
       · rw [card_sdiff hA, card_range, cardA]
         exact? says exact Nat.sub_sub_self h
     · exact Finset.sdiff_sdiff_eq_self hA
+
+/-- `set_binom n k` has `Nat.choose n k` elements. -/
+@[simp] lemma card_set_binom (n k : ℕ) : (set_binom n k).card = Nat.choose n k := by
+  simp [set_binom, card_powersetLen, card_range]
